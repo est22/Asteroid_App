@@ -1,29 +1,30 @@
 const { Model } = require("sequelize");
 
 module.exports = (sequelize, DataTypes) => {
-  class Reward extends Model {
+  class ChallengeImage extends Model {
     static associate(models) {
-      Reward.belongsTo(models.User, {
+      ChallengeImage.belongsTo(models.User, {
         foreignKey: "user_id",
         onDelete: "CASCADE",
       });
-      Reward.belongsTo(models.Challenge, {
+      ChallengeImage.belongsTo(models.Challenge, {
         foreignKey: "challenge_id",
         onDelete: "CASCADE",
       });
     }
   }
 
-  Reward.init(
+  ChallengeImage.init(
     {
-      challenge_id: DataTypes.INTEGER,
+      image_url: DataTypes.STRING,
       user_id: DataTypes.INTEGER,
+      challenge_id: DataTypes.INTEGER,
     },
     {
       sequelize,
-      modelName: "Reward",
+      modelName: "ChallengeImage",
     }
   );
 
-  return Reward;
+  return ChallengeImage;
 };
