@@ -1,20 +1,20 @@
 const { Model } = require("sequelize");
 
 module.exports = (sequelize, DataTypes) => {
-  class ChallengeParticipation extends Model {
+  class ChallengeMember extends Model {
     static associate(models) {
-      ChallengeParticipation.belongsTo(models.User, {
+      ChallengeMember.belongsTo(models.User, {
         foreignKey: "user_id",
         onDelete: "CASCADE",
       });
-      ChallengeParticipation.belongsTo(models.Challenge, {
+      ChallengeMember.belongsTo(models.Challenge, {
         foreignKey: "challenge_id",
         onDelete: "CASCADE",
       });
     }
   }
 
-  ChallengeParticipation.init(
+  ChallengeMember.init(
     {
       user_id: DataTypes.INTEGER,
       challenge_id: DataTypes.INTEGER,
@@ -32,9 +32,9 @@ module.exports = (sequelize, DataTypes) => {
     },
     {
       sequelize,
-      modelName: "ChallengeParticipation",
+      modelName: "ChallengeMember",
     }
   );
 
-  return ChallengeParticipation;
+  return ChallengeMember;
 };
