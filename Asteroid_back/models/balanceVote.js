@@ -1,16 +1,16 @@
 const { Model } = require("sequelize");
 
 module.exports = (sequelize, DataTypes) => {
-  class VSBalanceVote extends Model {
+  class BalanceVote extends Model {
     static associate(models) {
-      VSBalanceVote.belongsTo(models.User, {
+      BalanceVote.belongsTo(models.User, {
         foreignKey: "user_id",
         onDelete: "CASCADE",
       });
     }
   }
 
-  VSBalanceVote.init(
+  BalanceVote.init(
     {
       title: DataTypes.STRING,
       description: DataTypes.STRING,
@@ -32,9 +32,9 @@ module.exports = (sequelize, DataTypes) => {
     },
     {
       sequelize,
-      modelName: "VSBalanceVote",
+      modelName: "BalanceVote",
     }
   );
 
-  return VSBalanceVote;
+  return BalanceVote;
 };
