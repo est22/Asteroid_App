@@ -1,14 +1,22 @@
 const { Model } = require("sequelize");
 
 module.exports = (sequelize, DataTypes) => {
-  class User extends Model {}
+  class User extends Model {
+    static associate(models) {
+      User.hasMany(models.Post, { foreignKey: "user_id" });
+      User.hasMany(models.VSBalanceVote, { foreignKey: "user_id" });
+      User.hasMany(models.Comment, { foreignKey: "user_id" });
+      User.hasMany(models.ChallengeParticipation, { foreignKey: "user_id" });
+      User.hasMany(models.Reward, { foreignKey: "user_id" });
+      User.hasMany(models.Message, { foreignKey: "sender_user_id" });
+      User.hasMany(models.Message, { foreignKey: "receiver_user_id" });
+      User.hasMany(models.Like, { foreignKey: "user_id" });
+      User.hasMany(models.Report, { foreignKey: "user_id" });
+      User.hasMany(models.ChallengeImage, { foreignKey: "user_id" });
+    }
+  }
   User.init(
     {
-      user_id: {
-        type: DataTypes.INTEGER,
-        primaryKey: true,
-        autoIncrement: true,
-      },
       email: {
         type: DataTypes.STRING,
         allowNull: false,

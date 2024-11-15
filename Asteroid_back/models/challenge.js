@@ -1,15 +1,18 @@
 const { Model } = require("sequelize");
 
 module.exports = (sequelize, DataTypes) => {
-  class Challenge extends Model {}
+  class Challenge extends Model {
+    static associate(models) {
+      Challenge.hasMany(models.ChallengeParticipation, {
+        foreignKey: "challenge_id",
+      });
+      Challenge.hasMany(models.Reward, { foreignKey: "challenge_id" });
+      Challenge.hasMany(models.ChallengeImage, { foreignKey: "challenge_id" });
+    }
+  }
 
   Challenge.init(
     {
-      challenge_id: {
-        type: DataTypes.INTEGER,
-        primaryKey: true,
-        autoIncrement: true,
-      },
       name: DataTypes.STRING,
       description: DataTypes.STRING,
       reward_name: DataTypes.STRING,
