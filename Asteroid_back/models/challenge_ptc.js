@@ -1,15 +1,21 @@
 const { Model } = require("sequelize");
 
 module.exports = (sequelize, DataTypes) => {
-  class ChallengeParticipation extends Model {}
+  class ChallengeParticipation extends Model {
+    static associate(models) {
+      ChallengeParticipation.belongsTo(models.User, {
+        foreignKey: "user_id",
+        onDelete: "CASCADE",
+      });
+      ChallengeParticipation.belongsTo(models.Challenge, {
+        foreignKey: "challenge_id",
+        onDelete: "CASCADE",
+      });
+    }
+  }
 
   ChallengeParticipation.init(
     {
-      participation_id: {
-        type: DataTypes.INTEGER,
-        primaryKey: true,
-        autoIncrement: true,
-      },
       user_id: DataTypes.INTEGER,
       challenge_id: DataTypes.INTEGER,
       status: DataTypes.STRING,

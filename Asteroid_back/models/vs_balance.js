@@ -1,15 +1,17 @@
 const { Model } = require("sequelize");
 
 module.exports = (sequelize, DataTypes) => {
-  class VSBalanceVote extends Model {}
+  class VSBalanceVote extends Model {
+    static associate(models) {
+      VSBalanceVote.belongsTo(models.User, {
+        foreignKey: "user_id",
+        onDelete: "CASCADE",
+      });
+    }
+  }
 
   VSBalanceVote.init(
     {
-      vote_id: {
-        type: DataTypes.INTEGER,
-        primaryKey: true,
-        autoIncrement: true,
-      },
       title: DataTypes.STRING,
       description: DataTypes.STRING,
       created_at: {
