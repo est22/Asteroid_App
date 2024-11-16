@@ -1,4 +1,4 @@
-'use strict';
+"use strict";
 
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
@@ -32,10 +32,10 @@ module.exports = {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
-          model: "Categories", 
+          model: "Categories",
           key: "id",
         },
-        onDelete: "CASCADE", 
+        onDelete: "CASCADE",
       },
       user_id: {
         type: Sequelize.INTEGER,
@@ -44,21 +44,16 @@ module.exports = {
           model: "Users",
           key: "id",
         },
-        onDelete: "CASCADE", 
+        onDelete: "CASCADE",
       },
       image: {
         type: Sequelize.STRING,
-        allowNull: true, 
+        allowNull: true,
       },
     });
   },
 
   async down(queryInterface, Sequelize) {
-    /**
-     * Add reverting commands here.
-     *
-     * Example:
-     * await queryInterface.dropTable('users');
-     */
+    await queryInterface.dropTable("Posts");
   },
 };
