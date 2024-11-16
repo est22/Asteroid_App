@@ -1,25 +1,31 @@
-'use strict';
+"use strict";
 
-/** @type {import('sequelize-cli').Migration} */
+/** @type {import('sequelize-cli').Seed} */
 module.exports = {
-  async up (queryInterface, Sequelize) {
-    /**
-     * Add seed commands here.
-     *
-     * Example:
-     * await queryInterface.bulkInsert('People', [{
-     *   name: 'John Doe',
-     *   isBetaMember: false
-     * }], {});
-    */
+  async up(queryInterface, Sequelize) {
+    await queryInterface.bulkInsert("PostImages", [
+      {
+        image_url: "https://cdn.ibos.kr/og-BD6140-56017.gif?v=1628498102",
+        post_id: 1,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+      {
+        image_url: "https://cdn.ibos.kr/og-BD6140-56017.gif?v=1628498102",
+        post_id: 2,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+      {
+        image_url: "https://cdn.ibos.kr/og-BD6140-56017.gif?v=1628498102",
+        post_id: 3,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+    ]);
   },
 
-  async down (queryInterface, Sequelize) {
-    /**
-     * Add commands to revert seed here.
-     *
-     * Example:
-     * await queryInterface.bulkDelete('People', null, {});
-     */
-  }
+  async down(queryInterface, Sequelize) {
+    await queryInterface.bulkDelete("PostImages", null, {});
+  },
 };
