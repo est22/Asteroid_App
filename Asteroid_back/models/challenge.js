@@ -4,7 +4,6 @@ module.exports = (sequelize, DataTypes) => {
   class Challenge extends Model {
     static associate(models) {
       Challenge.hasMany(models.ChallengeParticipation, {
-      Challenge.hasMany(models.ChallengeParticipation, {
         foreignKey: "challenge_id",
       });
       Challenge.hasMany(models.Reward, { foreignKey: "challenge_id" });
