@@ -3,7 +3,7 @@ const { Model } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
   class PostImage extends Model {
     static associate(models) {
-      ChallengeImage.belongsTo(models.Post, {
+      PostImage.belongsTo(models.Post, {
         foreignKey: "post_id",
         onDelete: "CASCADE",
       });
