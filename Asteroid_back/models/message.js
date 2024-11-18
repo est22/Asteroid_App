@@ -17,10 +17,6 @@ module.exports = (sequelize, DataTypes) => {
   Message.init(
     {
       content: DataTypes.STRING,
-      sent_at: {
-        type: DataTypes.DATE,
-        defaultValue: DataTypes.NOW,
-      },
       sender_user_id: DataTypes.INTEGER,
       receiver_user_id: DataTypes.INTEGER,
       is_read: {

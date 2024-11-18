@@ -1,4 +1,4 @@
-const { Model } = require("sequelize");
+const { Model, STRING } = require("sequelize");
 
 module.exports = (sequelize, DataTypes) => {
   class Like extends Model {
@@ -7,25 +7,23 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: "user_id",
         onDelete: "CASCADE",
       });
-      Like.belongsTo(models.Post, {
-        foreignKey: "post_id",
-        onDelete: "CASCADE",
-      });
-      Like.belongsTo(models.Comment, {
-        foreignKey: "comment_id",
-        onDelete: "CASCADE",
-      });
     }
   }
   Like.init(
     {
       user_id: DataTypes.INTEGER,
-      post_id: DataTypes.INTEGER,
-      comment_id: DataTypes.INTEGER,
+      target_type: DataTypes.CHAR(1),
+      target_id: DataTypes.INTEGER,
     },
     {
       sequelize,
       modelName: "Like",
+      indexes: [
+        {
+          unique: true,
+          fields: ["target_type", "target_id"],
+        },
+      ],
     }
   );
 

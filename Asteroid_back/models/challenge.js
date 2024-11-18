@@ -3,7 +3,7 @@ const { Model } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
   class Challenge extends Model {
     static associate(models) {
-      Challenge.hasMany(models.ChallengeMember, {
+      Challenge.hasMany(models.ChallengeParticipation, {
         foreignKey: "challenge_id",
       });
       Challenge.hasMany(models.Reward, { foreignKey: "challenge_id" });
@@ -13,14 +13,12 @@ module.exports = (sequelize, DataTypes) => {
 
   Challenge.init(
     {
+      period: DataTypes.INTEGER,
       name: DataTypes.STRING,
       description: DataTypes.STRING,
       reward_name: DataTypes.STRING,
       reward_image_url: DataTypes.STRING,
-      created_at: {
-        type: DataTypes.DATE,
-        defaultValue: DataTypes.NOW,
-      },
+      status: DataTypes.STRING,
     },
     {
       sequelize,

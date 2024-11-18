@@ -18,6 +18,7 @@ module.exports = (sequelize, DataTypes) => {
     {
       challenge_id: DataTypes.INTEGER,
       user_id: DataTypes.INTEGER,
+      reward_count: DataTypes.INTEGER,
     },
     {
       sequelize,
