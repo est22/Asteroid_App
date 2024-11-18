@@ -46,9 +46,15 @@ module.exports = {
         },
         onDelete: "CASCADE",
       },
-      image: {
-        type: Sequelize.STRING,
-        allowNull: true,
+      isShow: {
+        type: Sequelize.BOOLEAN,
+        allowNull: false,
+        defaultValue: true,
+      },
+      likeTotal: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        defaultValue: 0,
       },
     });
   },
