@@ -9,7 +9,7 @@ module.exports = {
           "안녕하세요, 관리자가 보내는 공지사항입니다. 중요한 사항 확인해주세요.",
         sender_user_id: 1,
         receiver_user_id: 2,
-        is_read: false,
+        is_read: true,
         createdAt: new Date(),
         updatedAt: new Date(),
       },
@@ -31,7 +31,60 @@ module.exports = {
         createdAt: new Date(),
         updatedAt: new Date(),
       },
-
+      {
+        content:
+          "안녕하세요, 관리자가 보내는 공지사항입니다. 중요한 사항 확인해주세요.",
+        sender_user_id: 1,
+        receiver_user_id: 5,
+        is_read: false,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+      {
+        content:
+          "안녕하세요, 관리자가 보내는 공지사항입니다. 중요한 사항 확인해주세요.",
+        sender_user_id: 1,
+        receiver_user_id: 6,
+        is_read: true,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+      {
+        content:
+          "안녕하세요, 관리자가 보내는 공지사항입니다. 중요한 사항 확인해주세요.",
+        sender_user_id: 1,
+        receiver_user_id: 7,
+        is_read: true,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+      {
+        content:
+          "안녕하세요, 관리자가 보내는 공지사항입니다. 중요한 사항 확인해주세요.",
+        sender_user_id: 1,
+        receiver_user_id: 8,
+        is_read: false,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+      {
+        content:
+          "안녕하세요, 관리자가 보내는 공지사항입니다. 중요한 사항 확인해주세요.",
+        sender_user_id: 1,
+        receiver_user_id: 9,
+        is_read: false,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+      {
+        content:
+          "안녕하세요, 관리자가 보내는 공지사항입니다. 중요한 사항 확인해주세요.",
+        sender_user_id: 1,
+        receiver_user_id: 10,
+        is_read: false,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
       {
         content: "안녕하세요! 궁금한 점이 있어 쪽지 남깁니다.",
         sender_user_id: 2,

@@ -46,15 +46,20 @@ module.exports = {
         allowNull: false,
         defaultValue: 0,
       },
-      updatedAt: {
-        allowNull: false,
-        type: Sequelize.DATE,
-        defaultValue: Sequelize.NOW,
-      },
       isShow: {
         type: Sequelize.BOOLEAN,
         allowNull: false,
         defaultValue: true,
+      },
+      createdAt: {
+        allowNull: false,
+        type: Sequelize.DATE,
+        defaultValue: Sequelize.NOW,
+      },
+      updatedAt: {
+        allowNull: false,
+        type: Sequelize.DATE,
+        defaultValue: Sequelize.NOW,
       },
     });
   },
