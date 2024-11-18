@@ -8,6 +8,8 @@ module.exports = {
       [
         {
           name: "하루 3만원 이하로 소비하기",
+          period: 14,
+          status: "O",
           description: "하루 지출을 3만원 이하로 제한해보세요.",
           reward_name: "알뜰한 소행성",
           reward_image_url:
@@ -17,6 +19,8 @@ module.exports = {
         },
         {
           name: "3000원 이하 커피 마시기",
+          period: 14,
+          status: "O",
           description: "저렴하고 맛있는 커피 찾기!",
           reward_name: "커피맛 소행성",
           reward_image_url:
@@ -26,6 +30,8 @@ module.exports = {
         },
         {
           name: "일주일 외식 안 하기",
+          period: 7,
+          status: "O",
           description: "직접 요리해서 소비 줄이기 도전!",
           reward_name: "흑백 소행성",
           reward_image_url:
@@ -35,6 +41,8 @@ module.exports = {
         },
         {
           name: "하루 10만원 이하로 소비하기",
+          period: 14,
+          status: "O",
           description: "불필요한 지출을 줄이고 나의 예산 안에서 살기.",
           reward_name: "검소한 소행성",
           reward_image_url:
@@ -44,6 +52,8 @@ module.exports = {
         },
         {
           name: "2주간 충동구매 안 하기",
+          period: 14,
+          status: "O",
           description: "계획적인 소비 생활 실천!",
           reward_name: "차분한 소행성",
           reward_image_url:
@@ -53,6 +63,8 @@ module.exports = {
         },
         {
           name: "홈카페 실천하기",
+          period: 7,
+          status: "O",
           description: "집에서 커피 내려 마시기.",
           reward_name: "집돌이 소행성",
           reward_image_url:
@@ -62,6 +74,8 @@ module.exports = {
         },
         {
           name: "중고 거래로만 구매하기",
+          period: 7,
+          status: "O",
           description: "필요한 물건은 중고로 해결하기!",
           reward_name: "지구같은 소행성",
           reward_image_url:
@@ -71,6 +85,8 @@ module.exports = {
         },
         {
           name: "1주일 편의점 안 가기",
+          period: 7,
+          status: "O",
           description: "대형마트나 시장 이용으로 소비 줄이기.",
           reward_name: "편리한 소행성",
           reward_image_url:
@@ -79,7 +95,9 @@ module.exports = {
           updatedAt: new Date(),
         },
         {
-          name: "한 달 동안 불필요한 구독 해지하기",
+          name: "불필요한 구독 해지하기",
+          period: 14,
+          status: "O",
           description: "필요하지 않은 구독 서비스를 정리하세요.",
           reward_name: "구독해방 소행성",
           reward_image_url:
@@ -89,6 +107,8 @@ module.exports = {
         },
         {
           name: "3일 동안 현금만 사용하기",
+          period: 3,
+          status: "O",
           description: "카드 사용을 멈추고 현금으로만 소비해보기.",
           reward_name: "소금맛 소행성",
           reward_image_url:
