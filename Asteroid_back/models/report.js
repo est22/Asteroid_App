@@ -15,7 +15,7 @@ module.exports = (sequelize, DataTypes) => {
       target_type: DataTypes.CHAR(1),
       target_id: DataTypes.INTEGER,
       report_reason: DataTypes.STRING,
-      report_type: DataTypes.TINYINT.UNSIGNED,
+      report_type: DataTypes.SMALLINT,
     },
     {
       sequelize,

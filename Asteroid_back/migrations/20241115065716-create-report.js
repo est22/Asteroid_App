@@ -32,7 +32,7 @@ module.exports = {
         allowNull: true,
       },
       report_type: {
-        type: Sequelize.TINYINT.UNSIGNED,
+        type: Sequelize.SMALLINT,
         allowNull: false,
         comment:
           "0=스팸홍보/광고,1=음란물,2=부적절한_내용,3=욕설/불쾌한_표현,4=도배,5=사회분위기_훼손,6=불법정보_포함,7=청소년_유해_내용,8=명예훼손/저작권_침해,9=기타",
