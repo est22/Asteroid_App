@@ -23,6 +23,7 @@ module.exports = (sequelize, DataTypes) => {
       category_id: DataTypes.INTEGER,
       user_id: DataTypes.INTEGER,
       isShow: DataTypes.BOOLEAN,
+      likeTotal: DataTypes.INTEGER
     },
     {
       sequelize,

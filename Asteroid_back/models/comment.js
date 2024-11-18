@@ -27,6 +27,7 @@ module.exports = (sequelize, DataTypes) => {
       post_id: DataTypes.INTEGER,
       parent_comment_id: DataTypes.INTEGER,
       isShow: DataTypes.BOOLEAN,
+      likeTotal: DataTypes.INTEGER,
     },
     {
       sequelize,

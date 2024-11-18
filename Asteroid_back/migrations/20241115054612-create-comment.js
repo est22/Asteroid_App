@@ -10,20 +10,15 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.INTEGER,
       },
-      comment: {
+      content: {
         type: Sequelize.STRING,
         allowNull: false,
-      },
-      created_at: {
-        allowNull: false,
-        type: Sequelize.DATE,
-        defaultValue: Sequelize.NOW,
       },
       user_id: {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
-          model: "Users", // Users 테이블과 연결
+          model: "Users",
           key: "id",
         },
         onDelete: "CASCADE",
@@ -32,7 +27,7 @@ module.exports = {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
-          model: "Posts", // Posts 테이블과 연결
+          model: "Posts",
           key: "id",
         },
         onDelete: "CASCADE",
@@ -46,7 +41,7 @@ module.exports = {
         },
         onDelete: "CASCADE",
       },
-      likes: {
+      likeTotal: {
         type: Sequelize.INTEGER,
         allowNull: false,
         defaultValue: 0,
@@ -55,6 +50,11 @@ module.exports = {
         allowNull: false,
         type: Sequelize.DATE,
         defaultValue: Sequelize.NOW,
+      },
+      isShow: {
+        type: Sequelize.BOOLEAN,
+        allowNull: false,
+        defaultValue: true,
       },
     });
   },

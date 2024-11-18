@@ -19,23 +19,13 @@ module.exports = {
         },
         onDelete: "CASCADE",
       },
-      post_id: {
-        type: Sequelize.INTEGER,
+      target_type: {
+        type: Sequelize.CHAR(1),
         allowNull: false,
-        references: {
-          model: "Posts",
-          key: "id",
-        },
-        onDelete: "CASCADE",
       },
-      comment_id: {
+      target_id: {
         type: Sequelize.INTEGER,
         allowNull: false,
-        references: {
-          model: "Comments",
-          key: "id",
-        },
-        onDelete: "CASCADE",
       },
       createdAt: {
         type: Sequelize.DATE,

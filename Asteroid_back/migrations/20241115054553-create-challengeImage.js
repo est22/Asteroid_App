@@ -18,7 +18,7 @@ module.exports = {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
-          model: "Users", // Users 테이블과 연결
+          model: "Users", 
           key: "id",
         },
         onDelete: "CASCADE",
@@ -27,7 +27,7 @@ module.exports = {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
-          model: "Challenges", // Challenges 테이블과 연결
+          model: "Challenges",
           key: "id",
         },
         onDelete: "CASCADE",
