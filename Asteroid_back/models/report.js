@@ -15,6 +15,7 @@ module.exports = (sequelize, DataTypes) => {
       target_type: DataTypes.CHAR(1),
       target_id: DataTypes.INTEGER,
       report_reason: DataTypes.STRING,
+      report_type: DataTypes.TINYINT.UNSIGNED,
     },
     {
       sequelize,
@@ -22,7 +23,7 @@ module.exports = (sequelize, DataTypes) => {
       indexes: [
         {
           unique: true,
-          fields: ["target_type", "target_id"],
+          fields: ["target_type", "target_id", "report_type"],
         },
       ],
     }
