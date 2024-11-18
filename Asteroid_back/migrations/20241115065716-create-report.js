@@ -10,11 +10,11 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.INTEGER,
       },
-      report_target_type: {
-        type: Sequelize.STRING,
+      target_type: {
+        type: Sequelize.CHAR,
         allowNull: false,
       },
-      reported_target_id: {
+      target_id: {
         type: Sequelize.INTEGER,
         allowNull: false,
       },
@@ -27,6 +27,10 @@ module.exports = {
         },
         onDelete: "CASCADE",
       },
+      report_reason: {
+        type: Sequelize.STRING,
+        allowNull: true,
+      },
       createdAt: {
         type: Sequelize.DATE,
         allowNull: false,
@@ -36,10 +40,6 @@ module.exports = {
         type: Sequelize.DATE,
         allowNull: false,
         defaultValue: Sequelize.NOW,
-      },
-      report_reason: {
-        type: Sequelize.STRING,
-        allowNull: true,
       },
     });
   },

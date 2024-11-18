@@ -14,7 +14,7 @@ module.exports = {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
-          model: "Users", // 참조할 테이블 이름
+          model: "Users",
           key: "id",
         },
         onDelete: "CASCADE",
@@ -23,7 +23,7 @@ module.exports = {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
-          model: "Challenges", // 참조할 테이블 이름
+          model: "Challenges",
           key: "id",
         },
         onDelete: "CASCADE",
@@ -39,10 +39,6 @@ module.exports = {
       end_date: {
         type: Sequelize.DATE,
         allowNull: true,
-      },
-      completed: {
-        type: Sequelize.BOOLEAN,
-        defaultValue: false,
       },
       challenge_reported_count: {
         type: Sequelize.INTEGER,

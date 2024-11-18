@@ -18,16 +18,6 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: true,
       },
-      createdAt: {
-        type: Sequelize.DATE,
-        allowNull: false,
-        defaultValue: Sequelize.NOW,
-      },
-      updatedAt: {
-        type: Sequelize.DATE,
-        allowNull: false,
-        defaultValue: Sequelize.NOW,
-      },
       user_id: {
         type: Sequelize.INTEGER,
         allowNull: false,
@@ -47,13 +37,21 @@ module.exports = {
       },
       vote1_count: {
         type: Sequelize.INTEGER,
-        allowNull: false,
         defaultValue: 0,
       },
       vote2_count: {
         type: Sequelize.INTEGER,
-        allowNull: false,
         defaultValue: 0,
+      },
+      createdAt: {
+        type: Sequelize.DATE,
+        allowNull: false,
+        defaultValue: Sequelize.NOW,
+      },
+      updatedAt: {
+        type: Sequelize.DATE,
+        allowNull: false,
+        defaultValue: Sequelize.NOW,
       },
     });
   },

@@ -28,6 +28,10 @@ module.exports = {
         },
         onDelete: "CASCADE",
       },
+      reward_count: {
+        type: Sequelize.INTEGER,
+        defaultValue: 0,
+      },
       createdAt: {
         type: Sequelize.DATE,
         allowNull: false,
