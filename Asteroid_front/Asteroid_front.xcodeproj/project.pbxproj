@@ -7,19 +7,32 @@
 	objects = {
 
 /* Begin PBXFileReference section */
-		971ECFB72CE47026002AD98A /* Asteroid_iOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Asteroid_iOS.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		0ACC723C2CEC2816008D316E /* Asteroid_front.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Asteroid_front.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		0ACC72692CEC2943008D316E /* Exceptions for "Asteroid_front" folder in "Asteroid_front" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				"Asteroid-front-Info.plist",
+			);
+			target = 0ACC723B2CEC2816008D316E /* Asteroid_front */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		971ECFB92CE47026002AD98A /* Asteroid_iOS */ = {
+		0ACC723E2CEC2816008D316E /* Asteroid_front */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			path = Asteroid_iOS;
+			exceptions = (
+				0ACC72692CEC2943008D316E /* Exceptions for "Asteroid_front" folder in "Asteroid_front" target */,
+			);
+			path = Asteroid_front;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		971ECFB42CE47026002AD98A /* Frameworks */ = {
+		0ACC72392CEC2816008D316E /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -29,18 +42,18 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		971ECFAE2CE47026002AD98A = {
+		0ACC72332CEC2816008D316E = {
 			isa = PBXGroup;
 			children = (
-				971ECFB92CE47026002AD98A /* Asteroid_iOS */,
-				971ECFB82CE47026002AD98A /* Products */,
+				0ACC723E2CEC2816008D316E /* Asteroid_front */,
+				0ACC723D2CEC2816008D316E /* Products */,
 			);
 			sourceTree = "<group>";
 		};
-		971ECFB82CE47026002AD98A /* Products */ = {
+		0ACC723D2CEC2816008D316E /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				971ECFB72CE47026002AD98A /* Asteroid_iOS.app */,
+				0ACC723C2CEC2816008D316E /* Asteroid_front.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -48,64 +61,64 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		971ECFB62CE47026002AD98A /* Asteroid_iOS */ = {
+		0ACC723B2CEC2816008D316E /* Asteroid_front */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 971ECFC52CE47027002AD98A /* Build configuration list for PBXNativeTarget "Asteroid_iOS" */;
+			buildConfigurationList = 0ACC724A2CEC2817008D316E /* Build configuration list for PBXNativeTarget "Asteroid_front" */;
 			buildPhases = (
-				971ECFB32CE47026002AD98A /* Sources */,
-				971ECFB42CE47026002AD98A /* Frameworks */,
-				971ECFB52CE47026002AD98A /* Resources */,
+				0ACC72382CEC2816008D316E /* Sources */,
+				0ACC72392CEC2816008D316E /* Frameworks */,
+				0ACC723A2CEC2816008D316E /* Resources */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
-				971ECFB92CE47026002AD98A /* Asteroid_iOS */,
+				0ACC723E2CEC2816008D316E /* Asteroid_front */,
 			);
-			name = Asteroid_iOS;
+			name = Asteroid_front;
 			packageProductDependencies = (
 			);
-			productName = Asteroid_iOS;
-			productReference = 971ECFB72CE47026002AD98A /* Asteroid_iOS.app */;
+			productName = Asteroid_front;
+			productReference = 0ACC723C2CEC2816008D316E /* Asteroid_front.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
-		971ECFAF2CE47026002AD98A /* Project object */ = {
+		0ACC72342CEC2816008D316E /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
-				LastSwiftUpdateCheck = 1610;
-				LastUpgradeCheck = 1610;
+				LastSwiftUpdateCheck = 1600;
+				LastUpgradeCheck = 1600;
 				TargetAttributes = {
-					971ECFB62CE47026002AD98A = {
-						CreatedOnToolsVersion = 16.1;
+					0ACC723B2CEC2816008D316E = {
+						CreatedOnToolsVersion = 16.0;
 					};
 				};
 			};
-			buildConfigurationList = 971ECFB22CE47026002AD98A /* Build configuration list for PBXProject "Asteroid_iOS" */;
+			buildConfigurationList = 0ACC72372CEC2816008D316E /* Build configuration list for PBXProject "Asteroid_front" */;
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
 				Base,
 			);
-			mainGroup = 971ECFAE2CE47026002AD98A;
+			mainGroup = 0ACC72332CEC2816008D316E;
 			minimizedProjectReferenceProxies = 1;
 			preferredProjectObjectVersion = 77;
-			productRefGroup = 971ECFB82CE47026002AD98A /* Products */;
+			productRefGroup = 0ACC723D2CEC2816008D316E /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				971ECFB62CE47026002AD98A /* Asteroid_iOS */,
+				0ACC723B2CEC2816008D316E /* Asteroid_front */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
-		971ECFB52CE47026002AD98A /* Resources */ = {
+		0ACC723A2CEC2816008D316E /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -115,7 +128,7 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
-		971ECFB32CE47026002AD98A /* Sources */ = {
+		0ACC72382CEC2816008D316E /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -125,7 +138,7 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin XCBuildConfiguration section */
-		971ECFC32CE47027002AD98A /* Debug */ = {
+		0ACC72482CEC2817008D316E /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -177,7 +190,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 18.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
@@ -188,7 +201,7 @@
 			};
 			name = Debug;
 		};
-		971ECFC42CE47027002AD98A /* Release */ = {
+		0ACC72492CEC2817008D316E /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -234,7 +247,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 18.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
@@ -244,60 +257,62 @@
 			};
 			name = Release;
 		};
-		971ECFC62CE47027002AD98A /* Debug */ = {
+		0ACC724B2CEC2817008D316E /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_ASSET_PATHS = "\"Asteroid_iOS/Preview Content\"";
+				DEVELOPMENT_ASSET_PATHS = "\"Asteroid_front/Preview Content\"";
 				DEVELOPMENT_TEAM = 23V723C7LT;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Asteroid-front-Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "소행성";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "kr.or.Asteroid-iOS";
+				PRODUCT_BUNDLE_IDENTIFIER = "kr.asteroid.www.Asteroid-front";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
 		};
-		971ECFC72CE47027002AD98A /* Release */ = {
+		0ACC724C2CEC2817008D316E /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_ASSET_PATHS = "\"Asteroid_iOS/Preview Content\"";
+				DEVELOPMENT_ASSET_PATHS = "\"Asteroid_front/Preview Content\"";
 				DEVELOPMENT_TEAM = 23V723C7LT;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Asteroid-front-Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "소행성";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "kr.or.Asteroid-iOS";
+				PRODUCT_BUNDLE_IDENTIFIER = "kr.asteroid.www.Asteroid-front";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -307,25 +322,25 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		971ECFB22CE47026002AD98A /* Build configuration list for PBXProject "Asteroid_iOS" */ = {
+		0ACC72372CEC2816008D316E /* Build configuration list for PBXProject "Asteroid_front" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				971ECFC32CE47027002AD98A /* Debug */,
-				971ECFC42CE47027002AD98A /* Release */,
+				0ACC72482CEC2817008D316E /* Debug */,
+				0ACC72492CEC2817008D316E /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		971ECFC52CE47027002AD98A /* Build configuration list for PBXNativeTarget "Asteroid_iOS" */ = {
+		0ACC724A2CEC2817008D316E /* Build configuration list for PBXNativeTarget "Asteroid_front" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				971ECFC62CE47027002AD98A /* Debug */,
-				971ECFC72CE47027002AD98A /* Release */,
+				0ACC724B2CEC2817008D316E /* Debug */,
+				0ACC724C2CEC2817008D316E /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
-	rootObject = 971ECFAF2CE47026002AD98A /* Project object */;
+	rootObject = 0ACC72342CEC2816008D316E /* Project object */;
 }
