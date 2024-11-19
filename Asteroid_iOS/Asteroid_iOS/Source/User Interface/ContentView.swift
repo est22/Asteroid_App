@@ -8,9 +8,6 @@
 import SwiftUI
 
 struct ContentView: View {
-    init() {
-            checkfont() // 앱 실행 시 로드된 폰트 확인
-        }
 
     var body: some View {
         VStack {
