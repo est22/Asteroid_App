@@ -10,7 +10,7 @@ module.exports = {
         category_id: 1,
         user_id: 1,
         isShow: true,
-        likeTotal: 0,
+        likeTotal: 2,
         createdAt: new Date(),
         updatedAt: new Date(),
       },
