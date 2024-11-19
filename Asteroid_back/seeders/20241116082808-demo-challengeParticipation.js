@@ -4,7 +4,7 @@
 module.exports = {
   async up(queryInterface, Sequelize) {
     await queryInterface.bulkInsert(
-      "ChallengeParticipation",
+      "ChallengeParticipations",
       [
         // 인기 챌린지 "3000원 이하 커피 마시기" (20명 참여)
         {

@@ -110,8 +110,8 @@ module.exports = {
         updatedAt: new Date(),
       },
       {
-        challenge_id: 18,
-        user_id: 1,
+        challenge_id: 1,
+        user_id: 18,
         reward_count: 0,
         createdAt: new Date(),
         updatedAt: new Date(),
