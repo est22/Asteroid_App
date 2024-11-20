@@ -26,9 +26,15 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING,
         allowNull: false,
       },
-      nickname: DataTypes.STRING,
+      nickname: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
       profile_picture: DataTypes.STRING,
-      motto: DataTypes.STRING,
+      motto: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
       reported_count: {
         type: DataTypes.INTEGER,
         defaultValue: 0,

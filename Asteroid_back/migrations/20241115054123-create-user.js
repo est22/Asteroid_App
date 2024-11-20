@@ -20,7 +20,7 @@ module.exports = {
         allowNull: false,
       },
       nickname: {
-        type: Sequelize.STRING,
+        type: Sequelize.STRING(18), // nickname 글자 수 제한
         allowNull: true,
         unique: true,
       },
@@ -29,7 +29,7 @@ module.exports = {
         allowNull: true,
       },
       motto: {
-        type: Sequelize.STRING,
+        type: Sequelize.STRING(100),
         allowNull: true,
       },
       createdAt: {

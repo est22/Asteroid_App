@@ -1,62 +1,82 @@
 const profileService = require("../services/profileService");
 
-const checkNickname = async (req, res) => {
-    const { nickname } = req.body;
-    const userId = req.user?.id;
+const checkNickname = async (nickname, userId) =>{
 
   try {
     // 닉네임 글자 수 검사
-    const nicknameLength = [...nickname].length; // 문자열을 유니코드 문자 배열로 변환 후 길이 계산
-    if (nicknameLength > 6) {
-      return res
-        .status(400)
-        .json({ message: "닉네임은 한글 6글자 이하로 입력해주세요." });
-    }
+    // 유효한 닉네임: 한글, 영어, 숫자만 가능, 공백, 단일 자음/모음 제외
+    const isValidNickname = /^[A-Za-z0-9가-힣ㄱ-ㅎㅏ-ㅣ]+$/; // 한글, 영어, 숫자만 가능, 단일 자음/모음 제외
+ 
+    // 한글 단일 자음과 모음 제외
+    const containsInvalidHangul = /([ㄱ-ㅎㅏ-ㅣ])/;
 
-    // 닉네임 중복 검사
-    const existingUser = await profileService.findUserByNickname(nickname, userId);
-      if (existingUser) {
-        return res.status(400).json({ message: "닉네임 중복" });
+    const nicknameLengthInBytes = Buffer.byteLength(nickname, "utf8"); // 문자열을 UTF-8로 인코딩한 후 바이트 크기 계산
+
+      if (!isValidNickname.test(nickname)) {
+        throw new Error(
+          "닉네임은 한글, 영어, 숫자만 사용할 수 있습니다. 공백과 단일 자음/모음은 불가능합니다."
+        );
       }
 
-    return res.status(200).json({ message: "닉네임 사용 가능" });
+      if (containsInvalidHangul.test(nickname)) {
+        throw new Error("단일 자음이나 모음은 닉네임에 사용할 수 없습니다.");
+      }
+
+      if (nicknameLengthInBytes > 18) {
+        throw new Error(
+          "닉네임은 한글 6글자, 영어 12글자 이하로 입력해주세요."
+        );
+      }
+    // 닉네임 중복 검사
+    const existingUser = await profileService.findUserByNickname(nickname,userId);
+    if (existingUser) {
+      throw new Error("닉네임 중복");
+    }
+
+    return "닉네임 사용 가능";
   } catch (e) {
     console.error("Error:", e); // 오류 상세히 출력
-    res.status(500).json({ error: e.message });
+    throw e;
+  }
+};
+ 
+const checkMottoLength = (motto) => {
+  const mottoLengthInBytes = Buffer.byteLength(motto, "utf8"); // 문자열을 UTF-8로 인코딩한 후 바이트 크기 계산
+  if (mottoLengthInBytes > 100) {
+    throw new Error("좌우명을 30여자로 입력해주세요.");
   }
 };
 
-
 const updateProfile = async (req, res) => {
+  console.log("User Info:", req.user); // req.user 출력 (debug)
+  console.log("first Request Body:", req.body); // debug
+
   const { nickname, motto } = req.body;
-  const userId = req.user.id; // `authenticateToken` 미들웨어에서 추출된 사용자 ID
+  const userId = req.user?.id;
+  
+  if (!userId) {
+    return res.status(400).json({ error: "사용자 ID가 존재하지 않습니다." });
+  }
 
   try {
-    // 닉네임 업데이트 요청 시 중복 검사
-    if (nickname) {
-      const existingUser = await profileService.findUserByNickname(
-        nickname,
-        userId
-      );
-      if (existingUser) {
-        return res
-          .status(400)
-          .json({ message: "이미 사용 중인 닉네임입니다." });
-      }
-
-      // 닉네임 글자수 검사
-      const nicknameLength = [...nickname].length;
-      if (nicknameLength > 6) {
-        return res
-          .status(400)
-          .json({ message: "닉네임은 한글 6글자 이하로 입력해주세요." });
-      }
-    }
-
     // 업데이트 데이터 생성
     const updatedData = {};
-    if (nickname) updatedData.nickname = nickname;
-    if (motto) updatedData.motto = motto;
+    // 닉네임 업데이트 요청 시 중복 검사
+    if (nickname) {
+      const nicknameCheckResult = await checkNickname(nickname, userId);
+        
+        if (nicknameCheckResult !== "닉네임 사용 가능") {
+          return res.status(400).json({ message: nicknameCheckResult });
+        }
+
+      updatedData.nickname = nickname;
+    }
+
+    // motto가 있을 경우, 글자수 검사
+    if (motto) {
+      checkMottoLength(motto);
+      updatedData.motto = motto;
+    }
 
     // 업데이트 수행
     await profileService.updateUserProfile(userId, updatedData);
