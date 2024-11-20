@@ -19,11 +19,11 @@ const login = async (req, res) => {
   try {
     const user = await userService.findUserByEmail(email);
     if (!user) {
-      return res.status(400).json({ message: "Invalid email or password" });
+      return res.status(400).json({ message: "No user: Invalid email or password" });
     }
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-      return res.status(400).json({ message: "Invalid email or password" });
+      return res.status(400).json({ message: "Not matching: Invalid email or password" });
     }
     const accessToken = generateAccessToken(user);
     const refreshToken = generateRefreshToken(user);
@@ -37,13 +37,12 @@ const login = async (req, res) => {
 };
 
 const register = async (req, res) => {
-  const { email, name, password } = req.body;
+  const { email, password } = req.body;
   const hashedPassword = await bcrypt.hash(password, 10);
 
   try {
     const user = await userService.createUser({
       email: email,
-      name: name,
       password: hashedPassword,
     });
     res.status(201).json({ data: user });
