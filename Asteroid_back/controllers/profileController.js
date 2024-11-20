@@ -1,4 +1,5 @@
 const profileService = require("../services/profileService");
+const {handleMultipleFileUpload, saveFilesToDB} = require("../services/fileUploadService");
 
 const checkNickname = async (nickname, userId) =>{
 
@@ -95,7 +96,27 @@ const updateProfile = async (req, res) => {
   }
 };
 
+// 프로필 사진 업로드 처리
+const uploadProfilePhoto = async (req, res) => {
+  try {
+    // 파일 업로드 처리 (1개만 허용)
+    const files = await handleMultipleFileUpload(req, res, 1); // 최대 1개 파일
+
+    // DB에 프로필 사진 저장
+    const result = await saveFilesToDB(files, req.user.id, "User");
+
+    return res.status(200).json({
+      message: "프로필 사진이 성공적으로 업로드되었습니다.",
+      data: result,
+    });
+  } catch (e) {
+    console.error("Error:", e);
+    res.status(400).json({ error: e.message });
+  }
+};
+
 module.exports = {
   checkNickname,
   updateProfile,
+  uploadProfilePhoto
 };
