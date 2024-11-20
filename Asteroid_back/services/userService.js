@@ -26,6 +26,6 @@ const findUserByEmail = async (email) => {
 module.exports = {
   createUser,
   findAllUsers,
-  updateUser, // 최초도 포함
+  updateUser, // 최초 닉네임, 소비좌우명 설정도 포함
   findUserByEmail,
 };
