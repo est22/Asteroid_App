@@ -31,7 +31,7 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false,
         unique: true,
       },
-      profile_picture: DataTypes.STRING,
+      profile_picture: { type: DataTypes.BLOB }, // BLOB 형식으로 변경
       motto: {
         type: DataTypes.STRING,
         allowNull: false,
