@@ -9,6 +9,7 @@ const findAllUsers = async () => {
   return await models.User.findAll();
 };
 
+// 유저 프로필 설정 (최초도 포함)
 const updateUser = async (id, data) => {
   return await models.User.update(data, {
     where: { id },
@@ -25,6 +26,6 @@ const findUserByEmail = async (email) => {
 module.exports = {
   createUser,
   findAllUsers,
-  updateUser,
+  updateUser, // 최초도 포함
   findUserByEmail,
 };
