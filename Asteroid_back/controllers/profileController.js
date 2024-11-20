@@ -2,15 +2,20 @@ const profileService = require("../services/profileService");
 
 const checkNickname = async (nickname, userId) =>{
 
-  try {
-    // 닉네임 글자 수 검사
-    // 유효한 닉네임: 한글, 영어, 숫자만 가능, 공백, 단일 자음/모음 제외
-    const isValidNickname = /^[A-Za-z0-9가-힣ㄱ-ㅎㅏ-ㅣ]+$/; // 한글, 영어, 숫자만 가능, 단일 자음/모음 제외
- 
-    // 한글 단일 자음과 모음 제외
-    const containsInvalidHangul = /([ㄱ-ㅎㅏ-ㅣ])/;
+    try {
+      // 1. 닉네임 중복 검사
+      const existingUser = await profileService.findUserByNickname(
+        nickname,
+        userId
+      );
+      if (existingUser) {
+        throw new Error("닉네임 중복");
+      }
 
-    const nicknameLengthInBytes = Buffer.byteLength(nickname, "utf8"); // 문자열을 UTF-8로 인코딩한 후 바이트 크기 계산
+      // 2. 닉네임 글자 수 검사
+      const isValidNickname = /^[A-Za-z0-9가-힣ㄱ-ㅎㅏ-ㅣ]+$/; // 한글, 영어, 숫자만 가능, 단일 자음/모음 제외
+      const containsInvalidHangul = /([ㄱ-ㅎㅏ-ㅣ])/; // 한글 단일 자음과 모음 제외
+      const nicknameLengthInBytes = Buffer.byteLength(nickname, "utf8"); // 문자열을 UTF-8로 인코딩한 후 바이트 크기 계산
 
       if (!isValidNickname.test(nickname)) {
         throw new Error(
@@ -27,14 +32,9 @@ const checkNickname = async (nickname, userId) =>{
           "닉네임은 한글 6글자, 영어 12글자 이하로 입력해주세요."
         );
       }
-    // 닉네임 중복 검사
-    const existingUser = await profileService.findUserByNickname(nickname,userId);
-    if (existingUser) {
-      throw new Error("닉네임 중복");
-    }
 
-    return "닉네임 사용 가능";
-  } catch (e) {
+      return "닉네임 사용 가능";
+    } catch (e) {
     console.error("Error:", e); // 오류 상세히 출력
     throw e;
   }
@@ -53,7 +53,7 @@ const updateProfile = async (req, res) => {
 
   const { nickname, motto } = req.body;
   const userId = req.user?.id;
-  
+
   if (!userId) {
     return res.status(400).json({ error: "사용자 ID가 존재하지 않습니다." });
   }
@@ -63,13 +63,18 @@ const updateProfile = async (req, res) => {
     const updatedData = {};
     // 닉네임 업데이트 요청 시 중복 검사
     if (nickname) {
-      const nicknameCheckResult = await checkNickname(nickname, userId);
-        
+      try {
+        const nicknameCheckResult = await checkNickname(nickname, userId);
         if (nicknameCheckResult !== "닉네임 사용 가능") {
           return res.status(400).json({ message: nicknameCheckResult });
         }
-
-      updatedData.nickname = nickname;
+        updatedData.nickname = nickname;
+      } catch (e) {
+        if (e.message === "닉네임 중복") {
+          return res.status(400).json({ message: "닉네임 중복" });
+        }
+        throw e; // 다른 오류가 발생한 경우 다시 던짐
+      }
     }
 
     // motto가 있을 경우, 글자수 검사
