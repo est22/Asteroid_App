@@ -26,9 +26,16 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING,
         allowNull: false,
       },
-      nickname: DataTypes.STRING,
-      profile_picture: DataTypes.STRING,
-      motto: DataTypes.STRING,
+      nickname: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        unique: true,
+      },
+      profile_picture: { type: DataTypes.BLOB }, // BLOB 형식으로 변경
+      motto: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
       reported_count: {
         type: DataTypes.INTEGER,
         defaultValue: 0,
@@ -37,6 +44,7 @@ module.exports = (sequelize, DataTypes) => {
     {
       sequelize,
       modelName: "User",
+      timestamps: true,
     }
   );
 

@@ -8,7 +8,7 @@ const generateAccessToken = (user) => {
       email: user.email,
     },
     "access_secret",
-    { expiresIn: "30m" }
+    { expiresIn: "8h" }
   );
 };
 

@@ -20,16 +20,16 @@ module.exports = {
         allowNull: false,
       },
       nickname: {
-        type: Sequelize.STRING,
+        type: Sequelize.STRING(18), // nickname 글자 수 제한
         allowNull: true,
         unique: true,
       },
       profile_picture: {
-        type: Sequelize.STRING,
+        type: Sequelize.BLOB, // BLOB으로 수정 
         allowNull: true,
       },
       motto: {
-        type: Sequelize.STRING,
+        type: Sequelize.STRING(100),
         allowNull: true,
       },
       createdAt: {
