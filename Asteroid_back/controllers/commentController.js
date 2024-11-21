@@ -1,5 +1,20 @@
 const commentService = require("../services/commentService");
 
+// 댓글 조회 (계층형)
+const findCommentById = async (req, res) => {
+  try {
+    const comment = await commentService.findCommentById(req.params.id);
+
+    if (comment) {
+      res.status(201).json({ data: comment });
+    } else {
+      res.status(404).json({ error: "댓글 상세 에러" });
+    }
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+};
+
 // 댓글 생성
 const createComment = async (req, res) => {
   try {
@@ -41,6 +56,7 @@ const deleteComment = async (req, res) => {
 };
 
 module.exports = {
+  findCommentById,
   createComment,
   updateComment,
   deleteComment,
