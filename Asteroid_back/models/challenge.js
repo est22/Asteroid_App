@@ -13,14 +13,12 @@ module.exports = (sequelize, DataTypes) => {
 
   Challenge.init(
     {
+      period: DataTypes.INTEGER,
       name: DataTypes.STRING,
       description: DataTypes.STRING,
       reward_name: DataTypes.STRING,
       reward_image_url: DataTypes.STRING,
-      created_at: {
-        type: DataTypes.DATE,
-        defaultValue: DataTypes.NOW,
-      },
+      status: DataTypes.CHAR(1),
     },
     {
       sequelize,

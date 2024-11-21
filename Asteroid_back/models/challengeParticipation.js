@@ -21,10 +21,6 @@ module.exports = (sequelize, DataTypes) => {
       status: DataTypes.STRING,
       start_date: DataTypes.DATE,
       end_date: DataTypes.DATE,
-      completed: {
-        type: DataTypes.BOOLEAN,
-        defaultValue: false,
-      },
       challenge_reported_count: {
         type: DataTypes.INTEGER,
         defaultValue: 0,

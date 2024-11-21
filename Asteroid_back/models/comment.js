@@ -3,7 +3,6 @@ const { Model } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
   class Comment extends Model {
     static associate(models) {
-      Comment.hasMany(models.Like, { foreignKey: "comment_id" });
       Comment.hasMany(models.Comment, { foreignKey: "parent_comment_id" });
 
       Comment.belongsTo(models.User, {
@@ -23,15 +22,12 @@ module.exports = (sequelize, DataTypes) => {
 
   Comment.init(
     {
-      Comment: DataTypes.STRING,
-      created_at: {
-        type: DataTypes.DATE,
-        defaultValue: DataTypes.NOW,
-      },
+      content: DataTypes.STRING,
       user_id: DataTypes.INTEGER,
       post_id: DataTypes.INTEGER,
       parent_comment_id: DataTypes.INTEGER,
-      likes: DataTypes.INTEGER,
+      isShow: DataTypes.BOOLEAN,
+      likeTotal: DataTypes.INTEGER,
     },
     {
       sequelize,

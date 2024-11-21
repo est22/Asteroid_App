@@ -3,8 +3,6 @@ const { Model } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
   class Report extends Model {
     static associate(models) {
-      Post.hasMany(models.Like, { foreignKey: "comment_id" });
-
       Report.belongsTo(models.User, {
         foreignKey: "user_id",
         onDelete: "CASCADE",
@@ -13,18 +11,21 @@ module.exports = (sequelize, DataTypes) => {
   }
   Report.init(
     {
-      report_target_type: DataTypes.STRING,
-      reported_target_id: DataTypes.INTEGER,
       user_id: DataTypes.INTEGER,
-      created_at: {
-        type: DataTypes.DATE,
-        defaultValue: DataTypes.NOW,
-      },
+      target_type: DataTypes.CHAR(1),
+      target_id: DataTypes.INTEGER,
       report_reason: DataTypes.STRING,
+      report_type: DataTypes.SMALLINT,
     },
     {
       sequelize,
       modelName: "Report",
+      indexes: [
+        {
+          unique: true,
+          fields: ["user_id","target_type", "target_id", "report_type"],
+        },
+      ],
     }
   );
 
