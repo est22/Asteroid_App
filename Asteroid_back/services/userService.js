@@ -23,9 +23,19 @@ const findUserByEmail = async (email) => {
   });
 };
 
+// 비밀번호 재설정 
+const updatePassword = async (email, newPassword) => {
+  const user = await db.User.findOne({ where: { email } });
+  if (user) {
+    await user.update({ password: newPassword });
+  }
+};
+
+
 module.exports = {
   createUser,
   findAllUsers,
   updateUser, // 최초 닉네임, 소비좌우명 설정도 포함
   findUserByEmail,
+  updatePassword,
 };

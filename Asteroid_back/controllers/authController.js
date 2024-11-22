@@ -1,9 +1,8 @@
 const bcrypt = require("bcryptjs");
+const nodemailer = require("nodemailer");
+require("dotenv").config(); 
 const userService = require("../services/userService");
-const {
-  generateAccessToken,
-  generateRefreshToken,
-} = require("../utils/token.js");
+const { generateAccessToken,generateRefreshToken, generateAuthCodeToken} = require("../utils/token.js");
 const jwt = require("jsonwebtoken");
 
 const refresh = (req, res) => {
@@ -96,9 +95,88 @@ const updateUser = async (req, res) => {
   }
 };
 
+// 이메일로 인증 코드 발송
+const forgotPassword = async (req, res) => {
+  const { email } = req.body;
+
+  try {
+    // 이메일로 사용자 확인
+    const user = await userService.findUserByEmail(email);
+    if (!user) return res.status(400).json({ message: "해당 이메일이 존재하지 않습니다." });
+
+    // JWT를 통해 인증 코드 생성
+    const authCodeToken = generateAuthCodeToken(email);
+
+    // 인증 코드 이메일 발송
+    const transporter = nodemailer.createTransport({
+      service: "Gmail",
+      auth: {
+        user: process.env.ADMIN_EMAIL,
+        pass: process.env.ADMIN_PASSWORD,
+      },
+    });
+
+    const mailOptions = {
+      from: process.env.ADMIN_EMAIL,
+      to: email,
+      subject: "비밀번호 인증 코드",
+      text: `비밀번호 재설정을 위한 인증 코드는 \n[${authCodeToken}]입니다.`, // JWT 토큰을 이메일로 전송
+    };
+
+    await transporter.sendMail(mailOptions);
+
+    // 인증 코드 발송 성공
+    res.status(200).json({ message: "인증번호가 메일로 발송되었습니다." });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// 인증 코드 확인
+const verifyCode = async (req, res) => {
+  const { email, authCodeToken } = req.body;
+
+  try {
+    // JWT 인증 코드 확인
+    jwt.verify(authCodeToken, "auth_code_secret", (err, decoded) => {
+      if (err || decoded.email !== email) {
+        return res.status(400).json({ message: "잘못된 인증번호입니다." });
+      }
+      res.status(200).json({ message: "인증되었습니다." });
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// 새 비밀번호 설정
+const resetPassword = async (req, res) => {
+  const { email, newPassword, authCodeToken } = req.body;
+
+  try {
+    // JWT 인증 코드 확인
+    jwt.verify(authCodeToken, "auth_code_secret", async (err, decoded) => {
+      if (err || decoded.email !== email) {
+        return res.status(400).json({ message: "잘못된 인증번호입니다." });
+      }
+
+      // 비밀번호 해싱 후 업데이트
+      const hashedPassword = await bcrypt.hash(newPassword, 10);
+      await userService.updatePassword(email, hashedPassword);
+
+      res.status(200).json({ message: "비밀번호가 정상적으로 재설정되었습니다." });
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
 module.exports = {
   register,
   login,
   refresh,
   updateUser,
+  forgotPassword,
+  verifyCode,
+  resetPassword,
 };
