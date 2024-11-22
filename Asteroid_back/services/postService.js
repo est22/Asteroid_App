@@ -6,7 +6,7 @@ const findAllPost = async (limit, offset, category_id) => {
     limit,
     offset,
     order: [["id", "DESC"]],
-    where: category_id,
+    where: { category_id: category_id, isShow: true },
   });
 };
 
@@ -17,6 +17,13 @@ const findPostById = async (id) => {
       model: models.User,
       attributes: ["nickname", "profile_picture"],
     },
+  });
+};
+
+// 댓글 총 개수 조회
+const findCommentTotal = async (id) => {
+  return await models.Comment.count({
+    where: { post_id: id, isShow: true },
   });
 };
 
@@ -42,6 +49,7 @@ const deletePost = async (id) => {
 module.exports = {
   findAllPost,
   findPostById,
+  findCommentTotal,
   createPost,
   updatePost,
   deletePost,

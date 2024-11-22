@@ -1,14 +1,14 @@
 const postService = require("../services/postService");
 
 // 게시글 목록
-const findAllPost = async (req, res, next) => {
+const findAllPost = async (req, res) => {
   // 무한 스크롤
   const page = parseInt(req.query.page) || 1;
   const pageSize = parseInt(req.query.size) || 10;
 
   const limit = pageSize;
   const offset = (page - 1) * pageSize;
-  const categoryId = req.query.category_id;
+  const categoryId = req.body.category_id;
 
   try {
     const posts = await postService.findAllPost(limit, offset, categoryId);
@@ -20,11 +20,13 @@ const findAllPost = async (req, res, next) => {
 
 // 게시글 상세보기
 const findPostById = async (req, res) => {
+  const postId = req.params.id;
   try {
-    const post = await postService.findPostById(req.params.id);
+    const post = await postService.findPostById(postId);
+    const commentCount = await postService.findCommentTotal(postId);
 
     if (post) {
-      res.status(201).json({ data: post });
+      res.status(201).json({ data: post, commentCount: commentCount });
     } else {
       res.status(404).json({ error: "게시글 상세 에러" });
     }
