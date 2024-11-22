@@ -28,13 +28,13 @@ module.exports = (sequelize, DataTypes) => {
       },
       nickname: {
         type: DataTypes.STRING,
-        allowNull: false,
+        allowNull: true,
         unique: true,
       },
       profile_picture: { type: DataTypes.BLOB }, // BLOB 형식으로 변경
       motto: {
         type: DataTypes.STRING,
-        allowNull: false,
+        allowNull: true,
       },
       reported_count: {
         type: DataTypes.INTEGER,

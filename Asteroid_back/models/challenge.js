@@ -14,7 +14,6 @@ module.exports = (sequelize, DataTypes) => {
   Challenge.init(
     {
       period: DataTypes.INTEGER,
-      period: DataTypes.INTEGER,
       name: DataTypes.STRING,
       description: DataTypes.STRING,
       reward_name: DataTypes.STRING,
@@ -24,6 +23,7 @@ module.exports = (sequelize, DataTypes) => {
     {
       sequelize,
       modelName: "Challenge",
+      timestamps: true,
     }
   );
 
