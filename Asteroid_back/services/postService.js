@@ -1,3 +1,4 @@
+const { where } = require("sequelize");
 const models = require("../models");
 
 // 게시글 목록(무한스크롤)
@@ -46,6 +47,46 @@ const deletePost = async (id) => {
   });
 };
 
+// 게시글 좋아요
+const likePost = async (postId, userId) => {
+  // 좋아요 여부 확인
+  const likeCheck = await models.Like.findOne({
+    where: { user_id: userId, target_type: "P", target_id: postId },
+  });
+
+  let message;
+
+  if (likeCheck) {
+    // 이미 좋아요 해서 좋아요 취소
+    await models.Like.destroy({
+      where: { user_id: userId, target_type: "P", target_id: postId },
+    });
+
+    // 게시글 likeTotal 감소
+    await models.Post.decrement("likeTotal", {
+      where: { id: postId },
+    });
+
+    message = "좋아요 취소";
+  } else {
+    // 좋아요 내역 없어서 좋아요 처리
+    await models.Like.create({
+      user_id: userId,
+      target_type: "P",
+      target_id: postId,
+    });
+
+    // 게시글 likeTotal 증가
+    await models.Post.increment("likeTotal", {
+      where: { id: postId },
+    });
+
+    message = "좋아요 성공";
+  }
+
+  return message;
+};
+
 module.exports = {
   findAllPost,
   findPostById,
@@ -53,4 +94,5 @@ module.exports = {
   createPost,
   updatePost,
   deletePost,
+  likePost,
 };

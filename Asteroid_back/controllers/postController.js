@@ -75,10 +75,25 @@ const deletePost = async (req, res) => {
   }
 };
 
+// 게시글 좋아요
+const likePost = async (req, res) => {
+  const postId = req.params.id;
+  const userId = req.user.id;
+
+  try {
+    const result = await postService.likePost(postId, userId);
+    res.status(200).json(result);
+  } catch (e) {
+    res.status(400).json({ error: e.message });
+    console.error(e);
+  }
+};
+
 module.exports = {
   findAllPost,
   findPostById,
   createPost,
   updatePost,
   deletePost,
+  likePost,
 };
