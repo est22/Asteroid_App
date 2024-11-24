@@ -1,9 +1,9 @@
-const commentService = require("../services/commentService");
+const service = require("../services/commentService");
 
 // 댓글 조회 (계층형)
 const findCommentById = async (req, res) => {
   try {
-    const comment = await commentService.findCommentById(req.params.id);
+    const comment = await service.findCommentById(req.params.id);
 
     if (comment) {
       res.status(201).json({ data: comment });
@@ -18,7 +18,7 @@ const findCommentById = async (req, res) => {
 // 댓글 생성
 const createComment = async (req, res) => {
   try {
-    const comment = await commentService.createComment(req.body);
+    const comment = await service.createComment(req.body);
     res.status(201).json({ data: comment });
   } catch (e) {
     res.status(500).json({ error: e.message });
@@ -28,7 +28,7 @@ const createComment = async (req, res) => {
 // 댓글 수정
 const updateComment = async (req, res) => {
   try {
-    const comment = await commentService.updateComment(req.params.id, req.body);
+    const comment = await service.updateComment(req.params.id, req.body);
 
     if (comment > 0) {
       res.status(200).json({ message: "댓글 수정 성공" });
@@ -43,7 +43,7 @@ const updateComment = async (req, res) => {
 // 댓글 삭제
 const deleteComment = async (req, res) => {
   try {
-    const comment = await commentService.deleteComment(req.params.id);
+    const comment = await service.deleteComment(req.params.id);
 
     if (comment) {
       res.status(200).json({ message: "댓글 삭제 성공" });
@@ -55,9 +55,24 @@ const deleteComment = async (req, res) => {
   }
 };
 
+// 댓글 좋아요
+const likeComment = async (req, res) => {
+  const commentId = req.params.id;
+  const userId = req.user.id;
+
+  try {
+    const result = await service.likeComment(commentId, userId);
+    res.status(200).json(result);
+  } catch (e) {
+    res.status(400).json({ error: e.message });
+    console.error(e);
+  }
+};
+
 module.exports = {
   findCommentById,
   createComment,
   updateComment,
   deleteComment,
+  likeComment,
 };

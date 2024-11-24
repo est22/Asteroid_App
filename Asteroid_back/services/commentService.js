@@ -1,4 +1,3 @@
-const { where } = require("sequelize");
 const models = require("../models");
 
 // 댓글 조회 (계층형)
@@ -47,9 +46,50 @@ const deleteComment = async (id) => {
   });
 };
 
+// 댓글 좋아요
+const likeComment = async (commentId, userId) => {
+  // 좋아요 여부 확인
+  const likeCheck = await models.Like.findOne({
+    where: { user_id: userId, target_type: "C", target_id: commentId },
+  });
+
+  let message;
+
+  if (likeCheck) {
+    // 이미 좋아요 해서 좋아요 취소
+    await models.Like.destroy({
+      where: { user_id: userId, target_type: "C", target_id: commentId },
+    });
+
+    // 댓글 likeTotal 감소
+    await models.Comment.decrement("likeTotal", {
+      where: { id: commentId },
+    });
+
+    message = "좋아요 취소";
+  } else {
+    // 좋아요 내역 없어서 좋아요 처리
+    await models.Like.create({
+      user_id: userId,
+      target_type: "C",
+      target_id: commentId,
+    });
+
+    // 댓글 likeTotal 증가
+    await models.Comment.increment("likeTotal", {
+      where: { id: commentId },
+    });
+
+    message = "좋아요 성공";
+  }
+
+  return message;
+};
+
 module.exports = {
   findCommentById,
   createComment,
   updateComment,
   deleteComment,
+  likeComment,
 };
