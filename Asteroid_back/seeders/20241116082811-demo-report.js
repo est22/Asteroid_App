@@ -28,7 +28,7 @@ module.exports = {
         target_type: "C",
         target_id: 4,
         user_id: 1,
-        report_type: 9, // 기타(서술형)
+        report_type: 10, // 기타(서술형)
         report_reason: "부적절한 금전 요구",
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -48,7 +48,7 @@ module.exports = {
         target_type: "U",
         target_id: 6,
         user_id: 2,
-        report_type: 9, // 기타(서술형)
+        report_type: 10, // 기타(서술형)
         report_reason: "자꾸 문자보내요",
         createdAt: new Date(),
         updatedAt: new Date(),
