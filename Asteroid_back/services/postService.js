@@ -1,4 +1,5 @@
-const { where } = require("sequelize");
+const { Op } = require("sequelize");
+const moment = require("moment");
 const models = require("../models");
 
 // 게시글 목록(무한스크롤)
@@ -87,6 +88,28 @@ const likePost = async (postId, userId) => {
   return message;
 };
 
+// 인기게시글
+const hotPost = async () => {
+  const period = moment().subtract(3, "days").toDate();
+
+  return await models.Post.findAll({
+    where: {
+      isShow: true,
+      createdAt: {
+        [Op.gte]: period, // period 이후 날짜 조회
+      },
+    },
+    include: [
+      {
+        model: models.Category,
+        attributes: ["category_name"],
+      },
+    ],
+    order: [["likeTotal", "DESC"]],
+    limit: 3,
+  });
+};
+
 module.exports = {
   findAllPost,
   findPostById,
@@ -95,4 +118,5 @@ module.exports = {
   updatePost,
   deletePost,
   likePost,
+  hotPost,
 };
