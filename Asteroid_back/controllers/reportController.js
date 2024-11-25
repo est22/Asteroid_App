@@ -56,8 +56,8 @@ const report = async (req, res) => {
       return res.status(400).json({ message: "이미 신고한 대상입니다." });
     }
 
-    // report_type이 0(챌린지) 또는 9(기타)일 때만 신고 사유 확인
-    if ((report_type === 0 || report_type === 9) && !report_reason) {
+    // report_type이 9(기타)일 때만 신고 사유 확인
+    if ((report_type === 9) && !report_reason) {
       return res.status(400).json({
         message: "신고 사유가 필수입니다. 상세한 신고 사유를 작성해주세요.",
       });
@@ -69,7 +69,7 @@ const report = async (req, res) => {
       target_type,
       target_id,
       report_reason:
-        report_type === 0 || report_type === 9 ? report_reason : null,
+        report_type === 9 ? report_reason : null,
       report_type,
     });
 
