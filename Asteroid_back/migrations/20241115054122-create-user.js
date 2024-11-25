@@ -25,7 +25,7 @@ module.exports = {
         unique: true,
       },
       profile_picture: {
-        type: Sequelize.BLOB, // BLOB으로 수정 
+        type: Sequelize.BLOB, // BLOB으로 수정
         allowNull: true,
       },
       motto: {
@@ -37,13 +37,17 @@ module.exports = {
         allowNull: false,
         defaultValue: Sequelize.NOW,
       },
+      updatedAt: {
+        allowNull: false,
+        type: Sequelize.DATE,
+      },
       reported_count: {
         type: Sequelize.INTEGER,
         defaultValue: 0,
       },
-      updatedAt: {
-        allowNull: false,
-        type: Sequelize.DATE,
+      status: {
+        allowNull: true,
+        type: Sequelize.CHAR,
       },
     });
   },

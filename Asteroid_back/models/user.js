@@ -40,6 +40,11 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.INTEGER,
         defaultValue: 0,
       },
+      status: {
+        type: DataTypes.CHAR(1),
+        allowNull: true,
+        defaultValue: 'A', // A: Active, S: Suspended, D:Deactivated
+      },
     },
     {
       sequelize,
