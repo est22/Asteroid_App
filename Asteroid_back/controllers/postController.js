@@ -2,16 +2,18 @@ const service = require("../services/postService");
 
 // 게시글 목록
 const findAllPost = async (req, res) => {
-  // 무한 스크롤
   const page = parseInt(req.query.page) || 1;
   const pageSize = parseInt(req.query.size) || 10;
 
   const limit = pageSize;
   const offset = (page - 1) * pageSize;
-  const categoryId = req.body.category_id;
+  const { category_id, search } = req.body;
 
   try {
-    const posts = await service.findAllPost(limit, offset, categoryId);
+    const posts = await service.findAllPost(limit, offset, {
+      category_id,
+      search,
+    });
     res.status(200).json({ data: posts });
   } catch (e) {
     res.status(500).json({ error: e.message });

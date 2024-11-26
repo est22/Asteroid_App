@@ -2,13 +2,22 @@ const { Op } = require("sequelize");
 const moment = require("moment");
 const models = require("../models");
 
-// 게시글 목록(무한스크롤)
-const findAllPost = async (limit, offset, category_id) => {
+// 게시글 목록
+const findAllPost = async (limit, offset, { category_id, search }) => {
+  const whereCondition = search
+    ? {
+        [Op.or]: [
+          { title: { [Op.like]: `%${search}%` } },
+          { content: { [Op.like]: `%${search}%` } },
+        ],
+      }
+    : {};
+
   return await models.Post.findAndCountAll({
     limit,
     offset,
     order: [["id", "DESC"]],
-    where: { category_id: category_id, isShow: true },
+    where: { category_id: category_id, isShow: true, ...whereCondition },
   });
 };
 
