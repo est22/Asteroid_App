@@ -11,14 +11,23 @@ module.exports = {
         type: Sequelize.INTEGER,
       },
       target_type: {
-        type: Sequelize.CHAR,
+        type: Sequelize.STRING(1),
         allowNull: false,
       },
       target_id: {
         type: Sequelize.INTEGER,
         allowNull: false,
       },
-      user_id: {
+      target_user_id: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        references: {
+          model: "Users",
+          key: "id",
+        },
+        onDelete: "CASCADE",
+      },
+      reporting_user_id: {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {

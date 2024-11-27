@@ -47,7 +47,7 @@ module.exports = {
       },
       status: {
         allowNull: true,
-        type: Sequelize.CHAR,
+        type: Sequelize.STRING(1),
       },
     });
   },
