@@ -1,12 +1,12 @@
-'use strict';
+"use strict";
 
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
     await queryInterface.bulkInsert("Likes", [
       {
-        user_id: 1,
-        target_type: "P", // 예: Post
+        user_id: 2,
+        target_type: "P",
         target_id: 1,
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -14,8 +14,8 @@ module.exports = {
 
       {
         user_id: 3,
-        target_type: "P", // 예: Post
-        target_id: 1,
+        target_type: "P",
+        target_id: 2,
         createdAt: new Date(),
         updatedAt: new Date(),
       },

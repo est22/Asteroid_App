@@ -45,6 +45,7 @@ const login = async (req, res) => {
 
 const register = async (req, res) => {
   const { email, password } = req.body;
+  const { email, password } = req.body;
   const hashedPassword = await bcrypt.hash(password, 10);
 
   try {
@@ -83,11 +84,9 @@ const updateUser = async (req, res) => {
   } catch (e) {
     // 고유 제약 조건 에러 (닉네임 중복)
     if (e.name === "SequelizeUniqueConstraintError") {
-      return res
-        .status(400)
-        .json({
-          message: "닉네임이 중복됩니다. 다른 닉네임을 사용하세요.",
-        });
+      return res.status(400).json({
+        message: "닉네임이 중복됩니다. 다른 닉네임을 사용하세요.",
+      });
     }
 
     // 그 외의 서버 오류
