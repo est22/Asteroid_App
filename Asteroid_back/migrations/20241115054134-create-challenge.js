@@ -4,7 +4,6 @@
 module.exports = {
   async up(queryInterface, Sequelize) {
     await queryInterface.createTable("Challenges", {
-      
       id: {
         type: Sequelize.INTEGER,
         allowNull: false,
@@ -32,7 +31,7 @@ module.exports = {
         allowNull: true,
       },
       status: {
-        type: Sequelize.CHAR(1),
+        type: Sequelize.STRING(1),
         allowNull: false,
       },
       createdAt: {
