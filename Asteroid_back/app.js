@@ -14,7 +14,7 @@ const PORT = 3000;
 app.use(express.json());
 app.use("/auth", authRoute);
 app.use("/profile", profileRoute);
-// app.use("/posts", postRoute);
+app.use("/post", postRoute);
 // app.use("/balance", balanceVoteRoute);
 // app.use("/challenge", challengeRoute);
 // app.use("/settings", settingsRoute);
