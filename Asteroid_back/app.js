@@ -4,7 +4,7 @@ const profileRoute = require("./routes/profileRoute"); // 유저 프로필
 const reportRoute = require("./routes/reportRoute"); // 신고
 // const postRoute = require("./routes/postRoute"); // 커뮤니티
 // const balanceVoteRoute = require("./routes/balanceVoteRoute"); // 밸런스투표
-// const challengeRoute = require("./routes/challengeRoute"); // 챌린지
+const challengeRoute = require("./routes/challengeRoute"); // 챌린지
 // const settingsRoute = require("./routes/settingsRoute"); // 설정
 // const messageRoute = require("./routes/messageRoute"); // 쪽지함
 
@@ -18,7 +18,7 @@ app.use("/profile", profileRoute);
 app.use("/report", reportRoute);
 // app.use("/posts", postRoute);
 // app.use("/balance", balanceVoteRoute);
-// app.use("/challenge", challengeRoute);
+app.use("/challenge", challengeRoute);
 // app.use("/settings", settingsRoute);
 // app.use("/message", messageRoute);
 

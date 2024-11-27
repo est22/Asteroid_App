@@ -1,5 +1,5 @@
 const multer = require("multer");
-const { User, PostImage, BalanceVote, ChallengeImage } = require("../models"); // 필요한 테이블들 import
+const { User, PostImage, BalanceVote, ChallengeImage, Challenge } = require("../models"); // 필요한 테이블들 import
 
 // multer의 메모리 스토리지 사용 (로컬에 저장하지 않고 메모리에서 처리)
 const storage = multer.memoryStorage();
@@ -29,7 +29,7 @@ const uploadPhotos = (req, res, maxFiles) => {
 };
 
 // 파일을 DB에 저장하는 함수 (어떤 테이블에 저장할지 선택 가능)
-const saveFilesToDB = async (files, userId, targetTable) => {
+const saveFilesToDB = async (files, userId, targetTable, challengeId) => {
   try {
     const fileRecords = [];
 
@@ -62,15 +62,25 @@ const saveFilesToDB = async (files, userId, targetTable) => {
           { where: { userId } }
         );
       } else if (targetTable === "ChallengeImage") {
-        // 챌린지 인증 이미지를 ChallengeImage 테이블에 저장 (BYTEA 타입)
         if (files.length !== 1) {
-          throw new Error("챌린지 인증용 이미지는 1개만 업로드해야 합니다.");
+            throw new Error("챌린지 인증용 이미지는 1개만 업로드해야 합니다.");
         }
-        await ChallengeImage.create({
-          userId,
-          image_url: files[0].buffer, // image_url 필드에 BYTEA 형식으로 저장
-          fileName: fileName, // 파일 이름 저장 (옵션)
-        });
+        
+        try {
+            const challenge = await Challenge.findByPk(challengeId);
+            if (!challenge) {
+                throw new Error(`Challenge ID ${challengeId}가 존재하지 않습니다.`);
+            }
+
+            const result = await ChallengeImage.create({
+                user_id: userId,
+                challenge_id: challengeId,
+                image_url: files[0].buffer,
+                fileName: fileName,
+            });
+        } catch (error) {
+            throw error;
+        }
       }
 
       fileRecords.push({ fileName, fileBuffer }); // 저장된 파일 정보 추가

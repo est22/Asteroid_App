@@ -16,7 +16,7 @@ module.exports = (sequelize, DataTypes) => {
 
   ChallengeImage.init(
     {
-      image_url: DataTypes.STRING,
+      image_url: DataTypes.BLOB,
       user_id: DataTypes.INTEGER,
       challenge_id: DataTypes.INTEGER,
     },
