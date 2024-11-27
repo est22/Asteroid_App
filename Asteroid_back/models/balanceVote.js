@@ -12,8 +12,17 @@ module.exports = (sequelize, DataTypes) => {
 
   BalanceVote.init(
     {
-      title: DataTypes.STRING(23),
-      description: DataTypes.STRING(100),
+      vote_id: {
+        type: DataTypes.INTEGER,
+        primaryKey: true,
+        autoIncrement: true,
+      },
+      title: DataTypes.STRING,
+      description: DataTypes.STRING,
+      created_at: {
+        type: DataTypes.DATE,
+        defaultValue: DataTypes.NOW,
+      },
       user_id: DataTypes.INTEGER,
       image1: DataTypes.STRING,
       image2: DataTypes.STRING,
@@ -25,7 +34,6 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.INTEGER,
         defaultValue: 0,
       },
-      isShow: DataTypes.BOOLEAN,
     },
     {
       sequelize,
