@@ -15,7 +15,7 @@ module.exports = {
       {
         user_id: 3,
         target_type: "P", // 예: Post
-        target_id: 1,
+        target_id: 2,
         createdAt: new Date(),
         updatedAt: new Date(),
       },
