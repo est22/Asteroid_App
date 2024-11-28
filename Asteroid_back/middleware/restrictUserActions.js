@@ -16,11 +16,11 @@ const restrictActions = async (req, res, next) => {
 
     // Report 테이블에서 특정 타입에 대한 신고 확인 (target_user_id 기준)
     const restrictedTypes = [0, 1, 4, 6, 7, 8];
-    const reports = await Report.findAll({
+    const reports = await Report.findOne({
       where: { target_user_id: userId, report_type: restrictedTypes },
     });
 
-    if (reports.length > 0) {
+    if (reports) {
       return res.status(403).json({
         message: "신고로 인해 글쓰기 또는 댓글 작성이 제한되었습니다.",
       });
@@ -33,4 +33,4 @@ const restrictActions = async (req, res, next) => {
   }
 };
 
-module.exports = restrictActions;
+module.exports = {restrictActions};
