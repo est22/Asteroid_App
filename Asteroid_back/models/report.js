@@ -98,6 +98,25 @@ module.exports = (sequelize, DataTypes) => {
             await participation.save();
         }
     }
+
+    // 신고된 컨텐츠의 isShow를 false로 변경
+    if (target_type === "P") {
+        const post = await Post.findByPk(target_id);
+        if (post) {
+            await post.update({ isShow: false });
+        }
+    } else if (target_type === "C") {
+        const comment = await Comment.findByPk(target_id);
+        if (comment) {
+            await comment.update({ isShow: false });
+        }
+    } else if (target_type === "L") {
+        const participation = await ChallengeParticipation.findByPk(target_id);
+        if (participation) {
+            participation.challenge_reported_count += 1;
+            await participation.save();
+        }
+    }
   });
 
   return Report;
