@@ -37,6 +37,7 @@ module.exports = (sequelize, DataTypes) => {
     const User = sequelize.models.User;
     const Post = sequelize.models.Post;
     const Comment = sequelize.models.Comment;
+    const ChallengeParticipation = sequelize.models.ChallengeParticipation;
 
     // (1) 신고 대상의 작성자 ID를 가져오기
     let targetUserId = null;
@@ -56,6 +57,12 @@ module.exports = (sequelize, DataTypes) => {
     } else if (target_type === "U") {
       // target_type이 U인 경우 -> User 테이블에서 ID를 그대로 가져옴 
       targetUserId = target_id; // 직접 유저 ID를 사용
+
+    } else if (target_type === "L") {
+      const challengeParticipation = await ChallengeParticipation.findByPk(target_id);
+      if (challengeParticipation) {
+        targetUserId = challengeParticipation.user_id; // 챌린지 참여의 작성자 ID
+      }
     }
 
     // (2) 신고한 유저의 ID는 `reporting_user_id`에 담음
@@ -63,28 +70,33 @@ module.exports = (sequelize, DataTypes) => {
     report.target_user_id = targetUserId;
     report.reporting_user_id = reporting_user_id; // 신고한 유저의 ID를 `reporting_user_id` 필드에 저장
 
-    // (4) 신고 유형이 0,1,4,6,7,8인 경우, 바로 정지 처리
+    // (4) 신고 유형이 0,1,4,6,7,8인 경우
     const immediateSuspendTypes = [0, 1, 4, 6, 7, 8];
-    if (immediateSuspendTypes.includes(report_type)) {
-      const user = await User.findByPk(reporting_user_id); // 신고한 유저
-      if (user && user.status === "A") {
-        user.status = "S"; // 활동 정지로 상태 변경
-        await user.save(); // 변경 사항 저장
-        console.log(
-          `User ${user.id} 상태가 즉시 "이용 정지" 상태로 변경되었습니다.`
-        );
-      }
-      return;
+    const user = await User.findByPk(targetUserId);
+    
+    if (user) {
+        // 모든 경우에 대해 신고 횟수는 1씩만 증가
+        user.reported_count += 1;
+
+        // 즉시 정지 유형인 경우
+        if (immediateSuspendTypes.includes(report_type) && user.status === "A") {
+            user.status = "S";
+        }
+        // 일반 신고인 경우 3회 이상이면 정지
+        else if (user.reported_count >= 3 && user.status === "A") {
+            user.status = "S";
+        }
+        
+        await user.save();
     }
 
-    // (5) 그 외 신고 유형은 누적 신고 수 확인
-    const user = await User.findByPk(reporting_user_id);
-    if (user && user.reported_count >= 3 && user.status === "A") {
-      user.status = "S"; // 상태를 정지로 변경
-      await user.save();
-      console.log(
-        `User ${user.id}의 상태가 신고 누적으로 "이용 정지" 상태로 변경되었습니다.`
-      );
+    // (6) 챌린지 참여 신고인 경우 challenge_reported_count 증가
+    if (target_type === "L") {
+        const participation = await ChallengeParticipation.findByPk(target_id);
+        if (participation) {
+            participation.challenge_reported_count += 1;
+            await participation.save();
+        }
     }
   });
 
