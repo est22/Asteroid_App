@@ -19,6 +19,10 @@ module.exports = (sequelize, DataTypes) => {
       image_url: DataTypes.BLOB,
       user_id: DataTypes.INTEGER,
       challenge_id: DataTypes.INTEGER,
+      upload_date: { // 챌린지 일일 참여 트래킹을 위한 추가
+        type: DataTypes.DATEONLY,
+        allowNull: false,
+      }
     },
     {
       sequelize,

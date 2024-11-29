@@ -62,25 +62,13 @@ const saveFilesToDB = async (files, userId, targetTable, challengeId) => {
           { where: { userId } }
         );
       } else if (targetTable === "ChallengeImage") {
-        if (files.length !== 1) {
-            throw new Error("챌린지 인증용 이미지는 1개만 업로드해야 합니다.");
-        }
-        
-        try {
-            const challenge = await Challenge.findByPk(challengeId);
-            if (!challenge) {
-                throw new Error(`Challenge ID ${challengeId}가 존재하지 않습니다.`);
-            }
-
-            const result = await ChallengeImage.create({
-                user_id: userId,
-                challenge_id: challengeId,
-                image_url: files[0].buffer,
-                fileName: fileName,
-            });
-        } catch (error) {
-            throw error;
-        }
+        const result = await ChallengeImage.create({
+          image_url: files[0].buffer,
+          user_id: userId,
+          challenge_id: challengeId,
+          upload_date: uploadDate  // 새로 추가된 필드
+        });
+        return result;
       }
 
       fileRecords.push({ fileName, fileBuffer }); // 저장된 파일 정보 추가
