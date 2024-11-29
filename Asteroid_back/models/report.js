@@ -70,36 +70,36 @@ module.exports = (sequelize, DataTypes) => {
     report.target_user_id = targetUserId;
     report.reporting_user_id = reporting_user_id; // 신고한 유저의 ID를 `reporting_user_id` 필드에 저장
 
-    // (4) 신고 유형이 0,1,4,6,7,8인 경우
+    // 신고 유형이 0,1,4,6,7,8인 경우
     const immediateSuspendTypes = [0, 1, 4, 6, 7, 8];
     const user = await User.findByPk(targetUserId);
     
     if (user) {
-        // 모든 경우에 대해 신고 횟수는 1씩만 증가
         user.reported_count += 1;
-
-        // 즉시 정지 유형인 경우
         if (immediateSuspendTypes.includes(report_type) && user.status === "A") {
             user.status = "S";
         }
-        // 일반 신고인 경우 3회 이상이면 정지
         else if (user.reported_count >= 3 && user.status === "A") {
             user.status = "S";
         }
-        
         await user.save();
     }
 
-    // (6) 챌린지 참여 신고인 경우 challenge_reported_count 증가
+    // 챌린지 참여 신고인 경우 (target_type === "L")
     if (target_type === "L") {
         const participation = await ChallengeParticipation.findByPk(target_id);
         if (participation) {
             participation.challenge_reported_count += 1;
+            
+            // 심각한 위반인 경우 즉시 "신고 대상" 상태로 변경
+            if (immediateSuspendTypes.includes(report_type)) {
+                participation.status = "신고 대상";
+            }
             await participation.save();
         }
     }
 
-    // 신고된 컨텐츠의 isShow를 false로 변경
+    // 신고된 컨텐츠의 isShow 처리
     if (target_type === "P") {
         const post = await Post.findByPk(target_id);
         if (post) {
@@ -109,12 +109,6 @@ module.exports = (sequelize, DataTypes) => {
         const comment = await Comment.findByPk(target_id);
         if (comment) {
             await comment.update({ isShow: false });
-        }
-    } else if (target_type === "L") {
-        const participation = await ChallengeParticipation.findByPk(target_id);
-        if (participation) {
-            participation.challenge_reported_count += 1;
-            await participation.save();
         }
     }
   });
