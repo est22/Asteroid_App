@@ -1,5 +1,5 @@
 const { Challenge, ChallengeParticipation, ChallengeImage, User } = require("../models");
-const { uploadPhotos, saveFilesToDB } = require("../services/fileUploadService.js");
+const { uploadPhotos, saveFilesToDB } = require("../services/fileUploadService");
 const { checkDailyUpload } = require('../services/challengeService');
 const { Op } = require('sequelize');
 
@@ -122,47 +122,27 @@ const uploadChallengeImage = async (req, res) => {
     const userId = req.user.id;
     const challengeId = req.params.challengeId;
 
-    // 참여 상태 확인
     const participation = await ChallengeParticipation.findOne({
       where: {
         user_id: userId,
         challenge_id: challengeId,
-        status: {
-          [Op.in]: ["참여중"]
-        }
+        status: "참여중"
       }
     });
 
     if (!participation) {
       return res.status(403).json({
-        message: "챌린지에 참여 중이 아니거나 업로드가 제한되었습니다."
+        message: "챌린지에 참여 중이 아니니다."
       });
     }
 
-    // 일일 업로드 체크
-    const canUpload = await checkDailyUpload(userId, challengeId);
-    if (!canUpload) {
-      return res.status(400).json({
-        message: "오늘은 이미 인증 사진을 업로드했습니다."
-      });
-    }
-
-    if (!req.file) {
-      return res.status(400).json({ error: "파일이 업로드되지 않았습니다." });
-    }
-
-    const result = await saveFilesToDB(
-      [req.file],
-      userId,
-      "ChallengeImage",
-      challengeId
-    );
+    const files = await uploadPhotos(req, res, 1);
+    await saveFilesToDB(files, userId, "ChallengeImage", challengeId);
 
     return res.status(200).json({
-      message: "챌린지 인증 이미지가 성공적으로 업로드되었습니다.",
+      message: "챌린지 인증 이미지가 성공적으로 업로드되었습니다."
     });
   } catch (error) {
-    console.error('이미지 업로드 에러:', error);
     return res.status(500).json({ 
       error: "이미지 업로드 중 오류가 발생했습니다.",
       details: error.message 
