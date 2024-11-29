@@ -29,7 +29,7 @@ const uploadPhotos = (req, res, maxFiles) => {
 };
 
 // 파일을 DB에 저장하는 함수 (어떤 테이블에 저장할지 선택 가능)
-const saveFilesToDB = async (files, userId, targetTable) => {
+const saveFilesToDB = async (files, userId, targetTable, transaction) => {
   try {
     const fileRecords = [];
 
@@ -47,11 +47,13 @@ const saveFilesToDB = async (files, userId, targetTable) => {
         );
       } else if (targetTable === "PostImage") {
         // 게시글 이미지를 PostImage 테이블에 저장 (BYTEA 타입)
-        await PostImage.create({
-          post_id: userId, // 게시글 ID (사용자 ID 대신 게시글 ID를 저장)
-          image_url: fileBuffer, // image_url 필드에 BYTEA 형식으로 저장
-          fileName: fileName, // 파일 이름 저장 (옵션)
-        });
+        await PostImage.create(
+          {
+            post_id: userId, // 게시글 ID (사용자 ID 대신 게시글 ID를 저장)
+            image_url: fileBuffer, // image_url 필드에 BYTEA 형식으로 저장
+          },
+          { transaction }
+        );
       } else if (targetTable === "BalanceVote") {
         // 투표용 이미지 저장 (BalanceVote 테이블)
         if (files.length !== 2) {
