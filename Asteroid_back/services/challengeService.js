@@ -8,11 +8,17 @@ const checkDailyUpload = async (userId, challengeId) => {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   
+  const tomorrow = new Date(today);
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  
   const todayUpload = await ChallengeImage.findOne({
     where: {
       user_id: userId,
       challenge_id: challengeId,
-      upload_date: today
+      createdAt: {
+        [Op.gte]: today,
+        [Op.lt]: tomorrow
+      }
     }
   });
   
@@ -84,7 +90,7 @@ const checkChallengeCompletion = async () => {
       where: {
         user_id: participation.user_id,
         challenge_id: participation.challenge_id,
-        upload_date: {
+        createdAt: {
           [Op.between]: [participation.start_date, participation.end_date]
         }
       }

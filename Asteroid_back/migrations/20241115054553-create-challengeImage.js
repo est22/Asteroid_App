@@ -32,11 +32,6 @@ module.exports = {
         },
         onDelete: "CASCADE",
       },
-      upload_date: {
-        type: Sequelize.DATEONLY,
-        allowNull: false,
-        defaultValue: Sequelize.NOW
-      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE,

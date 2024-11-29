@@ -116,6 +116,18 @@ module.exports = {
           createdAt: new Date(),
           updatedAt: new Date(),
         },
+        // 챌린지 보상 테스트용 seed data
+        {
+          name: "하루만 절약하기",
+          period: 1,
+          status: "O",
+          description: "하루동안 최대한 절약해보기",
+          reward_name: "하루 소행성",
+          reward_image_url:
+            "https://t4.ftcdn.net/jpg/06/24/71/65/240_F_624716525_XkfWN871xs5Rvi9MQr0oXBapAX5d2yH9.jpg",
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
       ],
       {}
     );

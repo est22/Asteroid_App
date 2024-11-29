@@ -128,7 +128,7 @@ const uploadChallengeImage = async (req, res) => {
         user_id: userId,
         challenge_id: challengeId,
         status: {
-          [Op.in]: ["참여중"] // "신고 대상"이나 다른 상태는 업로드 불가
+          [Op.in]: ["참여중"]
         }
       }
     });
@@ -155,8 +155,7 @@ const uploadChallengeImage = async (req, res) => {
       [req.file],
       userId,
       "ChallengeImage",
-      challengeId,
-      new Date()
+      challengeId
     );
 
     return res.status(200).json({

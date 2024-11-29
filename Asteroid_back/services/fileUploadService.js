@@ -65,8 +65,7 @@ const saveFilesToDB = async (files, userId, targetTable, challengeId) => {
         const result = await ChallengeImage.create({
           image_url: files[0].buffer,
           user_id: userId,
-          challenge_id: challengeId,
-          upload_date: uploadDate  // 새로 추가된 필드
+          challenge_id: challengeId
         });
         return result;
       }
