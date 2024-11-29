@@ -3,8 +3,8 @@ const { Model } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
   class Post extends Model {
     static associate(models) {
-      Post.hasMany(models.Comment, { foreignKey: "id" });
-      Post.hasMany(models.PostImage, { foreignKey: "id" });
+      Post.hasMany(models.Comment, { foreignKey: "post_id" });
+      Post.hasMany(models.PostImage, { foreignKey: "post_id" });
 
       Post.belongsTo(models.Category, {
         foreignKey: "category_id",
@@ -23,7 +23,7 @@ module.exports = (sequelize, DataTypes) => {
       category_id: DataTypes.INTEGER,
       user_id: DataTypes.INTEGER,
       isShow: DataTypes.BOOLEAN,
-      likeTotal: DataTypes.INTEGER
+      likeTotal: DataTypes.INTEGER,
     },
     {
       sequelize,
