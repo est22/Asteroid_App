@@ -1,4 +1,8 @@
-const service = require("../services/postService");
+const postService = require("../services/postService");
+const {
+  uploadPhotos,
+  saveFilesToDB,
+} = require("../services/fileUploadService");
 
 // 게시글 목록
 const findAllPost = async (req, res) => {
@@ -10,7 +14,7 @@ const findAllPost = async (req, res) => {
   const { category_id, search } = req.body;
 
   try {
-    const posts = await service.findAllPost(limit, offset, {
+    const posts = await postService.findAllPost(limit, offset, {
       category_id,
       search,
     });
@@ -24,8 +28,8 @@ const findAllPost = async (req, res) => {
 const findPostById = async (req, res) => {
   const postId = req.params.id;
   try {
-    const post = await service.findPostById(postId);
-    const commentCount = await service.findCommentTotal(postId);
+    const post = await postService.findPostById(postId);
+    const commentCount = await postService.findCommentTotal(postId);
 
     if (post) {
       res.status(201).json({ data: post, commentCount: commentCount });
@@ -40,8 +44,19 @@ const findPostById = async (req, res) => {
 // 게시글 생성
 const createPost = async (req, res) => {
   try {
-    const post = await service.createPost(req.body);
-    res.status(201).json({ data: post });
+    const postData = {
+      ...req.body,
+      user_id: req.user.id,
+    };
+
+    const data = {
+      post: postData,
+      image: req.files || [],
+    };
+
+    const newPost = await postService.createPost(data);
+
+    res.status(201).json({ message: "게시글 생성 성공", data: newPost });
   } catch (e) {
     res.status(500).json({ error: e.message });
   }
@@ -50,22 +65,33 @@ const createPost = async (req, res) => {
 // 게시글 수정
 const updatePost = async (req, res) => {
   try {
-    const post = await service.updatePost(req.params.id, req.body);
+    const postId = req.params.id;
+    const postData = {
+      ...req.body,
+      user_id: req.user.id,
+    };
 
-    if (post[0] > 0) {
-      res.status(200).json({ message: "게시글 수정 성공" });
-    } else {
-      res.status(404).json({ error: "수정할 게시글 찾을 수 없음" });
-    }
-  } catch (e) {
-    res.status(500).json({ error: e.message });
+    const data = {
+      post: postData,
+      image: req.files || [],
+    };
+    console.log("%%%%%%%%%     ", data);
+
+    const updatedPost = await postService.updatePost(postId, data);
+
+    res.status(200).json({ message: "게시글 수정 성공", data: updatedPost });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
   }
 };
 
 // 게시글 삭제
 const deletePost = async (req, res) => {
+  const postId = req.params.id;
+  const userId = req.user.id;
+
   try {
-    const post = await service.deletePost(req.params.id);
+    const post = await postService.deletePost(postId, userId);
 
     if (post) {
       res.status(200).json({ message: "게시글 삭제 성공" });
@@ -83,7 +109,7 @@ const likePost = async () => {
   const userId = req.user.id;
 
   try {
-    const result = await service.likePost(postId, userId);
+    const result = await postService.likePost(postId, userId);
     res.status(200).json(result);
   } catch (e) {
     res.status(400).json({ error: e.message });
@@ -94,7 +120,7 @@ const likePost = async () => {
 // 인기게시글
 const hotPost = async (req, res) => {
   try {
-    const posts = await service.hotPost();
+    const posts = await postService.hotPost();
     res.status(200).json({ data: posts });
   } catch (e) {
     res.status(500).json({ error: e.message });
