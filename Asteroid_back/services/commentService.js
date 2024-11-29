@@ -29,21 +29,34 @@ const findCommentById = async (id) => {
 
 // 댓글 생성
 const createComment = async (data) => {
-  return await models.Comment.create(data);
+  const { commentData, userId } = data;
+  const result = await models.Comment.create({
+    ...commentData,
+    user_id: userId,
+  });
+  return result;
 };
 
 // 댓글 수정
-const updateComment = async (id, data) => {
-  return await models.Comment.update(data, {
-    where: { id },
+const updateComment = async (data) => {
+  const { commentId, commentData, userId } = data;
+
+  const result = await models.Comment.update(commentData, {
+    where: { id: commentId, user_id: userId },
   });
+  return result[0];
 };
 
 // 댓글 삭제
-const deleteComment = async (id) => {
-  return await models.Comment.destroy({
-    where: { id },
-  });
+const deleteComment = async (data) => {
+  const { commentId, userId } = data;
+  const result = await models.Comment.update(
+    { isShow: false },
+    {
+      where: { id: commentId, user_id: userId },
+    }
+  );
+  return result[0] > 0;
 };
 
 // 댓글 좋아요

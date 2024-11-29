@@ -18,7 +18,12 @@ const findCommentById = async (req, res) => {
 // 댓글 생성
 const createComment = async (req, res) => {
   try {
-    const comment = await service.createComment(req.body);
+    const data = {
+      commentData: req.body,
+      userId: req.user.id,
+    };
+
+    const comment = await service.createComment(data);
     res.status(201).json({ data: comment });
   } catch (e) {
     res.status(500).json({ error: e.message });
@@ -28,7 +33,13 @@ const createComment = async (req, res) => {
 // 댓글 수정
 const updateComment = async (req, res) => {
   try {
-    const comment = await service.updateComment(req.params.id, req.body);
+    const data = {
+      commentId: req.params.id,
+      commentData: req.body,
+      userId: req.user.id,
+    };
+
+    const comment = await service.updateComment(data);
 
     if (comment > 0) {
       res.status(200).json({ message: "댓글 수정 성공" });
@@ -43,7 +54,12 @@ const updateComment = async (req, res) => {
 // 댓글 삭제
 const deleteComment = async (req, res) => {
   try {
-    const comment = await service.deleteComment(req.params.id);
+    const data = {
+      commentId: req.params.id,
+      userId: req.user.id,
+    };
+
+    const comment = await service.deleteComment(data);
 
     if (comment) {
       res.status(200).json({ message: "댓글 삭제 성공" });
