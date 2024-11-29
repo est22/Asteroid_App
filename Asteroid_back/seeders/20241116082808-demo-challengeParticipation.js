@@ -10,7 +10,7 @@ module.exports = {
         {
           user_id: 3,
           challenge_id: 2,
-          status: "진행중",
+          status: "참여중",
           start_date: new Date("2024-11-01"),
           end_date: new Date("2024-11-15"),
           challenge_reported_count: 0,
@@ -20,7 +20,7 @@ module.exports = {
         {
           user_id: 5,
           challenge_id: 2,
-          status: "완료",
+          status: "챌린지 수료",
           start_date: new Date("2024-11-02"),
           end_date: new Date("2024-11-16"),
           challenge_reported_count: 1,
@@ -30,9 +30,9 @@ module.exports = {
         {
           user_id: 8,
           challenge_id: 2,
-          status: "진행중",
+          status: "챌린지 달성",
           start_date: new Date("2024-11-03"),
-          end_date: null,
+          end_date: new Date("2024-11-17"),
           challenge_reported_count: 0,
           createdAt: new Date(),
           updatedAt: new Date(),
@@ -40,7 +40,7 @@ module.exports = {
         {
           user_id: 1,
           challenge_id: 2,
-          status: "완료",
+          status: "챌린지 수료",
           start_date: new Date("2024-11-01"),
           end_date: new Date("2024-11-15"),
           challenge_reported_count: 2,
@@ -50,7 +50,7 @@ module.exports = {
         {
           user_id: 2,
           challenge_id: 2,
-          status: "완료",
+          status: "챌린지 수료",
           start_date: new Date("2024-11-05"),
           end_date: new Date("2024-11-19"),
           challenge_reported_count: 1,
@@ -60,7 +60,7 @@ module.exports = {
         {
           user_id: 6,
           challenge_id: 2,
-          status: "진행중",
+          status: "참여중",
           start_date: new Date("2024-11-06"),
           end_date: null,
           challenge_reported_count: 1,
@@ -70,7 +70,7 @@ module.exports = {
         {
           user_id: 10,
           challenge_id: 2,
-          status: "진행중",
+          status: "참여중",
           start_date: new Date("2024-11-07"),
           end_date: null,
           challenge_reported_count: 0,
@@ -80,7 +80,7 @@ module.exports = {
         {
           user_id: 13,
           challenge_id: 2,
-          status: "진행중",
+          status: "참여중",
           start_date: new Date("2024-11-01"),
           end_date: null,
           challenge_reported_count: 0,
@@ -90,7 +90,7 @@ module.exports = {
         {
           user_id: 14,
           challenge_id: 2,
-          status: "완료",
+          status: "챌린지 수료",
           start_date: new Date("2024-11-02"),
           end_date: new Date("2024-11-16"),
           challenge_reported_count: 2,
@@ -100,7 +100,7 @@ module.exports = {
         {
           user_id: 15,
           challenge_id: 2,
-          status: "완료",
+          status: "챌린지 수료",
           start_date: new Date("2024-11-04"),
           end_date: new Date("2024-11-18"),
           challenge_reported_count: 1,
@@ -110,7 +110,7 @@ module.exports = {
         {
           user_id: 17,
           challenge_id: 2,
-          status: "진행중",
+          status: "참여중",
           start_date: new Date("2024-11-18"),
           end_date: null,
           challenge_reported_count: 0,
@@ -120,7 +120,7 @@ module.exports = {
         {
           user_id: 18,
           challenge_id: 2,
-          status: "완료",
+          status: "챌린지 수료",
           start_date: new Date("2024-11-02"),
           end_date: new Date("2024-11-16"),
           challenge_reported_count: 1,
@@ -130,7 +130,7 @@ module.exports = {
         {
           user_id: 19,
           challenge_id: 2,
-          status: "진행중",
+          status: "참여중",
           start_date: new Date("2024-11-06"),
           end_date: null,
           challenge_reported_count: 0,
@@ -140,7 +140,7 @@ module.exports = {
         {
           user_id: 20,
           challenge_id: 2,
-          status: "진행중",
+          status: "참여중",
           start_date: new Date("2024-11-17"),
           end_date: null,
           challenge_reported_count: 0,
@@ -150,7 +150,7 @@ module.exports = {
         {
           user_id: 9,
           challenge_id: 2,
-          status: "완료",
+          status: "챌린지 수료",
           start_date: new Date("2024-11-04"),
           end_date: new Date("2024-11-18"),
           challenge_reported_count: 1,
@@ -160,7 +160,7 @@ module.exports = {
         {
           user_id: 21,
           challenge_id: 2,
-          status: "진행중",
+          status: "참여중",
           start_date: new Date("2024-11-05"),
           end_date: null,
           challenge_reported_count: 0,
@@ -170,7 +170,7 @@ module.exports = {
         {
           user_id: 22,
           challenge_id: 2,
-          status: "완료",
+          status: "챌린지 수료",
           start_date: new Date("2024-11-02"),
           end_date: new Date("2024-11-16"),
           challenge_reported_count: 1,
@@ -180,7 +180,7 @@ module.exports = {
         {
           user_id: 23,
           challenge_id: 2,
-          status: "진행중",
+          status: "참여중",
           start_date: new Date("2024-11-01"),
           end_date: null,
           challenge_reported_count: 0,
@@ -190,7 +190,7 @@ module.exports = {
         {
           user_id: 24,
           challenge_id: 2,
-          status: "완료",
+          status: "챌린지 수료",
           start_date: new Date("2024-11-01"),
           end_date: new Date("2024-11-15"),
           challenge_reported_count: 1,
@@ -202,9 +202,9 @@ module.exports = {
         {
           user_id: 3,
           challenge_id: 1,
-          status: "진행중",
+          status: "챌린지 달성",
           start_date: new Date("2024-11-01"),
-          end_date: null,
+          end_date: new Date("2024-11-15"),
           challenge_reported_count: 0,
           createdAt: new Date(),
           updatedAt: new Date(),
@@ -212,7 +212,7 @@ module.exports = {
         {
           user_id: 5,
           challenge_id: 1,
-          status: "완료",
+          status: "챌린지 수료",
           start_date: new Date("2024-11-02"),
           end_date: new Date("2024-11-16"),
           challenge_reported_count: 1,
@@ -222,9 +222,9 @@ module.exports = {
         {
           user_id: 8,
           challenge_id: 1,
-          status: "진행중",
+          status: "챌린지 달성",
           start_date: new Date("2024-11-03"),
-          end_date: null,
+          end_date: new Date("2024-11-17"),
           challenge_reported_count: 0,
           createdAt: new Date(),
           updatedAt: new Date(),
@@ -232,7 +232,7 @@ module.exports = {
         {
           user_id: 6,
           challenge_id: 1,
-          status: "완료",
+          status: "챌린지 수료",
           start_date: new Date("2024-11-04"),
           end_date: new Date("2024-11-18"),
           challenge_reported_count: 1,
@@ -242,7 +242,7 @@ module.exports = {
         {
           user_id: 10,
           challenge_id: 1,
-          status: "진행중",
+          status: "참여중",
           start_date: new Date("2024-11-05"),
           end_date: null,
           challenge_reported_count: 0,
@@ -252,7 +252,7 @@ module.exports = {
         {
           user_id: 2,
           challenge_id: 1,
-          status: "진행중",
+          status: "참여중",
           start_date: new Date("2024-11-06"),
           end_date: null,
           challenge_reported_count: 0,
@@ -262,7 +262,7 @@ module.exports = {
         {
           user_id: 12,
           challenge_id: 1,
-          status: "완료",
+          status: "챌린지 수료",
           start_date: new Date("2024-11-02"),
           end_date: new Date("2024-11-16"),
           challenge_reported_count: 1,
@@ -272,7 +272,7 @@ module.exports = {
         {
           user_id: 14,
           challenge_id: 1,
-          status: "진행중",
+          status: "참여중",
           start_date: new Date("2024-11-03"),
           end_date: null,
           challenge_reported_count: 0,
@@ -282,7 +282,7 @@ module.exports = {
         {
           user_id: 18,
           challenge_id: 1,
-          status: "완료",
+          status: "챌린지 수료",
           start_date: new Date("2024-11-01"),
           end_date: new Date("2024-11-15"),
           challenge_reported_count: 1,
@@ -292,7 +292,7 @@ module.exports = {
         {
           user_id: 19,
           challenge_id: 1,
-          status: "진행중",
+          status: "참여중",
           start_date: new Date("2024-11-06"),
           end_date: null,
           challenge_reported_count: 0,
@@ -304,7 +304,7 @@ module.exports = {
         {
           user_id: 1,
           challenge_id: 3,
-          status: "완료",
+          status: "챌린지 수료",
           start_date: new Date("2024-11-01"),
           end_date: new Date("2024-11-07"),
           challenge_reported_count: 1,
@@ -314,9 +314,9 @@ module.exports = {
         {
           user_id: 2,
           challenge_id: 3,
-          status: "진행중",
+          status: "챌린지 달성",
           start_date: new Date("2024-11-02"),
-          end_date: null,
+          end_date: new Date("2024-11-09"),
           challenge_reported_count: 0,
           createdAt: new Date(),
           updatedAt: new Date(),
@@ -324,7 +324,7 @@ module.exports = {
         {
           user_id: 6,
           challenge_id: 3,
-          status: "진행중",
+          status: "참여중",
           start_date: new Date("2024-11-03"),
           end_date: null,
           challenge_reported_count: 0,
@@ -334,7 +334,7 @@ module.exports = {
         {
           user_id: 12,
           challenge_id: 3,
-          status: "완료",
+          status: "챌린지 수료",
           start_date: new Date("2024-11-01"),
           end_date: new Date("2024-11-07"),
           challenge_reported_count: 1,
@@ -344,7 +344,7 @@ module.exports = {
         {
           user_id: 16,
           challenge_id: 3,
-          status: "진행중",
+          status: "참여중",
           start_date: new Date("2024-11-04"),
           end_date: null,
           challenge_reported_count: 0,
@@ -354,7 +354,7 @@ module.exports = {
         {
           user_id: 18,
           challenge_id: 3,
-          status: "진행중",
+          status: "참여중",
           start_date: new Date("2024-11-06"),
           end_date: null,
           challenge_reported_count: 0,
@@ -366,7 +366,7 @@ module.exports = {
         {
           user_id: 3,
           challenge_id: 4,
-          status: "완료",
+          status: "챌린지 수료",
           start_date: new Date("2024-11-02"),
           end_date: new Date("2024-11-16"),
           challenge_reported_count: 1,
@@ -376,7 +376,7 @@ module.exports = {
         {
           user_id: 5,
           challenge_id: 4,
-          status: "진행중",
+          status: "참여중",
           start_date: new Date("2024-11-03"),
           end_date: null,
           challenge_reported_count: 0,
@@ -386,7 +386,7 @@ module.exports = {
         {
           user_id: 6,
           challenge_id: 4,
-          status: "완료",
+          status: "챌린지 수료",
           start_date: new Date("2024-11-01"),
           end_date: new Date("2024-11-15"),
           challenge_reported_count: 1,
@@ -396,7 +396,7 @@ module.exports = {
         {
           user_id: 10,
           challenge_id: 4,
-          status: "신고 접수",
+          status: "신고 대상",
           start_date: new Date("2024-11-04"),
           end_date: null,
           challenge_reported_count: 1,

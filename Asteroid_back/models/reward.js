@@ -11,6 +11,9 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: "challenge_id",
         onDelete: "CASCADE",
       });
+      Reward.belongsTo(models.ChallengeParticipation, {
+        foreignKey: "challenge_id"
+      });
     }
   }
 
