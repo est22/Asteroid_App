@@ -13,7 +13,6 @@ module.exports = (sequelize, DataTypes) => {
       User.hasMany(models.Message, { foreignKey: "sender_user_id" });
       User.hasMany(models.Message, { foreignKey: "receiver_user_id" });
       User.hasMany(models.ChallengeImage, { foreignKey: "user_id" });
-      User.hasMany(models.PostImage, { foreignKey: "user_id" });
     }
   }
   User.init(

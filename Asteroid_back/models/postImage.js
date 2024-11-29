@@ -12,7 +12,7 @@ module.exports = (sequelize, DataTypes) => {
 
   PostImage.init(
     {
-      image_url: DataTypes.STRING,
+      image_url: DataTypes.BLOB,
       post_id: DataTypes.INTEGER,
     },
     {
