@@ -1,4 +1,4 @@
-const { Challenge, ChallengeParticipation, ChallengeImage, User } = require("../models");
+const { Challenge, ChallengeParticipation, ChallengeImage, User, Reward } = require("../models");
 const { uploadPhotos, saveFilesToDB } = require("../services/fileUploadService");
 const { checkDailyUpload } = require('../services/challengeService');
 const { Op } = require('sequelize');
@@ -122,12 +122,17 @@ const uploadChallengeImage = async (req, res) => {
     const userId = req.user.id;
     const challengeId = req.params.challengeId;
 
+    // 참여 상태 확인
     const participation = await ChallengeParticipation.findOne({
       where: {
         user_id: userId,
         challenge_id: challengeId,
         status: "참여중"
-      }
+      },
+      include: [{
+        model: Challenge,
+        attributes: ['period']
+      }]
     });
 
     if (!participation) {
@@ -138,6 +143,30 @@ const uploadChallengeImage = async (req, res) => {
 
     const files = await uploadPhotos(req, res, 1);
     await saveFilesToDB(files, userId, "ChallengeImage", challengeId);
+
+    // period가 1일인 경우 즉시 보상 지급
+    if (participation.Challenge.period === 1) {
+      // 보상 지급
+      await Reward.findOrCreate({
+        where: {
+          user_id: userId,
+          challenge_id: challengeId
+        },
+        defaults: {
+          user_id: userId,
+          challenge_id: challengeId,
+          reward_count: 1
+        }
+      });
+
+      // 참여 상태 업데이트
+      participation.status = "챌린지 달성";
+      await participation.save();
+
+      return res.status(200).json({
+        message: "챌린지 인증 이미지가 업로드되었고, 보상이 지급되었습니다."
+      });
+    }
 
     return res.status(200).json({
       message: "챌린지 인증 이미지가 성공적으로 업로드되었습니다."

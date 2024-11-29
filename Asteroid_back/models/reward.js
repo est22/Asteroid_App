@@ -12,7 +12,8 @@ module.exports = (sequelize, DataTypes) => {
         onDelete: "CASCADE",
       });
       Reward.belongsTo(models.ChallengeParticipation, {
-        foreignKey: "challenge_id"
+        foreignKey: "challenge_id",
+        constraints: false,
       });
     }
   }

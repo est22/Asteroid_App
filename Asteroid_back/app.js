@@ -16,6 +16,7 @@ const app = express();
 const PORT = 6000;
 
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 app.use("/auth", authRoute);
 app.use("/profile", profileRoute);
 app.use("/report", reportRoute);
