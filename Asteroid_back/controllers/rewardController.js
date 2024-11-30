@@ -23,7 +23,8 @@ const getMyRewards = async (req, res) => {
       rewardName: reward.Challenge.reward_name,
       rewardImageUrl: reward.Challenge.reward_image_url,
       achievementCount: reward.reward_count,
-      credit: reward.credit
+      credit: reward.credit,
+      achievedAt: reward.createdAt
     }));
 
     res.status(200).json(formattedRewards);
