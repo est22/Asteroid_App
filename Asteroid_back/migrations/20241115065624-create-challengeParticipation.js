@@ -30,7 +30,8 @@ module.exports = {
       },
       status: {
         type: Sequelize.STRING,
-        allowNull: true,
+        allowNull: false,
+        defaultValue: "참여중",
       },
       start_date: {
         type: Sequelize.DATE,

@@ -5,10 +5,10 @@ module.exports = {
   async up(queryInterface, Sequelize) {
     await queryInterface.createTable("Challenges", {
       id: {
+        type: Sequelize.INTEGER,
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
-        type: Sequelize.INTEGER,
       },
       period: {
         allowNull: false,
@@ -31,17 +31,17 @@ module.exports = {
         allowNull: true,
       },
       status: {
-        type: Sequelize.CHAR(1),
+        type: Sequelize.STRING(1),
         allowNull: false,
       },
-      created_at: {
-        allowNull: false,
+      createdAt: {
         type: Sequelize.DATE,
+        allowNull: false,
         defaultValue: Sequelize.NOW,
       },
       updatedAt: {
-        allowNull: false,
         type: Sequelize.DATE,
+        allowNull: false,
         defaultValue: Sequelize.NOW,
       },
     });

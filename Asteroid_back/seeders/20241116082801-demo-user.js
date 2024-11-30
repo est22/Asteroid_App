@@ -297,6 +297,11 @@ module.exports = {
       ],
       {}
     );
+    await queryInterface.bulkUpdate(
+      "Users",
+      { status: "A" },
+      {} // 조건 없음
+    );
   },
 
   async down(queryInterface, Sequelize) {

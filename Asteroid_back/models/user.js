@@ -3,7 +3,8 @@ const { Model } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
   class User extends Model {
     static associate(models) {
-      User.hasMany(models.Report, { foreignKey: "user_id" });
+      User.hasMany(models.Report, { foreignKey: "reporting_user_id" }); // 신고를 만든 유저
+      User.hasMany(models.Report, { foreignKey: "target_user_id" }); // 신고를 받은 유저
       User.hasMany(models.Post, { foreignKey: "user_id" });
       User.hasMany(models.Like, { foreignKey: "user_id" });
       User.hasMany(models.BalanceVote, { foreignKey: "user_id" });
@@ -27,18 +28,27 @@ module.exports = (sequelize, DataTypes) => {
       },
       nickname: {
         type: DataTypes.STRING,
-        allowNull: false,
+        allowNull: true,
         unique: true,
       },
       profile_picture: { type: DataTypes.BLOB }, // BLOB 형식으로 변경
       motto: {
         type: DataTypes.STRING,
-        allowNull: false,
+        allowNull: true,
       },
       reported_count: {
         type: DataTypes.INTEGER,
         defaultValue: 0,
       },
+      status: {
+        type: DataTypes.CHAR(1),
+        allowNull: true,
+        defaultValue: "A", // A: Active, S: Suspended, D:Deactivated
+      },
+      device_token: {
+        type: DataTypes.STRING,
+        allowNull: true
+      }
     },
     {
       sequelize,
@@ -46,6 +56,29 @@ module.exports = (sequelize, DataTypes) => {
       timestamps: true,
     }
   );
+User.addHook("afterUpdate", async (user, options) => {
+  if (user.status === "S") {
+    const updateTime = user.updatedAt;
+    const threeDaysLater = new Date(updateTime.getTime() + 3 * 24 * 60 * 60 * 1000);
+
+    if (new Date() >= threeDaysLater) {
+      user.status = "A";
+      await user.save();
+      
+      // Push Notification 발송
+      await sendPushNotification({
+        deviceToken: user.device_token, // User 모델에 device_token 필드 추가 필요
+        title: "계정 상태 알림",
+        body: "계정 정지가 해제되었습니다.",
+        data: {
+          type: "suspension_lifted",
+          userId: user.id
+        }
+      });
+    }
+  }
+});
+
 
   return User;
 };

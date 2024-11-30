@@ -11,6 +11,9 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: "challenge_id",
         onDelete: "CASCADE",
       });
+      ChallengeParticipation.hasOne(models.Reward, {
+        foreignKey: "challenge_id"
+      });
     }
   }
 
@@ -18,7 +21,11 @@ module.exports = (sequelize, DataTypes) => {
     {
       user_id: DataTypes.INTEGER,
       challenge_id: DataTypes.INTEGER,
-      status: DataTypes.STRING,
+      status: {
+        type: DataTypes.STRING,
+        // 상태 타입: "참여중", "챌린지 달성", "챌린지 수료", "신고 대상"
+        defaultValue: "참여중",
+      },
       start_date: DataTypes.DATE,
       end_date: DataTypes.DATE,
       challenge_reported_count: {

@@ -42,6 +42,11 @@ module.exports = {
         allowNull: false,
         defaultValue: Sequelize.NOW,
       },
+      credit: {
+        type: Sequelize.INTEGER,
+        defaultValue: 0,
+        allowNull: false
+      }
     });
   },
 

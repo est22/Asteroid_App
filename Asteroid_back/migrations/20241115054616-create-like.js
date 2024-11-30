@@ -20,7 +20,7 @@ module.exports = {
         onDelete: "CASCADE",
       },
       target_type: {
-        type: Sequelize.CHAR(1),
+        type: Sequelize.STRING(1),
         allowNull: false,
       },
       target_id: {
