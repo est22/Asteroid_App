@@ -2,6 +2,7 @@ const express = require("express");
 const authRoute = require("./routes/authRoute"); // 토큰 인증
 const profileRoute = require("./routes/profileRoute"); // 유저 프로필
 const postRoute = require("./routes/postRoute"); // 커뮤니티
+const commentRoute = require("./routes/commentRoute"); // 댓글
 // const balanceVoteRoute = require("./routes/balanceVoteRoute"); // 밸런스투표
 // const challengeRoute = require("./routes/challengeRoute"); // 챌린지
 // const settingsRoute = require("./routes/settingsRoute"); // 설정
@@ -15,6 +16,7 @@ app.use(express.json());
 app.use("/auth", authRoute);
 app.use("/profile", profileRoute);
 app.use("/post", postRoute);
+app.use("/comment", commentRoute);
 // app.use("/balance", balanceVoteRoute);
 // app.use("/challenge", challengeRoute);
 // app.use("/settings", settingsRoute);
