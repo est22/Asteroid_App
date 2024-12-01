@@ -5,7 +5,7 @@ const router = express.Router();
 
 router.get("/", authenticateToken, controller.messageRoom);
 router.get("/detail", authenticateToken, controller.findMessageDetail);
-router.post("/", controller.createMessage);
+router.post("/", authenticateToken, controller.createMessage);
 router.post("/left", authenticateToken, controller.leftMessage);
 
 module.exports = router;

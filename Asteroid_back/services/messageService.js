@@ -2,13 +2,15 @@ const { Op, Sequelize } = require("sequelize");
 const models = require("../models");
 
 // 쪽지방 목록 조회
-const messageRoom = async (limit, offset, user_id) => {
+const messageRoom = async (data) => {
+  const { limit, offset, userId } = data;
+
   // 나가지 않은 채팅방 조회
   const activeRooms = await models.MessageRoom.findAll({
     where: {
       [Op.or]: [
-        { user1_id: user_id, user1_left_at: { [Op.is]: null } },
-        { user2_id: user_id, user2_left_at: { [Op.is]: null } },
+        { user1_id: userId, user1_left_at: { [Op.is]: null } },
+        { user2_id: userId, user2_left_at: { [Op.is]: null } },
       ],
     },
     raw: true,
@@ -16,7 +18,7 @@ const messageRoom = async (limit, offset, user_id) => {
 
   // 나가지 않은 방 대화 상대 ID 추출
   const messagingPartners = activeRooms.map((room) =>
-    room.user1_id === user_id ? room.user2_id : room.user1_id
+    room.user1_id === userId ? room.user2_id : room.user1_id
   );
 
   // 쪽지 상대 및 최신 메시지 id 조회
@@ -25,7 +27,7 @@ const messageRoom = async (limit, offset, user_id) => {
       [
         Sequelize.literal(`
         CASE
-          WHEN sender_user_id = ${user_id} THEN receiver_user_id
+          WHEN sender_user_id = ${userId} THEN receiver_user_id
           ELSE sender_user_id
         END
       `),
@@ -37,7 +39,7 @@ const messageRoom = async (limit, offset, user_id) => {
           "COUNT",
           Sequelize.literal(`
           CASE
-            WHEN receiver_user_id = ${user_id} AND is_read = false THEN 1
+            WHEN receiver_user_id = ${userId} AND is_read = false THEN 1
             ELSE NULL
           END
         `)
@@ -46,11 +48,11 @@ const messageRoom = async (limit, offset, user_id) => {
       ],
     ],
     where: {
-      [Op.or]: [{ sender_user_id: user_id }, { receiver_user_id: user_id }],
+      [Op.or]: [{ sender_user_id: userId }, { receiver_user_id: userId }],
       [Op.or]: messagingPartners.map((partnerId) => ({
         [Op.or]: [
-          { sender_user_id: user_id, receiver_user_id: partnerId },
-          { sender_user_id: partnerId, receiver_user_id: user_id },
+          { sender_user_id: userId, receiver_user_id: partnerId },
+          { sender_user_id: partnerId, receiver_user_id: userId },
         ],
       })),
     },
@@ -115,31 +117,31 @@ const messageRoom = async (limit, offset, user_id) => {
 };
 
 // 쪽지 상세보기
-const findMessageDetail = async (limit, offset, data) => {
+const findMessageDetail = async (data) => {
+  const { limit, offset, sender_user_id, receiver_user_id } = data;
+
   // user1인지 user2인지 확인
   const room = await userCheck(data);
 
-  // leftDate 이후의 메시지 조회
+  // 쪽지방 나간 시간
   const leftDate =
-    room.user1_id === data.sender_user_id
-      ? room.user1_left_at
-      : room.user2_left_at;
+    room.user1_id === sender_user_id ? room.user1_left_at : room.user2_left_at;
 
   // 방을 나갔으면 leftDate 이후의 메시지, 안 나갔으면 전체 메시지 조회
   const whereCondition = leftDate ? { createdAt: { [Op.gt]: leftDate } } : {};
 
   return await models.Message.findAll({
-    limit: limit,
-    offset: offset,
+    limit,
+    offset,
     where: {
       [Op.or]: [
         {
-          sender_user_id: data.sender_user_id,
-          receiver_user_id: data.receiver_user_id,
+          sender_user_id: sender_user_id,
+          receiver_user_id: receiver_user_id,
         },
         {
-          sender_user_id: data.receiver_user_id,
-          receiver_user_id: data.sender_user_id,
+          sender_user_id: receiver_user_id,
+          receiver_user_id: sender_user_id,
         },
       ],
       ...whereCondition,
@@ -149,32 +151,42 @@ const findMessageDetail = async (limit, offset, data) => {
       as: "Receiver",
       attributes: ["nickname", "profile_picture"],
     },
-    order: [["id", "DESC"]],
+    order: [["id", "ASC"]],
   });
 };
 
 // 쪽지 보내기
 const createMessage = async (data) => {
-  const { sender_user_id, receiver_user_id } = data;
+  const transaction = await models.sequelize.transaction(); // 트랜잭션 시작
 
-  // MessageRooms 여부 확인
-  const room = await models.MessageRoom.findOrCreate({
-    where: {
-      [Op.or]: [
-        { user1_id: sender_user_id, user2_id: receiver_user_id },
-        { user1_id: receiver_user_id, user2_id: sender_user_id },
-      ],
-    },
-    defaults: {
-      user1_id: sender_user_id,
-      user2_id: receiver_user_id,
-    },
-  });
+  try {
+    const { sender_user_id, receiver_user_id } = data;
 
-  // 쪽지 전송
-  const message = await models.Message.create(data);
+    // MessageRooms 확인 후 없으면 새로 생성
+    const room = await models.MessageRoom.findOrCreate({
+      where: {
+        [Op.or]: [
+          { user1_id: sender_user_id, user2_id: receiver_user_id },
+          { user1_id: receiver_user_id, user2_id: sender_user_id },
+        ],
+      },
+      // 없을 때 기본 값
+      defaults: {
+        user1_id: sender_user_id,
+        user2_id: receiver_user_id,
+      },
+      transaction,
+    });
 
-  return { room, message };
+    // 쪽지 전송
+    const message = await models.Message.create(data, transaction);
+
+    await transaction.commit();
+    return { room, message };
+  } catch (error) {
+    await transaction.rollback();
+    throw new Error("쪽지 생성 실패: " + error.message);
+  }
 };
 
 // 나가기
