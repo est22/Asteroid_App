@@ -20,22 +20,22 @@ module.exports = {
         createdAt: new Date(),
         updatedAt: new Date(),
       },
-      {
-        user1_id: 1,
-        user2_id: 37,
-        user1_left_at: null,
-        user2_left_at: null,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      },
-      {
-        user1_id: 10,
-        user2_id: 37,
-        user1_left_at: null,
-        user2_left_at: null,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      },
+      // {
+      //   user1_id: 1,
+      //   user2_id: 37,
+      //   user1_left_at: null,
+      //   user2_left_at: null,
+      //   createdAt: new Date(),
+      //   updatedAt: new Date(),
+      // },
+      // {
+      //   user1_id: 10,
+      //   user2_id: 37,
+      //   user1_left_at: null,
+      //   user2_left_at: null,
+      //   createdAt: new Date(),
+      //   updatedAt: new Date(),
+      // },
     ]);
   },
 
