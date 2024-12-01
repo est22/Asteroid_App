@@ -40,7 +40,6 @@ const createComment = async (data) => {
 // 댓글 수정
 const updateComment = async (data) => {
   const { commentId, commentData, userId } = data;
-
   const result = await models.Comment.update(commentData, {
     where: { id: commentId, user_id: userId },
   });
@@ -60,7 +59,8 @@ const deleteComment = async (data) => {
 };
 
 // 댓글 좋아요
-const likeComment = async (commentId, userId) => {
+const likeComment = async (data) => {
+  const { commentId, userId } = data;
   // 좋아요 여부 확인
   const likeCheck = await models.Like.findOne({
     where: { user_id: userId, target_type: "C", target_id: commentId },
