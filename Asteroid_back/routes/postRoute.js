@@ -10,13 +10,13 @@ router.get("/:id", controller.findPostById);
 router.post(
   "/",
   authenticateToken,
-  upload.array("images", 5),
+  upload.array("images", 10),
   controller.createPost
 );
 router.put(
   "/:id",
   authenticateToken,
-  upload.array("images", 5),
+  upload.array("images", 10),
   controller.updatePost
 );
 router.delete("/:id", authenticateToken, controller.deletePost);

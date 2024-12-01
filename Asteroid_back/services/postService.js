@@ -1,10 +1,12 @@
 const { Op } = require("sequelize");
 const moment = require("moment");
-const { Post, PostImage, sequelize } = require("../models");
-const fileUploadService = require("./fileUploadService");
+const { Post, PostImage, sequelize, User, Comment } = require("../models");
+const fileUploadService = require("./fileUploadService2");
 
 // 게시글 목록
-const findAllPost = async (limit, offset, { category_id, search }) => {
+const findAllPost = async (data) => {
+  const { limit, offset, category_id, search } = data;
+
   const whereCondition = search
     ? {
         [Op.or]: [
@@ -25,10 +27,16 @@ const findAllPost = async (limit, offset, { category_id, search }) => {
 // 게시글 상세보기
 const findPostById = async (id) => {
   return await Post.findByPk(id, {
-    include: {
-      model: User,
-      attributes: ["nickname", "profile_picture"],
-    },
+    include: [
+      {
+        model: User,
+        attributes: ["nickname", "profile_picture"],
+      },
+      {
+        model: PostImage,
+        attributes: ["image_url"],
+      },
+    ],
   });
 };
 
@@ -42,11 +50,11 @@ const findCommentTotal = async (id) => {
 // 게시글 생성
 const createPost = async (data) => {
   const transaction = await sequelize.transaction(); // 트랜잭션 시작
-  const image = data.image;
+  const { postData, image } = data;
 
   try {
     // 게시글 업로드
-    const newPost = await Post.create(data.post, { transaction });
+    const newPost = await Post.create(postData, { transaction });
     console.log("생성한 게시글 아이디 : ", newPost.id);
 
     // 이미지 업로드
@@ -68,14 +76,14 @@ const createPost = async (data) => {
 };
 
 // 게시글 수정
-const updatePost = async (postId, data) => {
+const updatePost = async (data) => {
   const transaction = await sequelize.transaction(); // 트랜잭션 시작
-  const image = data.image;
+  const { userId, postId, postData, image } = data;
 
   try {
     // 게시글 수정
     const post = await Post.findOne({
-      where: { id: postId, isShow: true },
+      where: { id: postId, isShow: true, user_id: userId },
       transaction,
     });
 
@@ -84,7 +92,7 @@ const updatePost = async (postId, data) => {
     }
 
     // 게시글 업데이트
-    await post.update(data.post, { transaction });
+    await post.update(postData, { transaction });
 
     // 이미지 업데이트
     if (image && image.length > 0) {
@@ -112,35 +120,38 @@ const updatePost = async (postId, data) => {
 };
 
 // 게시글 삭제
-const deletePost = async (postId, userId) => {
+const deletePost = async (data) => {
   const transaction = await sequelize.transaction(); // 트랜잭션 시작
+  const { postId, userId } = data;
 
   try {
     const post = await Post.findOne({
-      where: { id: postId, user_id: userId },
+      where: { id: postId, user_id: userId, isShow: true },
       transaction,
     });
+
     if (!post) {
-      throw new Error("게시글을 찾을 수 없습니다.");
+      throw new Error("존재하지 않는 게시글");
     }
 
-    // 숨겨서 삭제처럼 보이게 하기
+    // 게시글 숨겨서 삭제처럼 보이게 하기
     await post.update({ isShow: false }, { transaction });
-    await PostImage.update(
-      { isShow: false },
-      { where: { post_id: postId }, transaction }
-    );
+
+    // 이미지는 삭제
+    await PostImage.destroy({ where: { post_id: postId }, transaction });
 
     await transaction.commit();
     return post;
   } catch (error) {
     await transaction.rollback();
-    throw new Error("게시글 삭제 실패: " + error.message);
+    throw new Error("게시글 삭제 실패 : " + error.message);
   }
 };
 
 // 게시글 좋아요
-const likePost = async (postId, userId) => {
+const likePost = async (data) => {
+  const { postId, userId } = data;
+
   // 좋아요 여부 확인
   const likeCheck = await Like.findOne({
     where: { user_id: userId, target_type: "P", target_id: postId },
