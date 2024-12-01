@@ -1,8 +1,4 @@
 const postService = require("../services/postService");
-const {
-  uploadPhotos,
-  saveFilesToDB,
-} = require("../services/fileUploadService");
 
 // 게시글 목록
 const findAllPost = async (req, res) => {
@@ -11,13 +7,16 @@ const findAllPost = async (req, res) => {
 
   const limit = pageSize;
   const offset = (page - 1) * pageSize;
-  const { category_id, search } = req.body;
+
+  const data = {
+    limit,
+    offset,
+    category_id: req.body.category_id,
+    search: req.body.search,
+  };
 
   try {
-    const posts = await postService.findAllPost(limit, offset, {
-      category_id,
-      search,
-    });
+    const posts = await postService.findAllPost(data);
     res.status(200).json({ data: posts });
   } catch (e) {
     res.status(500).json({ error: e.message });
@@ -27,6 +26,7 @@ const findAllPost = async (req, res) => {
 // 게시글 상세보기
 const findPostById = async (req, res) => {
   const postId = req.params.id;
+
   try {
     const post = await postService.findPostById(postId);
     const commentCount = await postService.findCommentTotal(postId);
@@ -44,15 +44,18 @@ const findPostById = async (req, res) => {
 // 게시글 생성
 const createPost = async (req, res) => {
   try {
-    const postData = {
-      ...req.body,
-      user_id: req.user.id,
-    };
-
     const data = {
-      post: postData,
+      postData: { ...req.body, user_id: req.user.id },
+      postId: req.params.id,
       image: req.files || [],
     };
+
+    // 유효성 검사
+    if (!data.postData.title) {
+      return res.status(403).json({ error: "제목을 적어주세요" });
+    } else if (!data.postData.content) {
+      return res.status(403).json({ error: "내용을 적어주세요" });
+    }
 
     const newPost = await postService.createPost(data);
 
@@ -65,19 +68,14 @@ const createPost = async (req, res) => {
 // 게시글 수정
 const updatePost = async (req, res) => {
   try {
-    const postId = req.params.id;
-    const postData = {
-      ...req.body,
-      user_id: req.user.id,
-    };
-
     const data = {
-      post: postData,
+      postData: req.body,
+      userId: req.user.id,
+      postId: req.params.id,
       image: req.files || [],
     };
-    console.log("%%%%%%%%%     ", data);
 
-    const updatedPost = await postService.updatePost(postId, data);
+    const updatedPost = await postService.updatePost(data);
 
     res.status(200).json({ message: "게시글 수정 성공", data: updatedPost });
   } catch (error) {
@@ -87,11 +85,13 @@ const updatePost = async (req, res) => {
 
 // 게시글 삭제
 const deletePost = async (req, res) => {
-  const postId = req.params.id;
-  const userId = req.user.id;
+  const data = {
+    postId: req.params.id,
+    userId: req.user.id,
+  };
 
   try {
-    const post = await postService.deletePost(postId, userId);
+    const post = await postService.deletePost(data);
 
     if (post) {
       res.status(200).json({ message: "게시글 삭제 성공" });
@@ -105,11 +105,13 @@ const deletePost = async (req, res) => {
 
 // 게시글 좋아요
 const likePost = async () => {
-  const postId = req.params.id;
-  const userId = req.user.id;
+  const data = {
+    postId: req.params.id,
+    userId: req.user.id,
+  };
 
   try {
-    const result = await postService.likePost(postId, userId);
+    const result = await postService.likePost(data);
     res.status(200).json(result);
   } catch (e) {
     res.status(400).json({ error: e.message });
