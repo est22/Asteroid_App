@@ -271,10 +271,48 @@ const getMyOngoingChallenges = async (req, res) => {
   }
 };
 
+const getTopUsersByChallenge = async (req, res) => {
+  try {
+    const topUsers = await Challenge.findAll({
+      attributes: ['id', 'name'],
+      include: [{
+        model: Reward,
+        include: [{
+          model: User,
+          attributes: ['nickname', 'profile_picture']
+        }]
+      }]
+    });
+
+    const formattedResults = topUsers.map(challenge => {
+      const top5Users = challenge.Rewards
+        .sort((a, b) => b.credit - a.credit)
+        .slice(0, 5)
+        .map(reward => ({
+          nickname: reward.User.nickname,
+          profilePicture: reward.User.profile_picture,
+          credit: reward.credit
+        }));
+
+      return {
+        challengeId: challenge.id,
+        challengeName: challenge.name,
+        topUsers: top5Users
+      };
+    });
+
+    res.status(200).json(formattedResults);
+  } catch (error) {
+    console.error("챌린지별 상위 크레딧 보유자 조회 실패:", error);
+    res.status(500).json({ message: "서버 오류가 발생했습니다." });
+  }
+};
+
 module.exports = {
   getChallengeList,
   getChallengeDetails,
   participateInChallenge,
   uploadChallengeImage,
   getMyOngoingChallenges,
+  getTopUsersByChallenge
 };

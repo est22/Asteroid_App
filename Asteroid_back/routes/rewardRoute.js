@@ -4,6 +4,6 @@ const { authenticateToken } = require("../middleware/auth_middleware");
 
 const router = express.Router();
 
-router.get("/", authenticateToken, getMyRewards);
+router.get("/my-rewards", authenticateToken, getMyRewards);
 
 module.exports = router; 

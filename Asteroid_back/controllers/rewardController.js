@@ -10,6 +10,21 @@ const getMyRewards = async (req, res) => {
       include: [{
         model: Challenge,
         attributes: ['name', 'reward_name', 'reward_image_url']
+      }, {
+        model: ChallengeParticipation,
+        attributes: ['status'],
+        where: {
+          [Op.or]: [
+            { 
+              status: "챌린지 달성",
+              challenge_reported_count: 0 
+            },
+            { 
+              status: "챌린지 수료", 
+              challenge_reported_count: 0 
+            }
+          ]
+        }
       }],
       order: [['updatedAt', 'DESC']]
     });
@@ -22,10 +37,13 @@ const getMyRewards = async (req, res) => {
 
     const formattedRewards = rewards.map(reward => ({
       challengeName: reward.Challenge.name,
-      rewardName: reward.Challenge.reward_name,
-      rewardImageUrl: reward.Challenge.reward_image_url,
+      rewardName: reward.ChallengeParticipation.status === "챌린지 달성" ? 
+        reward.Challenge.reward_name : null,
+      rewardImageUrl: reward.ChallengeParticipation.status === "챌린지 달성" ? 
+        reward.Challenge.reward_image_url : null,
       credit: reward.credit,
-      achievedAt: reward.updatedAt
+      achievedAt: reward.updatedAt,
+      status: reward.ChallengeParticipation.status
     }));
 
     res.status(200).json(formattedRewards);
