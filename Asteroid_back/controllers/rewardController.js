@@ -1,4 +1,5 @@
-const { Reward, Challenge } = require("../models");
+const { Reward, Challenge, ChallengeParticipation } = require("../models");
+const { Op } = require("sequelize");
 
 const getMyRewards = async (req, res) => {
   try {
@@ -9,7 +10,8 @@ const getMyRewards = async (req, res) => {
       include: [{
         model: Challenge,
         attributes: ['name', 'reward_name', 'reward_image_url']
-      }]
+      }],
+      order: [['updatedAt', 'DESC']]
     });
 
     if (!rewards || rewards.length === 0) {
@@ -22,15 +24,13 @@ const getMyRewards = async (req, res) => {
       challengeName: reward.Challenge.name,
       rewardName: reward.Challenge.reward_name,
       rewardImageUrl: reward.Challenge.reward_image_url,
-      achievementCount: reward.reward_count,
       credit: reward.credit,
-      achievedAt: reward.createdAt
+      achievedAt: reward.updatedAt
     }));
 
     res.status(200).json(formattedRewards);
   } catch (error) {
     console.error("보상 조회 실패:", error);
-    console.error("에러 상세:", error.message);
     res.status(500).json({ message: "서버 오류가 발생했습니다." });
   }
 };

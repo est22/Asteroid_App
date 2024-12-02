@@ -5,24 +5,71 @@ const { Op } = require('sequelize');
 
 // 일일 업로드 체크
 const checkDailyUpload = async (userId, challengeId) => {
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  
-  const tomorrow = new Date(today);
-  tomorrow.setDate(tomorrow.getDate() + 1);
-  
-  const todayUpload = await ChallengeImage.findOne({
-    where: {
-      user_id: userId,
-      challenge_id: challengeId,
-      createdAt: {
-        [Op.gte]: today,
-        [Op.lt]: tomorrow
+  try {
+    const participation = await ChallengeParticipation.findOne({
+      where: {
+        user_id: userId,
+        challenge_id: challengeId,
+        status: "참여중"
+      },
+      include: [{
+        model: Challenge,
+        attributes: ['period']
+      }]
+    });
+
+    if (!participation) return false;
+
+    // 오늘 업로드한 이미지 수 확인
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    const uploadCount = await ChallengeImage.count({
+      where: {
+        user_id: userId,
+        challenge_id: challengeId,
+        createdAt: {
+          [Op.gte]: today
+        }
       }
+    });
+
+    // 신고 횟수 체크 추가
+    if (participation.challenge_reported_count > 0) {
+      return false;
     }
-  });
-  
-  return !todayUpload;
+
+    // period 일수만큼 연속으로 업로드했는지 확인
+    if (uploadCount >= participation.Challenge.period) {
+      // 챌린지 달성 처리
+      participation.status = "챌린지 달성";
+      await participation.save();
+
+      // Reward 찾거나 생성 - credit 누적
+      const [reward, created] = await Reward.findOrCreate({
+        where: {
+          user_id: userId,
+          challenge_id: challengeId
+        },
+        defaults: {
+          credit: participation.Challenge.period * 10
+        }
+      });
+
+      if (!created) {
+        await reward.increment('credit', {
+          by: participation.Challenge.period * 10
+        });
+      }
+
+      return true;
+    }
+
+    return false;
+  } catch (error) {
+    console.error('챌린지 달성 체크 에러:', error);
+    throw error;
+  }
 };
 
 // 신고 처리 함수
@@ -154,6 +201,53 @@ const checkChallengeCompletion = async () => {
   }
 };
 
+// 챌린지 종료 시 보상 지급 함수 추가
+const giveRewardForCompletion = async (participation) => {
+  try {
+    // 신고 횟수 체크
+    if (participation.challenge_reported_count > 0) {
+      console.log(`사용자 ${participation.user_id}의 챌린지가 신고되어 보상이 지급되지 않습니다.`);
+      return false;
+    }
+
+    // 챌여 기간 동안의 이미지 업로드 수 확인
+    const imageCount = await ChallengeImage.count({
+      where: {
+        user_id: participation.user_id,
+        challenge_id: participation.challenge_id,
+        createdAt: {
+          [Op.between]: [participation.start_date, participation.end_date]
+        }
+      }
+    });
+
+    // 수료 보상 지급
+    if (participation.status === "챌린지 수료") {
+      const [reward, created] = await Reward.findOrCreate({
+        where: {
+          user_id: participation.user_id,
+          challenge_id: participation.challenge_id
+        },
+        defaults: {
+          credit: imageCount * 10
+        }
+      });
+
+      if (!created) {
+        await reward.increment('credit', {
+          by: imageCount * 10
+        });
+      }
+
+      return true;
+    }
+    return false;
+  } catch (error) {
+    console.error('수료 보상 지급 중 오류:', error);
+    throw error;
+  }
+};
+
 // 스케줄러 설정 (매일 자정에 실행)
 const scheduleChallengeCheck = () => {
   schedule.scheduleJob('0 0 * * *', async () => {
@@ -169,5 +263,6 @@ const scheduleChallengeCheck = () => {
 module.exports = {
   checkDailyUpload,
   checkChallengeCompletion,
-  scheduleChallengeCheck
+  scheduleChallengeCheck,
+  giveRewardForCompletion,
 }; 

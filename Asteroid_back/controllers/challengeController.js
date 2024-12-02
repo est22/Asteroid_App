@@ -137,39 +137,42 @@ const uploadChallengeImage = async (req, res) => {
 
     if (!participation) {
       return res.status(403).json({
-        message: "챌린지에 참여 중이 아니니다."
+        message: "챌린지에 참여 중이 아닙니다."
       });
     }
 
     const files = await uploadPhotos(req, res, 1);
     await saveFilesToDB(files, userId, "ChallengeImage", challengeId);
 
-    // period가 1일인 경우 즉시 보상 지급
-    if (participation.Challenge.period === 1) {
-      // 보상 지급
-      await Reward.findOrCreate({
-        where: {
-          user_id: userId,
-          challenge_id: challengeId
-        },
-        defaults: {
-          user_id: userId,
-          challenge_id: challengeId,
-          reward_count: 1
-        }
-      });
-
-      // 참여 상태 업데이트
-      participation.status = "챌린지 달성";
-      await participation.save();
-
-      return res.status(200).json({
-        message: "챌린지 인증 이미지가 업로드되었고, 보상이 지급되었습니다."
+    // 신고 횟수 체크
+    if (participation.challenge_reported_count > 0) {
+      return res.status(403).json({
+        message: "신고된 챌린지는 보상을 받을 수 없습니다."
       });
     }
 
+    // 보상 지급 로직
+    const [reward, created] = await Reward.findOrCreate({
+      where: {
+        user_id: userId,
+        challenge_id: challengeId
+      },
+      defaults: {
+        credit: participation.Challenge.period * 10
+      }
+    });
+
+    if (!created) {
+      await reward.increment('credit', {
+        by: participation.Challenge.period * 10
+      });
+    }
+
+    participation.status = "챌린지 달성";
+    await participation.save();
+
     return res.status(200).json({
-      message: "챌린지 인증 이미지가 성공적으로 업로드되었습니다."
+      message: "챌린지 인증 이미지가 업로드되었고, 보상이 지급되었습니다."
     });
   } catch (error) {
     return res.status(500).json({ 
