@@ -15,8 +15,8 @@ module.exports = (sequelize, DataTypes) => {
       title: DataTypes.STRING(23),
       description: DataTypes.STRING(100),
       user_id: DataTypes.INTEGER,
-      image1: DataTypes.STRING,
-      image2: DataTypes.STRING,
+      image1: DataTypes.BLOB,
+      image2: DataTypes.BLOB,
       vote1_count: {
         type: DataTypes.INTEGER,
         defaultValue: 0,
