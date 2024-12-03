@@ -26,8 +26,8 @@ module.exports = (sequelize, DataTypes) => {
       user_id: DataTypes.INTEGER,
       post_id: DataTypes.INTEGER,
       parent_comment_id: DataTypes.INTEGER,
-      isShow: DataTypes.BOOLEAN,
-      likeTotal: DataTypes.INTEGER,
+      isShow: { type: DataTypes.BOOLEAN, defaultValue: true },
+      likeTotal: { type: DataTypes.INTEGER, defaultValue: 0 },
     },
     {
       sequelize,

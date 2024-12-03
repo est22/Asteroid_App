@@ -18,8 +18,8 @@ module.exports = (sequelize, DataTypes) => {
       content: DataTypes.STRING,
       category_id: DataTypes.INTEGER,
       user_id: DataTypes.INTEGER,
-      isShow: DataTypes.BOOLEAN,
-      likeTotal: DataTypes.INTEGER,
+      isShow: { type: DataTypes.BOOLEAN, defaultValue: true },
+      likeTotal: { type: DataTypes.INTEGER, defaultValue: 0 },
     },
     {
       sequelize,

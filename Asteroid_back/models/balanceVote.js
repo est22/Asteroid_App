@@ -25,7 +25,7 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.INTEGER,
         defaultValue: 0,
       },
-      isShow: DataTypes.BOOLEAN,
+      isShow: { type: DataTypes.BOOLEAN, defaultValue: true },
     },
     {
       sequelize,
