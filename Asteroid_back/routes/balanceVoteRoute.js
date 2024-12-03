@@ -1,11 +1,24 @@
 const express = require("express");
-const voteController = require("../controllers/balanceVoteController");
+const multer = require("multer");
+const controller = require("../controllers/balanceVoteController");
+const { authenticateToken } = require("../middleware/auth_middleware");
 const router = express.Router();
+const upload = multer();
 
-router.get("/", voteController.findAllVote);
-router.post("/", voteController.createVote);
-router.put("/:id", voteController.updateVote);
-router.delete("/:id", voteController.deleteVote);
-router.post("/:id/submit", voteController.submitVote);
+router.get("/", controller.findAllVote);
+router.post(
+  "/",
+  authenticateToken,
+  upload.array("images"),
+  controller.createVote
+);
+router.put(
+  "/:id",
+  authenticateToken,
+  upload.array("images"),
+  controller.updateVote
+);
+router.delete("/:id", authenticateToken, controller.deleteVote);
+router.post("/:id/submit", authenticateToken, controller.submitVote);
 
 module.exports = router;

@@ -1,13 +1,11 @@
 const voteService = require("../services/balanceVoteService");
 
 // 밸런스 투표화면 및 결과 목록
-// limit 값 투표하는 화면에서는 1, 결과 목록 화면에서는 10으로 설정하기
-const findAllVote = async (req, res, next) => {
+const findAllVote = async (req, res) => {
   const page = parseInt(req.query.page) || 1;
-  const pageSize = parseInt(req.query.size) || 5;
+  const pageSize = parseInt(req.query.size) || 10;
 
-  const screen = req.query.screen === "vote";
-  const limit = screen ? 1 : pageSize;
+  const limit = pageSize;
   const offset = (page - 1) * pageSize;
 
   try {
@@ -21,8 +19,26 @@ const findAllVote = async (req, res, next) => {
 // 밸런스 투표 생성
 const createVote = async (req, res) => {
   try {
-    const post = await voteService.createVote(req.body);
-    res.status(201).json({ data: post });
+    const data = {
+      title: req.body.title.trim(),
+      description: req.body.description.trim(),
+      user_id: req.user.id,
+      images: req.files,
+    };
+
+    // 유효성 검사
+    if (!data.title) {
+      return res.status(403).json({ error: "제목을 입력하세요" });
+    } else if (!data.description) {
+      return res.status(403).json({ error: "내용을 입력하세요" });
+    } else if (data.images.length !== 2) {
+      return res
+        .status(403)
+        .json({ error: "투표용 이미지는 2개만 업로드 가능합니다" });
+    }
+
+    const result = await voteService.createVote(data);
+    res.status(201).json({ message: "밸런스 투표 생성 성공", data: result });
   } catch (e) {
     res.status(500).json({ error: e.message });
   }
@@ -31,10 +47,34 @@ const createVote = async (req, res) => {
 // 밸런스 투표 수정
 const updateVote = async (req, res) => {
   try {
-    const post = await voteService.updateVote(req.params.id, req.body);
+    const body = req.body;
+    const images = req.files;
 
-    if (post > 0) {
-      res.status(200).json({ message: "밸런스 투표 수정 성공", data: post });
+    const data = {
+      title: body.title.trim(),
+      description: body.description.trim(),
+      userId: req.user.id,
+      voteId: req.params.id,
+    };
+
+    // 유효성 검사
+    if (!data.title) {
+      return res.status(403).json({ error: "제목을 입력하세요" });
+    } else if (!data.description) {
+      return res.status(403).json({ error: "내용을 입력하세요" });
+    } else if (images.length !== 2) {
+      return res
+        .status(403)
+        .json({ error: "투표용 이미지는 2개만 업로드 가능합니다" });
+    }
+
+    data.image1 = images[0]?.buffer;
+    data.image2 = images[1]?.buffer;
+
+    const result = await voteService.updateVote(data);
+    console.log("#$#$#    result  ", result);
+    if (result) {
+      res.status(200).json({ message: "밸런스 투표 수정 성공", data: result });
     } else {
       res.status(404).json({ error: "수정할 투표글 찾을 수 없음" });
     }
@@ -45,11 +85,16 @@ const updateVote = async (req, res) => {
 
 // 밸런스 투표 삭제
 const deleteVote = async (req, res) => {
-  try {
-    const post = await voteService.deleteVote(req.params.id);
+  const data = {
+    voteId: parseInt(req.params.id, 10),
+    userId: req.user.id,
+  };
 
-    if (post) {
-      res.status(200).json({ message: "밸런스 투표 삭제 성공" });
+  try {
+    const result = await voteService.deleteVote(data);
+
+    if (result) {
+      res.status(200).json({ message: "밸런스 투표 삭제 성공", data: result });
     } else {
       res.status(404).json({ error: "삭제할 밸런스 투표 찾을 수 없음" });
     }
