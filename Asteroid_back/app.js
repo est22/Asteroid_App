@@ -12,6 +12,8 @@ const rewardRouter = require("./routes/rewardRoute"); // 보상
 const userRoute = require("./routes/userRoute"); // 유저
 
 const { scheduleChallengeCheck } = require("./services/challengeService"); // 챌린지 달성 체크
+const { schedule } = require('node-cron');
+const { updateChallengeStatusAndReward } = require('./services/challengeService');
 
 const models = require("./models");
 const app = express();
@@ -31,6 +33,11 @@ app.use("/user", userRoute);
 // app.use("/settings", settingsRoute);
 app.use("/message", messageRoute);
 app.use("/my-rewards", rewardRouter);
+
+// 매일 자정에 챌린지 상태 업데이트 및 보상 지급 실행
+schedule('0 0 * * *', () => {
+  updateChallengeStatusAndReward();
+});
 
 app.listen(PORT, () => {
   console.log(`Server listening on ${PORT}...`);
