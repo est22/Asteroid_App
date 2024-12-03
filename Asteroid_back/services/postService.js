@@ -1,7 +1,7 @@
 const { Op } = require("sequelize");
 const moment = require("moment");
 const { Post, PostImage, sequelize, User, Comment } = require("../models");
-const fileUploadService = require("./fileUploadService2");
+const fileUploadService = require("./fileUploadService");
 
 // 게시글 목록
 const findAllPost = async (data) => {
@@ -49,20 +49,17 @@ const findCommentTotal = async (id) => {
 
 // 게시글 생성
 const createPost = async (data) => {
-  const transaction = await sequelize.transaction(); // 트랜잭션 시작
+  const transaction = await sequelize.transaction();
   const { postData, image } = data;
 
   try {
-    // 게시글 업로드
     const newPost = await Post.create(postData, { transaction });
     console.log("생성한 게시글 아이디 : ", newPost.id);
 
-    // 이미지 업로드
     if (image && image.length > 0) {
-      await fileUploadService.saveFilesToDB(
+      await fileUploadService.savePostImagesToDB(
         image,
         newPost.id,
-        "PostImage",
         transaction
       );
     }
@@ -71,7 +68,7 @@ const createPost = async (data) => {
     return newPost;
   } catch (error) {
     await transaction.rollback();
-    throw new Error("게시글 생성 실패: " + error.message);
+    throw error;
   }
 };
 

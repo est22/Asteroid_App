@@ -11,7 +11,7 @@ module.exports = {
         type: Sequelize.INTEGER,
       },
       image_url: {
-        type: Sequelize.BLOB,
+        type: Sequelize.STRING,
         allowNull: false,
       },
       post_id: {

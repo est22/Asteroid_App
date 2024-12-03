@@ -28,11 +28,11 @@ module.exports = {
         onDelete: "CASCADE",
       },
       image1: {
-        type: Sequelize.BLOB,
+        type: Sequelize.STRING,
         allowNull: false,
       },
       image2: {
-        type: Sequelize.BLOB,
+        type: Sequelize.STRING,
         allowNull: false,
       },
       vote1_count: {

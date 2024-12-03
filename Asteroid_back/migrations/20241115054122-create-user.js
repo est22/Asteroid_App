@@ -25,7 +25,7 @@ module.exports = {
         unique: true,
       },
       profile_picture: {
-        type: Sequelize.BLOB, // BLOB으로 수정
+        type: Sequelize.STRING,
         allowNull: true,
       },
       motto: {
