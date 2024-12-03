@@ -15,7 +15,6 @@ struct ContentView: View {
                 .foregroundStyle(.tint)
             Text("소행성").font(.starFontB(size: 24))
         }
-        .padding()
     }
 }
 

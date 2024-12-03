@@ -10,22 +10,9 @@
 		0ACC723C2CEC2816008D316E /* Asteroid_front.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Asteroid_front.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
-/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		0ACC72692CEC2943008D316E /* Exceptions for "Asteroid_front" folder in "Asteroid_front" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				"Asteroid-front-Info.plist",
-			);
-			target = 0ACC723B2CEC2816008D316E /* Asteroid_front */;
-		};
-/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
-
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		0ACC723E2CEC2816008D316E /* Asteroid_front */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-				0ACC72692CEC2943008D316E /* Exceptions for "Asteroid_front" folder in "Asteroid_front" target */,
-			);
 			path = Asteroid_front;
 			sourceTree = "<group>";
 		};
