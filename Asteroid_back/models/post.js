@@ -6,10 +6,6 @@ module.exports = (sequelize, DataTypes) => {
       Post.hasMany(models.Comment, { foreignKey: "post_id" });
       Post.hasMany(models.PostImage, { foreignKey: "post_id" });
 
-      Post.belongsTo(models.Category, {
-        foreignKey: "category_id",
-        onDelete: "CASCADE",
-      });
       Post.belongsTo(models.User, {
         foreignKey: "user_id",
         onDelete: "CASCADE",
