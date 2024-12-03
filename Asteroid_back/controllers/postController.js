@@ -1,4 +1,5 @@
 const postService = require("../services/postService");
+const { Like, Post, User } = require("../models");
 
 // 게시글 목록
 const findAllPost = async (req, res) => {
@@ -104,18 +105,35 @@ const deletePost = async (req, res) => {
 };
 
 // 게시글 좋아요
-const likePost = async () => {
-  const data = {
-    postId: req.params.id,
-    userId: req.user.id,
-  };
-
+const likePost = async (req, res) => {
   try {
-    const result = await postService.likePost(data);
-    res.status(200).json(result);
-  } catch (e) {
-    res.status(400).json({ error: e.message });
-    console.error(e);
+    const postId = req.params.id;
+    const userId = req.user.id;
+
+    const existingLike = await Like.findOne({
+      attributes: ['id', 'user_id', 'target_type', 'target_id'],
+      where: {
+        user_id: userId,
+        target_id: postId,
+        target_type: 'P'
+      }
+    });
+
+    if (existingLike) {
+      await existingLike.destroy();
+      return res.status(200).json({ message: "좋아요가 취소되었습니다." });
+    }
+
+    await Like.create({
+      user_id: userId,
+      target_id: postId,
+      target_type: 'P'
+    });
+
+    res.status(201).json({ message: "좋아요가 추가되었습니다." });
+  } catch (error) {
+    console.error("좋아요 처리 실패:", error);
+    res.status(500).json({ message: "서버 오류가 발생했습니다." });
   }
 };
 

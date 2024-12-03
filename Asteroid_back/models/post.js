@@ -5,6 +5,13 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       Post.hasMany(models.Comment, { foreignKey: "post_id" });
       Post.hasMany(models.PostImage, { foreignKey: "post_id" });
+      Post.hasMany(models.Like, {
+        foreignKey: "target_id",
+        constraints: false,
+        scope: {
+          target_type: 'P'
+        }
+      });
 
       Post.belongsTo(models.User, {
         foreignKey: "user_id",

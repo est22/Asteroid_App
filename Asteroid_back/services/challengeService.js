@@ -112,92 +112,46 @@ const handleReportedUser = async (userId, challengeId, reportType) => {
 };
 
 // 챌린지 완료 체크 및 보상 지급
-const checkChallengeCompletion = async () => {
-  const today = new Date();
-  
-  // 종료 예정인 참여 찾기
-  const endingParticipations = await ChallengeParticipation.findAll({
-    where: {
-      end_date: {
-        [Op.lt]: today
-      },
-      status: "참여중"
-    },
-    include: [
-      {
-        model: Challenge,
-        attributes: ['period', 'reward_name', 'name', 'reward_image_url']
-      }
-    ]
-  });
+const checkChallengeCompletion = async (participation, challenge) => {
+  try {
+    const user = await User.findByPk(participation.user_id);
+    
+    // device_token이 없는 경우에도 정상 작동하도록 수정
+    if (participation.status === "참여중") {
+      participation.status = "챌린지 달성";
+      await participation.save();
 
-  for (const participation of endingParticipations) {
-    // 참여 기간 동안의 이미지 업로드 수 확인
-    const imageCount = await ChallengeImage.count({
-      where: {
+      // 보상 지급
+      const dailyCredit = 10;
+      await Reward.create({
         user_id: participation.user_id,
         challenge_id: participation.challenge_id,
-        createdAt: {
-          [Op.between]: [participation.start_date, participation.end_date]
-        }
-      }
-    });
-
-    // 성공 조건: 기간만큼 이미지를 업로드했고 신고가 없음
-    if (imageCount === participation.Challenge.period && participation.challenge_reported_count === 0) {
-      // 챌린지 달성 처리
-      participation.status = "챌린지 달성";
-      
-      // Reward 테이블 업데이트
-      const [reward, created] = await Reward.findOrCreate({
-        where: {
-          user_id: participation.user_id,
-          challenge_id: participation.challenge_id
-        },
-        defaults: {
-          reward_count: 1,
-        //   credit: 100 // 기본 포인트 지급
-        }
+        credit: dailyCredit
       });
 
-      if (!created) {
-        reward.reward_count += 1;
-        // reward.credit += 100; // 추가 포인트 지급
-        await reward.save();
+      // 푸시 알림 전송 (device_token이 있는 경우에만)
+      if (user && user.device_token) {
+        const message = {
+          notification: {
+            title: "챌린지 달성 🎉",
+            body: `${challenge.name} 챌린지를 성공적으로 달성했습니다!`
+          },
+          token: user.device_token
+        };
+
+        try {
+          await admin.messaging().send(message);
+        } catch (error) {
+          console.error("푸시 알림 전송 실패:", error);
+          // 푸시 알림 전송 실패는 전체 프로세스에 영향을 주지 않도록 함
+        }
       }
 
-      // 푸시 알림 발송
-      if (participation.User.device_token) {
-        await sendPushNotification({
-          deviceToken: participation.User.device_token,
-          title: "챌린지 달성을 축하합니다! 🎉",
-          body: `${participation.Challenge.name} 챌린지를 성공적으로 완료했습니다!`,
-          data: {
-            type: "challenge_complete",
-            challengeId: participation.challenge_id,
-            rewardName: participation.Challenge.reward_name
-          }
-        });
-      }
-    } else {
-      // 실패 처리
-      participation.status = "챌린지 수료";
-      
-      // 실패 알림 발송
-      if (participation.User.device_token) {
-        await sendPushNotification({
-          deviceToken: participation.User.device_token,
-          title: "챌린지가 종료되었습니다",
-          body: `${participation.Challenge.name} 챌린지가 종료되었습니다.`,
-          data: {
-            type: "challenge_end",
-            challengeId: participation.challenge_id
-          }
-        });
-      }
+      console.log(`챌린지 "${challenge.name}" 달성! ${dailyCredit} 크레딧 지급 완료`);
     }
-    
-    await participation.save();
+  } catch (error) {
+    console.error("챌린지 상태 체크 실패:", error);
+    throw error;
   }
 };
 
