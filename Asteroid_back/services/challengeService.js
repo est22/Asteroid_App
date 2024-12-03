@@ -260,9 +260,51 @@ const scheduleChallengeCheck = () => {
   });
 };
 
+const updateChallengeStatusAndReward = async () => {
+  try {
+    const now = new Date();
+
+    // 참여 중인 챌린지 중 기간이 끝난 것들 찾기
+    const participations = await ChallengeParticipation.findAll({
+      where: {
+        status: "참여중",
+        end_date: {
+          [Op.lte]: now
+        }
+      },
+      include: [{
+        model: Challenge,
+        attributes: ['period']
+      }]
+    });
+
+    for (const participation of participations) {
+      // 챌린지 달성 여부 확인
+      const isAchieved = participation.challenge_reported_count === 0;
+
+      // 상태 업데이트
+      participation.status = isAchieved ? "챌린지 달성" : "실패";
+      await participation.save();
+
+      // 보상 지급
+      if (isAchieved) {
+        const totalCredit = participation.Challenge.period * 10; // 예: 하루 10 크레딧
+        await Reward.create({
+          user_id: participation.user_id,
+          challenge_id: participation.challenge_id,
+          credit: totalCredit
+        });
+      }
+    }
+  } catch (error) {
+    console.error("챌린지 상태 업데이트 및 보상 지급 에러:", error);
+  }
+};
+
 module.exports = {
   checkDailyUpload,
   checkChallengeCompletion,
   scheduleChallengeCheck,
   giveRewardForCompletion,
+  updateChallengeStatusAndReward
 }; 

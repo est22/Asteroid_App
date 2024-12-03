@@ -31,7 +31,7 @@ const getMyRewards = async (req, res) => {
 
     if (!rewards || rewards.length === 0) {
       return res.status(200).json({
-        message: "참여한 챌린지가 없습니다."
+        message: "아직 챌린지를 통해 얻은 보상이 없습니다."
       });
     }
 
