@@ -143,7 +143,6 @@ const saveFilesToDB = async (files, userId, targetTable, challengeId) => {
         for (const file of files) {
             let imageUrl;
             
-            // 테이블별로 적절한 컨테이너 선택
             switch (targetTable) {
                 case "User":
                     imageUrl = await uploadToAzure(file, "profile");
@@ -163,25 +162,31 @@ const saveFilesToDB = async (files, userId, targetTable, challengeId) => {
                     break;
                     
                 case "ChallengeImage":
-                    imageUrl = await uploadToAzure(file, "challenge");
-                    const result = await ChallengeImage.create({
-                        image_url: imageUrl,
-                        user_id: userId,
-                        challenge_id: challengeId,
-                    });
-                    return result;
+                    try {
+                        imageUrl = await uploadToAzure(file, "challenge");
+                        const result = await ChallengeImage.create({
+                            image_url: imageUrl,
+                            user_id: userId,
+                            challenge_id: challengeId,
+                        });
+                        
+                        fileRecords.push({
+                            fileName: file.originalname,
+                            imageUrl: imageUrl,
+                            result: result
+                        });
+                    } catch (error) {
+                        console.error("챌린지 이미지 저장 에러:", error);
+                        throw error;
+                    }
+                    break;
             }
-
-            fileRecords.push({
-                fileName: file.originalname,
-                imageUrl: imageUrl
-            });
         }
 
         return fileRecords;
     } catch (error) {
         console.error("DB 저장 에러:", error);
-        throw new Error("파일 저장 실패");
+        throw error;
     }
 };
 
