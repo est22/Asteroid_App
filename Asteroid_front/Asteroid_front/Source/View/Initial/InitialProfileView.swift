@@ -16,10 +16,12 @@ struct InitialProfileView: View {
     
     var body: some View {
         VStack(spacing: 30) {
+        VStack(spacing: 20) {
             Text("프로필 설정")
                 .font(.largeTitle)
                 .fontWeight(.bold)
                 .padding(.top, 100)
+                .padding(.top, 160)
             
             Text("소행성에서 사용할\n닉네임과 좌우명을 입력해주세요✨")
                 .font(.body)
@@ -33,6 +35,7 @@ struct InitialProfileView: View {
                 TextField("닉네임", text: $nickname)
                     .modifier(CustomTextFieldStyle())
                     .autocapitalization(.none)
+            VStack(spacing: 25) {
                 
                 // 좌우명 입력
                 TextField("내 소비 좌우명", text: $motto)
