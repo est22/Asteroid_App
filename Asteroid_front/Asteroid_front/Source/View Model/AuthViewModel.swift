@@ -15,13 +15,60 @@ class AuthViewModel: ObservableObject {
     @Published var loginErrorMessage = ""
     @Published var registerErrorMessage = ""
     @Published var isRegistering = false
+    @Published var emailErrorMessage = ""
     
     private let baseURL = "http://localhost:3000/auth"
+    private var emailCheckCancellable: AnyCancellable? // combine 구독 저장 및 관리하기 위한 프로퍼티
     
     func validateEmail() {
         let emailRegex = "[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,64}"
-        isEmailValid = NSPredicate(format: "SELF MATCHES %@", emailRegex)
+        let isValidFormat = NSPredicate(format: "SELF MATCHES %@", emailRegex)
             .evaluate(with: email)
+        
+        if !isValidFormat {
+            isEmailValid = false
+            emailErrorMessage = "유효하지 않은 이메일 형식입니다."
+            return
+        }
+        
+        emailCheckCancellable?.cancel()
+        
+        let parameters = ["email": email]
+        
+        print("Checking email: \(email)")
+        
+        emailCheckCancellable = AF.request("\(baseURL)/check-email",
+                                         method: .post,
+                                         parameters: parameters,
+                                         encoding: JSONEncoding.default)
+            .validate()
+            .publishDecodable(type: ErrorResponse.self)
+            .receive(on: DispatchQueue.main)
+            .sink(receiveCompletion: { [weak self] completion in
+                switch completion {
+                case .finished:
+                    break
+                case .failure(let error):
+                    print("Email check error: \(error)")
+                    self?.isEmailValid = false
+                    self?.emailErrorMessage = "서버 오류가 발생했습니다."
+                }
+            }, receiveValue: { [weak self] response in
+                print("Response Status Code: \(String(describing: response.response?.statusCode))")
+                if let data = response.data, let responseString = String(data: data, encoding: .utf8) {
+                    print("Response Data: \(responseString)")
+                }
+                
+                if response.response?.statusCode == 400 {
+                    self?.isEmailValid = false
+                    if let errorMessage = try? JSONDecoder().decode(ErrorResponse.self, from: response.data ?? Data()).message {
+                        self?.emailErrorMessage = errorMessage
+                    }
+                } else {
+                    self?.isEmailValid = true
+                    self?.emailErrorMessage = "사용 가능한 이메일입니다."
+                }
+            })
     }
     
     func validatePassword() {

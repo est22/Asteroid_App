@@ -94,9 +94,24 @@ const updateUser = async (req, res) => {
   }
 };
 
+// 이메일 중복 체크 함수 추가
+const checkEmail = async (req, res) => {
+    const { email } = req.body;
+    try {
+        const user = await userService.findUserByEmail(email);
+        if (user) {
+            return res.status(400).json({ message: "이메일이 중복됩니다." });
+        }
+        res.status(200).json({ message: "사용 가능한 이메일입니다." });
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+};
+
 module.exports = {
   register,
   login,
   refresh,
   updateUser,
+  checkEmail,  // 추가
 };

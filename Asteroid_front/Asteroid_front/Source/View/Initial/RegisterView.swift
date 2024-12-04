@@ -36,10 +36,10 @@ struct RegisterView: View {
                     }
                 
                 // 이메일 유효성 검사 메시지
-                if !viewModel.isEmailValid && !viewModel.email.isEmpty {
-                    Text("유효하지 않은 이메일 형식입니다.")
+                if !viewModel.email.isEmpty {
+                    Text(viewModel.emailErrorMessage)
                         .font(.caption)
-                        .foregroundColor(.red)
+                        .foregroundColor(viewModel.isEmailValid ? .green : .red)
                 }
                 
                 // 비밀번호 입력
