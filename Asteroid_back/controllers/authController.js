@@ -24,13 +24,13 @@ const login = async (req, res) => {
     if (!user) {
       return res
         .status(400)
-        .json({ message: "No user: Invalid email or password" });
+        .json({ message: "존재하지 않는 사용자입니다. 이메일을 다시 확인해주세요." });
     }
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       return res
         .status(400)
-        .json({ message: "Not matching: Invalid email or password" });
+        .json({ message: "비밀번호가 일치하지 않습니다." });
     }
     const accessToken = generateAccessToken(user);
     const refreshToken = generateRefreshToken(user);
