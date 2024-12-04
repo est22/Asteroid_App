@@ -8,16 +8,20 @@
 import SwiftUI
 // Text("소행성").font(.starFontB(size: 24))
 struct ContentView: View {
-    @EnvironmentObject private var authViewModel: AuthViewModel
+    @EnvironmentObject private var viewModel: AuthViewModel
     
     var body: some View {
-        if authViewModel.isLoggedIn {
-            Home()
-        } else {
-            if authViewModel.isRegistering {
-                RegisterView(isRegistering: $authViewModel.isRegistering)
+        if viewModel.isLoggedIn {
+            if viewModel.isInitialProfileSet {
+                Home()
             } else {
-                LoginView(isRegistering: $authViewModel.isRegistering)
+                InitialProfileView()
+            }
+        } else {
+            if viewModel.isRegistering {
+                RegisterView(isRegistering: $viewModel.isRegistering)
+            } else {
+                LoginView()
             }
         }
     }
@@ -25,4 +29,5 @@ struct ContentView: View {
 
 #Preview {
     ContentView()
+        .environmentObject(AuthViewModel())
 }

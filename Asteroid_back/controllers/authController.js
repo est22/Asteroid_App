@@ -37,6 +37,7 @@ const login = async (req, res) => {
     res.json({
       accessToken,
       refreshToken,
+      isProfileSet: user.nickname !== null && user.motto !== null
     });
   } catch (e) {
     res.status(500).json({ error: e.message });

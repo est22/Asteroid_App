@@ -13,6 +13,7 @@ struct LoginRequest: Codable {
 struct LoginResponse: Codable {
     let accessToken: String
     let refreshToken: String
+    let isProfileSet: Bool
 }
 
 struct ErrorResponse: Codable {
@@ -33,5 +34,10 @@ struct User: Codable {
     let email: String
     let nickname: String?
     let motto: String?
-//    let profilePhoto: String?
+   let profilePhoto: String?
+}
+
+struct UpdateProfileResponse: Codable {
+    let message: String
+    let data: [Int]
 }

@@ -8,7 +8,6 @@ import SwiftUI
 
 struct LoginView: View {
     @EnvironmentObject private var viewModel: AuthViewModel
-    @Binding var isRegistering: Bool
     @State private var showPassword = false
     @State private var buttonOffset: CGFloat = 0
     
@@ -77,9 +76,9 @@ struct LoginView: View {
             // 회원가입 전환 버튼
             Button(action: {
                 withAnimation(.easeInOut(duration: 0.3)) {
-                    buttonOffset = 50  // 아래로 내려가는 효과
+                    buttonOffset = 50
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                        isRegistering = true
+                        viewModel.isRegistering = true
                         buttonOffset = 0
                     }
                 }
@@ -140,6 +139,6 @@ struct SocialLoginButton: View {
 }
 
 #Preview {
-    LoginView(isRegistering: .constant(false))
+    LoginView()
         .environmentObject(AuthViewModel())
 }

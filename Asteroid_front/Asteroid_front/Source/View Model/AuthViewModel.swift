@@ -20,6 +20,7 @@ class AuthViewModel: NSObject, ObservableObject {
     @Published var isPasswordLengthValid = false      // 8자 이상
     @Published var hasNumber = false                  // 숫자 포함
     @Published var hasSpecialCharacter = false        // 특수문자 포함
+    @Published var isInitialProfileSet = false  // 추가
     
     private let baseURL = "http://localhost:3000/auth"
     private var emailCheckCancellable: AnyCancellable? // combine 구독 저장 및 관리하기 위한 프로퍼티
@@ -151,6 +152,7 @@ class AuthViewModel: NSObject, ObservableObject {
                 UserDefaults.standard.set(loginResponse.accessToken, forKey: "accessToken")
                 UserDefaults.standard.set(loginResponse.refreshToken, forKey: "refreshToken")
                 self.isLoggedIn = true
+                self.isInitialProfileSet = loginResponse.isProfileSet // 서버에서 프로필 설정 여부를 받아옴
                 
             case .failure(let error):
                 print("Login Error: \(error.localizedDescription)")
@@ -230,6 +232,41 @@ class AuthViewModel: NSObject, ObservableObject {
         authorizationController.delegate = self
         authorizationController.performRequests()
     }
+    
+    func updateInitialProfile(nickname: String, motto: String, completion: @escaping (Bool) -> Void) {
+        let parameters = [
+            "nickname": nickname,
+            "motto": motto
+        ]
+        
+        guard let accessToken = getTokens().accessToken else {
+            completion(false)
+            return
+        }
+        
+        let headers: HTTPHeaders = [
+            "Authorization": "Bearer \(accessToken)"
+        ]
+        
+        AF.request("\(baseURL)/init",
+                  method: .post,
+                  parameters: parameters,
+                  encoding: JSONEncoding.default,
+                  headers: headers)
+        .responseDecodable(of: UpdateProfileResponse.self) { [weak self] response in
+            switch response.result {
+            case .success(let updateResponse):
+                // data 배열이 비어있지 않고 첫 번째 요소가 1이면 성공으로 간주
+                let success = !updateResponse.data.isEmpty && updateResponse.data[0] == 1
+                self?.isInitialProfileSet = success
+                completion(success)
+                
+            case .failure(let error):
+                print("Profile Update Error: \(error)")
+                completion(false)
+            }
+        }
+    }
 }
 
 // Apple 로그인 델리게이트 구현
@@ -253,4 +290,5 @@ extension AuthViewModel: ASAuthorizationControllerDelegate {
         print("Apple Sign In Error: \(error.localizedDescription)")
     }
 }
+
 
