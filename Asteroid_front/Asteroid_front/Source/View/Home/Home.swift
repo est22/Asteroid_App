@@ -17,6 +17,7 @@ struct Home: View {
             Button("로그아웃") {
                 authViewModel.logout()
             }
+            
         }
     }
 }

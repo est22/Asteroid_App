@@ -15,12 +15,13 @@ struct LoginView: View {
         VStack(spacing: 30) {
             // 로고
             HStack {
-//                Image("asteroid_logo")
-//                    .resizable()
-//                    .frame(width: 30, height: 30)
-                Text("소행성").font(.starFontB(size: 30))
+                // Image("asteroid_logo")
+                //     .resizable()
+                //     .frame(width: 30, height: 30)
+                Text("소행성")
+                    .font(.starFontB(size: 30))
             }
-            .padding(.top, 50)
+            .padding(.top, 60)
             
             // 입력 필드들
             VStack(spacing: 15) {
@@ -43,6 +44,22 @@ struct LoginView: View {
                     }
                 }
                 .modifier(CustomTextFieldStyle())
+                
+                // 비밀번호 찾기 링크
+                HStack {
+                    Spacer()
+                    Text("비밀번호를 잊어버리셨나요?")
+                        .foregroundColor(.gray)
+                        .font(.footnote)
+                        .underline()
+                        .onTapGesture {
+                            if let url = URL(string: "mailto:test@test.com") {
+                                UIApplication.shared.open(url)
+                            }
+                        }
+                        .padding(.trailing, 20)
+                }
+                .padding(.top, 2)
             }
             .padding(.horizontal, 20)
             
@@ -62,12 +79,12 @@ struct LoginView: View {
                         .progressViewStyle(CircularProgressViewStyle(tint: .white))
                 } else {
                     Text("로그인")
-                    .foregroundColor(.white)
-                    .fontWeight(.heavy)
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 50)
-                    .background(viewModel.canLogin ? Color.keyColor : Color.gray)
-                    .cornerRadius(10)
+                        .foregroundColor(.white)
+                        .fontWeight(.heavy)
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 50)
+                        .background(viewModel.canLogin ? Color.keyColor : Color.gray)
+                        .cornerRadius(10)
                 }
             }
             .padding(.horizontal, 20)
@@ -91,17 +108,24 @@ struct LoginView: View {
             
             // 소셜 로그인 섹션
             VStack(spacing: 20) {
+                HStack {
+                    Rectangle()
+                        .fill(Color.gray.opacity(0.3))
+                        .frame(height: 1)
+                        .padding(.horizontal)
+                }
+                
                 Text("소셜 로그인")
                     .foregroundColor(.gray)
                     .font(.footnote)
                 
                 HStack(spacing: 30) {
-                    SocialLoginButton(image: "kakao", action: {})
-//                    SocialLoginButton(image: "naver", action: {})
                     SocialLoginButton(image: "google", action: {})
                     SocialLoginButton(image: "apple", action: {
                         viewModel.handleSignInWithApple()
                     })
+                    SocialLoginButton(image: "naver", action: {})
+                    SocialLoginButton(image: "kakao", action: {})
                 }
             }
             .padding(.top, 30)
