@@ -2,8 +2,9 @@
 import Foundation
 import Combine
 import Alamofire
+import AuthenticationServices
 
-class AuthViewModel: ObservableObject {
+class AuthViewModel: NSObject, ObservableObject {
     @Published var email = ""
     @Published var password = ""
     @Published var confirmPassword = ""
@@ -22,6 +23,24 @@ class AuthViewModel: ObservableObject {
     
     private let baseURL = "http://localhost:3000/auth"
     private var emailCheckCancellable: AnyCancellable? // combine 구독 저장 및 관리하기 위한 프로퍼티
+    
+    override init() {
+        super.init()
+        checkAuthStatus()
+    }
+    
+    private func checkAuthStatus() {
+        let (accessToken, _) = getTokens()
+        if accessToken != nil {
+            self.isLoggedIn = true
+        }
+    }
+    
+    private func getTokens() -> (accessToken: String?, refreshToken: String?) {
+        let accessToken = UserDefaults.standard.string(forKey: "accessToken")
+        let refreshToken = UserDefaults.standard.string(forKey: "refreshToken")
+        return (accessToken, refreshToken)
+    }
     
     func validateEmail() {
         let emailRegex = "[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,64}"
@@ -200,6 +219,38 @@ class AuthViewModel: ObservableObject {
         confirmPassword = ""
         isEmailValid = true
         isPasswordMatching = true
+    }
+    
+    func handleSignInWithApple() {
+        let provider = ASAuthorizationAppleIDProvider()
+        let request = provider.createRequest()
+        request.requestedScopes = [.fullName, .email]
+        
+        let authorizationController = ASAuthorizationController(authorizationRequests: [request])
+        authorizationController.delegate = self
+        authorizationController.performRequests()
+    }
+}
+
+// Apple 로그인 델리게이트 구현
+extension AuthViewModel: ASAuthorizationControllerDelegate {
+    func authorizationController(controller: ASAuthorizationController, didCompleteWithAuthorization authorization: ASAuthorization) {
+        if let appleIDCredential = authorization.credential as? ASAuthorizationAppleIDCredential {
+            let userId = appleIDCredential.user
+            let email = appleIDCredential.email
+            
+            // 여기서 서버에 Apple 로그인 정보를 전송하고 처리
+            print("Apple User ID: \(userId)")
+            print("Apple User Email: \(email ?? "No email")")
+            
+            DispatchQueue.main.async {
+                self.isLoggedIn = true
+            }
+        }
+    }
+    
+    func authorizationController(controller: ASAuthorizationController, didCompleteWithError error: Error) {
+        print("Apple Sign In Error: \(error.localizedDescription)")
     }
 }
 

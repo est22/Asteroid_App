@@ -98,9 +98,11 @@ struct LoginView: View {
                 
                 HStack(spacing: 30) {
                     SocialLoginButton(image: "kakao", action: {})
-                    SocialLoginButton(image: "naver", action: {})
+//                    SocialLoginButton(image: "naver", action: {})
                     SocialLoginButton(image: "google", action: {})
-                    SocialLoginButton(image: "apple", action: {})
+                    SocialLoginButton(image: "apple", action: {
+                        viewModel.handleSignInWithApple()
+                    })
                 }
             }
             .padding(.top, 30)
