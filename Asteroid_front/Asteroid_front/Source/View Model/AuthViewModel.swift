@@ -16,6 +16,9 @@ class AuthViewModel: ObservableObject {
     @Published var registerErrorMessage = ""
     @Published var isRegistering = false
     @Published var emailErrorMessage = ""
+    @Published var isPasswordLengthValid = false      // 8자 이상
+    @Published var hasNumber = false                  // 숫자 포함
+    @Published var hasSpecialCharacter = false        // 특수문자 포함
     
     private let baseURL = "http://localhost:3000/auth"
     private var emailCheckCancellable: AnyCancellable? // combine 구독 저장 및 관리하기 위한 프로퍼티
@@ -72,11 +75,28 @@ class AuthViewModel: ObservableObject {
     }
     
     func validatePassword() {
-        isPasswordMatching = password == confirmPassword
+        // 8자 이상 검사
+        isPasswordLengthValid = password.count >= 8
+        
+        // 숫자 포함 검사
+        hasNumber = password.range(of: ".*[0-9]+.*", options: .regularExpression) != nil
+        
+        // 특수문자 포함 검사
+        let specialCharacterRegex = ".*[!@#$%^&*()\\-_=+{}|?>.<]+.*"
+        hasSpecialCharacter = password.range(of: specialCharacterRegex, options: .regularExpression) != nil
+        
+        // 비밀번호 확인 일치 검사
+        isPasswordMatching = password == confirmPassword && !password.isEmpty
     }
     
     var canRegister: Bool {
-        return isEmailValid && isPasswordMatching && !password.isEmpty && !email.isEmpty
+        return isEmailValid && 
+               isPasswordMatching && 
+               !password.isEmpty && 
+               !email.isEmpty && 
+               isPasswordLengthValid && 
+               hasNumber && 
+               hasSpecialCharacter
     }
 
     var canLogin: Bool {

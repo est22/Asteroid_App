@@ -11,7 +11,9 @@ struct RegisterView: View {
     @EnvironmentObject private var viewModel: AuthViewModel
     @Binding var isRegistering: Bool
     @State private var showPassword = false
+    @State private var showConfirmPassword = false
     @State private var buttonOffset: CGFloat = 0
+    @FocusState private var isPasswordFieldActive: Bool
     
     var body: some View {
         VStack(spacing: 30) {
@@ -46,8 +48,16 @@ struct RegisterView: View {
                 HStack {
                     if showPassword {
                         TextField("비밀번호", text: $viewModel.password)
+                            .focused($isPasswordFieldActive)
+                            .onChange(of: viewModel.password) { _ in
+                                viewModel.validatePassword()
+                            }
                     } else {
                         SecureField("비밀번호", text: $viewModel.password)
+                            .focused($isPasswordFieldActive)
+                            .onChange(of: viewModel.password) { _ in
+                                viewModel.validatePassword()
+                            }
                     }
                     
                     Button(action: { showPassword.toggle() }) {
@@ -57,18 +67,64 @@ struct RegisterView: View {
                 }
                 .modifier(CustomTextFieldStyle())
                 
-                // 비밀번호 확인
-                SecureField("비밀번호 확인", text: $viewModel.confirmPassword)
-                    .modifier(CustomTextFieldStyle())
-                    .onChange(of: viewModel.confirmPassword) { _ in
-                        viewModel.validatePassword()
+                // 비밀번호 확인 (수정된 부분)
+                HStack {
+                    if showConfirmPassword {
+                        TextField("비밀번호 확인", text: $viewModel.confirmPassword)
+                            .onChange(of: viewModel.confirmPassword) { _ in
+                                viewModel.validatePassword()
+                            }
+                    } else {
+                        SecureField("비밀번호 확인", text: $viewModel.confirmPassword)
+                            .onChange(of: viewModel.confirmPassword) { _ in
+                                viewModel.validatePassword()
+                            }
                     }
+                    
+                    Button(action: { showConfirmPassword.toggle() }) {
+                        Image(systemName: showConfirmPassword ? "eye.slash.fill" : "eye.fill")
+                            .foregroundColor(.gray)
+                    }
+                }
+                .modifier(CustomTextFieldStyle())
                 
                 // 비밀번호 유효성 검사 메시지
                 if !viewModel.isPasswordMatching && !viewModel.confirmPassword.isEmpty {
                     Text("비밀번호가 일치하지 않습니다")
                         .font(.caption)
                         .foregroundColor(.red)
+                }
+                
+                // 비밀번호 조건 표시
+                if isPasswordFieldActive {
+                    VStack(alignment: .leading, spacing: 5) {
+                        Text("비밀번호는 다음 조건을 만족해야 합니다:")
+                            .font(.caption)
+                            .foregroundColor(.gray)
+                            .padding(.top, 5)
+                        
+                        HStack {
+                            Image(systemName: viewModel.isPasswordLengthValid ? "checkmark.circle.fill" : "xmark.circle.fill")
+                            Text("8자 이상")
+                        }
+                        .font(.caption)
+                        .foregroundColor(viewModel.isPasswordLengthValid ? .green : .red)
+                        
+                        HStack {
+                            Image(systemName: viewModel.hasNumber ? "checkmark.circle.fill" : "xmark.circle.fill")
+                            Text("숫자 포함")
+                        }
+                        .font(.caption)
+                        .foregroundColor(viewModel.hasNumber ? .green : .red)
+                        
+                        HStack {
+                            Image(systemName: viewModel.hasSpecialCharacter ? "checkmark.circle.fill" : "xmark.circle.fill")
+                            Text("특수문자 포함")
+                        }
+                        .font(.caption)
+                        .foregroundColor(viewModel.hasSpecialCharacter ? .green : .red)
+                    }
+                    .padding(.horizontal, 10)
                 }
             }
             .padding(.horizontal, 20)
