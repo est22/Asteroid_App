@@ -112,16 +112,7 @@ struct LoginView: View {
     }
 }
 // 커스텀 텍스트필드 스타일
-struct CustomTextFieldStyle: ViewModifier {
-    func body(content: Content) -> some View {
-        content
-            .padding(15)
-            .background(
-                RoundedRectangle(cornerRadius: 10)
-                    .fill(Color(.systemGray6))
-            )
-    }
-}
+
 
 // 소셜 로그인 버튼
 struct SocialLoginButton: View {

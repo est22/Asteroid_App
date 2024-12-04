@@ -21,6 +21,7 @@ class AuthViewModel: NSObject, ObservableObject {
     @Published var hasNumber = false                  // 숫자 포함
     @Published var hasSpecialCharacter = false        // 특수문자 포함
     @Published var isInitialProfileSet = false  // 추가
+    @Published var profileErrorMessage = ""  // 추가
     
     private let baseURL = "http://localhost:3000/auth"
     private var emailCheckCancellable: AnyCancellable? // combine 구독 저장 및 관리하기 위한 프로퍼티
@@ -253,19 +254,56 @@ class AuthViewModel: NSObject, ObservableObject {
                   parameters: parameters,
                   encoding: JSONEncoding.default,
                   headers: headers)
-        .responseDecodable(of: UpdateProfileResponse.self) { [weak self] response in
-            switch response.result {
-            case .success(let updateResponse):
-                // data 배열이 비어있지 않고 첫 번째 요소가 1이면 성공으로 간주
-                let success = !updateResponse.data.isEmpty && updateResponse.data[0] == 1
-                self?.isInitialProfileSet = success
-                completion(success)
-                
-            case .failure(let error):
-                print("Profile Update Error: \(error)")
+        .response { [weak self] response in
+            if let data = response.data,
+               let errorResponse = try? JSONDecoder().decode(ErrorResponse.self, from: data) {
+                if response.response?.statusCode == 400 {
+                    self?.profileErrorMessage = errorResponse.message
+                    completion(false)
+                    return
+                }
+            }
+            
+            if response.response?.statusCode == 200 {
+                self?.isInitialProfileSet = true
+                self?.profileErrorMessage = ""
+                completion(true)
+            } else {
+                self?.profileErrorMessage = "프로필 설정에 실패했습니다."
                 completion(false)
             }
         }
+    }
+    
+    func checkNicknameAvailability(_ nickname: String, completion: @escaping (Bool) -> Void) {
+        let url = "\(baseURL)/auth/init"
+        let parameters = ["nickname": nickname]
+        
+        AF.request(url, 
+                  method: .post,  // HTTP 메서드가 올바른지 확인 (GET일 수도 있음)
+                  parameters: parameters,
+                  encoding: JSONEncoding.default)
+            .validate()
+            .responseString { [weak self] response in
+                print("Response: \(response)")  // 디버깅용
+                
+                switch response.result {
+                case .success(let message):
+                    DispatchQueue.main.async {
+                        if message == "닉네임 사용 가능" {
+                            completion(true)
+                        } else {
+                            self?.profileErrorMessage = message
+                            completion(false)
+                        }
+                    }
+                case .failure(let error):
+                    DispatchQueue.main.async {
+                        self?.profileErrorMessage = "닉네임 중복 확인에 실패했습니다."
+                        completion(false)
+                    }
+                }
+            }
     }
 }
 
