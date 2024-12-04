@@ -27,7 +27,7 @@ struct MainTabView: View {
             }.accentColor(.keyColor)
 
         }
-        .accentColor(.color3) // 탭뷰에 accentColor 적용
+        .tint(.keyColor)
         .edgesIgnoringSafeArea(.top)
     }
 }

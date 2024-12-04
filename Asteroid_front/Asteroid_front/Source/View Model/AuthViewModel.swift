@@ -22,6 +22,9 @@ class AuthViewModel: NSObject, ObservableObject {
     @Published var hasSpecialCharacter = false        // 특수문자 포함
     @Published var isInitialProfileSet = false  // 추가
     @Published var profileErrorMessage = ""  // 추가
+    @Published var nickname = ""  // 추가
+    @Published var motto = ""     // 추가
+    @Published var profilePhoto: String?  // 추가
     
     private let baseURL = "http://localhost:3000/auth"
     private var emailCheckCancellable: AnyCancellable? // combine 구독 저장 및 관리하기 위한 프로퍼티
@@ -267,6 +270,8 @@ class AuthViewModel: NSObject, ObservableObject {
             if response.response?.statusCode == 200 {
                 self?.isInitialProfileSet = true
                 self?.profileErrorMessage = ""
+                self?.nickname = nickname  // 추가: 프로필 저장 성공시 뷰모델에도 저장
+                self?.motto = motto       // 추가: 프로필 저장 성공시 뷰모델에도 저장
                 completion(true)
             } else {
                 self?.profileErrorMessage = "프로필 설정에 실패했습니다."
@@ -280,13 +285,11 @@ class AuthViewModel: NSObject, ObservableObject {
         let parameters = ["nickname": nickname]
         
         AF.request(url, 
-                  method: .post,  // HTTP 메서드가 올바른지 확인 (GET일 수도 있음)
+                  method: .post,
                   parameters: parameters,
                   encoding: JSONEncoding.default)
             .validate()
             .responseString { [weak self] response in
-                print("Response: \(response)")  // 디버깅용
-                
                 switch response.result {
                 case .success(let message):
                     DispatchQueue.main.async {
@@ -299,11 +302,63 @@ class AuthViewModel: NSObject, ObservableObject {
                     }
                 case .failure(let error):
                     DispatchQueue.main.async {
-                        self?.profileErrorMessage = "닉네임 중복 확인에 실패했습니다."
+                        self?.profileErrorMessage = error.localizedDescription
                         completion(false)
                     }
                 }
             }
+    }
+    
+    @MainActor
+    func uploadProfilePhoto(imageData: Data) async {
+        guard let accessToken = getTokens().accessToken else { return }
+        
+        let headers: HTTPHeaders = [
+            "Authorization": "Bearer \(accessToken)",
+            "Content-Type": "multipart/form-data"
+        ]
+        
+        AF.upload(multipartFormData: { multipartFormData in
+            multipartFormData.append(imageData, withName: "photo", fileName: "profile.jpg", mimeType: "image/jpeg")
+        }, to: "http://localhost:3000/profile/upload-photo", headers: headers)
+        .responseDecodable(of: UpdateProfileResponse.self) { response in
+            switch response.result {
+            case .success(let response):
+                print("Profile photo updated: \(response.message)")
+            case .failure(let error):
+                print("Failed to update profile photo: \(error)")
+            }
+        }
+    }
+    
+    @MainActor
+    func updateProfile(nickname: String, motto: String) async {
+        guard let accessToken = getTokens().accessToken else { return }
+        
+        let headers: HTTPHeaders = [
+            "Authorization": "Bearer \(accessToken)"
+        ]
+        
+        let parameters = [
+            "nickname": nickname,
+            "motto": motto
+        ]
+        
+        AF.request("http://localhost:3000/profile/update-profile",
+                  method: .post,
+                  parameters: parameters,
+                  encoding: JSONEncoding.default,
+                  headers: headers)
+        .responseDecodable(of: UpdateProfileResponse.self) { [weak self] response in
+            switch response.result {
+            case .success(let response):
+                self?.nickname = nickname
+                self?.motto = motto
+                print("Profile updated: \(response.message)")
+            case .failure(let error):
+                print("Failed to update profile: \(error)")
+            }
+        }
     }
 }
 
