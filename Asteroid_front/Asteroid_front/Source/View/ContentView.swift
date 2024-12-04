@@ -9,16 +9,15 @@ import SwiftUI
 // Text("소행성").font(.starFontB(size: 24))
 struct ContentView: View {
     @EnvironmentObject private var authViewModel: AuthViewModel
-    @State private var isRegistering = false
     
     var body: some View {
         if authViewModel.isLoggedIn {
             Home()
         } else {
-            if isRegistering {
-                RegisterView(isRegistering: $isRegistering)
+            if authViewModel.isRegistering {
+                RegisterView(isRegistering: $authViewModel.isRegistering)
             } else {
-                LoginView(isRegistering: $isRegistering)
+                LoginView(isRegistering: $authViewModel.isRegistering)
             }
         }
     }

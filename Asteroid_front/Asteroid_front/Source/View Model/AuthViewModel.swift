@@ -13,6 +13,8 @@ class AuthViewModel: ObservableObject {
     @Published var isPasswordMatching = true
     @Published var isLoading = false
     @Published var loginErrorMessage = ""
+    @Published var registerErrorMessage = ""
+    @Published var isRegistering = false
     
     private let baseURL = "http://localhost:3000/auth"
     
@@ -78,10 +80,45 @@ class AuthViewModel: ObservableObject {
     
     func register() {
         isLoading = true
-        // 임시 회원가입 로직
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+        registerErrorMessage = ""
+        
+        let parameters = RegisterRequest(
+            email: email,
+            password: password
+        )
+        
+        AF.request("\(baseURL)/register",
+                  method: .post,
+                  parameters: parameters,
+                  encoder: JSONParameterEncoder.default)
+        .responseDecodable(of: RegisterResponse.self) { [weak self] response in
+            guard let self = self else { return }
             self.isLoading = false
-            self.isLoggedIn = true
+            
+            print("Request URL: \(String(describing: response.request?.url))")
+            print("Request Body: \(parameters)")
+            print("Response Status Code: \(String(describing: response.response?.statusCode))")
+            if let data = response.data, let responseString = String(data: data, encoding: .utf8) {
+                print("Response Data: \(responseString)")
+            }
+            
+            switch response.result {
+            case .success(let registerResponse):
+                print("Successfully registered user: \(registerResponse.data.email)")
+                self.confirmPassword = ""
+                DispatchQueue.main.async {
+                    self.isRegistering = false
+                }
+                
+            case .failure(let error):
+                print("Register Error: \(error.localizedDescription)")
+                if let data = response.data,
+                   let errorResponse = try? JSONDecoder().decode(ErrorResponse.self, from: data) {
+                    self.registerErrorMessage = errorResponse.message
+                } else {
+                    self.registerErrorMessage = "회원가입에 실패했습니다."
+                }
+            }
         }
     }
     
