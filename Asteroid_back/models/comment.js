@@ -4,7 +4,13 @@ module.exports = (sequelize, DataTypes) => {
   class Comment extends Model {
     static associate(models) {
       Comment.hasMany(models.Comment, { foreignKey: "parent_comment_id" });
-
+      Comment.hasMany(models.Like, {
+        foreignKey: "target_id",
+        constraints: false,
+        scope: {
+          target_type: "C",
+        },
+      });
       Comment.belongsTo(models.User, {
         foreignKey: "user_id",
         onDelete: "CASCADE",
