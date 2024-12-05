@@ -8,6 +8,7 @@ import SwiftUI
 
 struct LoginView: View {
     @EnvironmentObject private var viewModel: AuthViewModel
+    @EnvironmentObject private var socialAuthManager: SocialAuthManager
     @State private var showPassword = false
     @State private var buttonOffset: CGFloat = 0
     
@@ -109,6 +110,7 @@ struct LoginView: View {
             
             // 소셜 로그인 섹션
             VStack(spacing: 20) {
+                // 구분선
                 HStack {
                     Rectangle()
                         .fill(Color.gray.opacity(0.3))
@@ -120,14 +122,15 @@ struct LoginView: View {
                     .foregroundColor(.gray)
                     .font(.footnote)
                 
+                // 소셜 로그인 버튼들을 일렬로 배치
                 HStack(spacing: 30) {
-                    SocialLoginButton(image: "google", action: {})
-                    SocialLoginButton(image: "apple", action: {
-                        viewModel.handleSignInWithApple()
-                    })
-                    SocialLoginButton(image: "naver", action: {})
-                    SocialLoginButton(image: "kakao", action: {})
+                    SocialLoginButton(type: .google)
+                    SocialLoginButton(type: .apple)
+                    SocialLoginButton(type: .naver)
+                    SocialLoginButton(type: .kakao)
                 }
+                .padding(.horizontal, 20)
+                .padding(.bottom, 60) // 말풍선을 위한 여백
             }
             .padding(.top, 30)
             
@@ -137,22 +140,6 @@ struct LoginView: View {
     }
 }
 // 커스텀 텍스트필드 스타일
-
-
-// 소셜 로그인 버튼
-struct SocialLoginButton: View {
-    let image: String
-    let action: () -> Void
-    
-    var body: some View {
-        Button(action: action) {
-            Image(image)
-                .resizable()
-                .scaledToFit()
-                .frame(width: 40, height: 40)
-        }
-    }
-}
 
 #Preview {
     LoginView()

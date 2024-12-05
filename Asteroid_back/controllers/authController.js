@@ -173,11 +173,7 @@ const appleLogin = async (req, res) => {
             isProfileSet: user.nickname !== null && user.motto !== null
         });
     } catch (e) {
-        console.error('애플 로그인 처리 중 에러:', e); // 전체 프로세스 에러 로깅
-        res.status(500).json({ 
-            message: e.message,
-            stack: process.env.NODE_ENV === 'development' ? e.stack : undefined
-        });
+        res.status(500).json({ message: e.message });
     }
 };
 
