@@ -4,6 +4,9 @@
 .AppleDouble
 .LSOverride
 
+# Api_key
+API_KEY.plist
+
 # Icon must end with two \r
 Icon
 
