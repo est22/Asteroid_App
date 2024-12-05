@@ -23,6 +23,7 @@ struct LoginView: View {
             }
             .padding(.top, 60)
             
+            
             // 입력 필드들
             VStack(spacing: 15) {
                 TextField("이메일", text: $viewModel.email)
