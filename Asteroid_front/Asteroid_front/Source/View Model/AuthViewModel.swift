@@ -38,6 +38,7 @@ class AuthViewModel: NSObject, ObservableObject {
         let (accessToken, _) = getTokens()
         if accessToken != nil {
             self.isLoggedIn = true
+            self.isInitialProfileSet = UserDefaults.standard.bool(forKey: "isInitialProfileSet")
         }
     }
     
@@ -155,8 +156,9 @@ class AuthViewModel: NSObject, ObservableObject {
             case .success(let loginResponse):
                 UserDefaults.standard.set(loginResponse.accessToken, forKey: "accessToken")
                 UserDefaults.standard.set(loginResponse.refreshToken, forKey: "refreshToken")
+                UserDefaults.standard.set(loginResponse.isProfileSet, forKey: "isInitialProfileSet")
                 self.isLoggedIn = true
-                self.isInitialProfileSet = loginResponse.isProfileSet // 서버에서 프로필 설정 여부를 받아옴
+                self.isInitialProfileSet = loginResponse.isProfileSet
                 
             case .failure(let error):
                 print("Login Error: \(error.localizedDescription)")
@@ -216,6 +218,9 @@ class AuthViewModel: NSObject, ObservableObject {
     
     func logout() {
         isLoggedIn = false
+        UserDefaults.standard.removeObject(forKey: "accessToken")
+        UserDefaults.standard.removeObject(forKey: "refreshToken")
+        UserDefaults.standard.removeObject(forKey: "isInitialProfileSet")
         clearState()
     }
     
