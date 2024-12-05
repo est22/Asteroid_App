@@ -133,10 +133,59 @@ const checkEmail = async (req, res) => {
     }
 };
 
+const appleLogin = async (req, res) => {
+    const { apple_id, email } = req.body;
+    
+    console.log('애플 로그인 요청:', { apple_id, email }); // 요청 데이터 로깅
+    
+    try {
+        // apple_id로 기존 사용자 찾기
+        let user = await userService.findUserByAppleId(apple_id);
+        console.log('기존 사용자 검색 결과:', user); // 기존 사용자 검색 결과 로깅
+        
+        if (!user) {
+            console.log('새 사용자 생성 시도'); // 새 사용자 생성 시도 로깅
+            try {
+                user = await userService.createAppleUser({
+                    apple_id: apple_id,
+                    email: email || null
+                });
+                console.log('새 사용자 생성 성공:', user); // 생성된 사용자 정보 로깅
+            } catch (createError) {
+                console.error('사용자 생성 실패:', createError); // 생성 실패 시 에러 로깅
+                throw createError;
+            }
+        } else if (email && !user.email) {
+            console.log('기존 사용자 이메일 업데이트 시도'); // 이메일 업데이트 시도 로깅
+            user.email = email;
+            await user.save();
+            console.log('이메일 업데이트 성공');
+        }
+        
+        const accessToken = generateAccessToken(user);
+        const refreshToken = generateRefreshToken(user);
+        
+        console.log('토큰 생성 완료'); // 토큰 생성 완료 로깅
+        
+        res.json({
+            accessToken,
+            refreshToken,
+            isProfileSet: user.nickname !== null && user.motto !== null
+        });
+    } catch (e) {
+        console.error('애플 로그인 처리 중 에러:', e); // 전체 프로세스 에러 로깅
+        res.status(500).json({ 
+            message: e.message,
+            stack: process.env.NODE_ENV === 'development' ? e.stack : undefined
+        });
+    }
+};
+
 module.exports = {
   register,
   login,
   refresh,
   updateUser,
   checkEmail,  // 추가
+  appleLogin,  // 추가
 };

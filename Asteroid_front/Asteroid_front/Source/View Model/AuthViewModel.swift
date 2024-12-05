@@ -28,10 +28,22 @@ class AuthViewModel: NSObject, ObservableObject {
     
     private let baseURL = "http://localhost:3000/auth"
     private var emailCheckCancellable: AnyCancellable? // combine 구독 저장 및 관리하기 위한 프로퍼티
+    private let appleAuthViewModel = AppleAuthViewModel()
     
     override init() {
         super.init()
         checkAuthStatus()
+        
+        appleAuthViewModel.onLoginSuccess = { [weak self] isProfileSet in
+            DispatchQueue.main.async {
+                self?.isLoggedIn = true
+                self?.isInitialProfileSet = isProfileSet
+            }
+        }
+    }
+    
+    func handleSignInWithApple() {
+        appleAuthViewModel.handleSignInWithApple()
     }
     
     private func checkAuthStatus() {
@@ -232,16 +244,6 @@ class AuthViewModel: NSObject, ObservableObject {
         isPasswordMatching = true
     }
     
-    func handleSignInWithApple() {
-        let provider = ASAuthorizationAppleIDProvider()
-        let request = provider.createRequest()
-        request.requestedScopes = [.fullName, .email]
-        
-        let authorizationController = ASAuthorizationController(authorizationRequests: [request])
-        authorizationController.delegate = self
-        authorizationController.performRequests()
-    }
-    
     func updateInitialProfile(nickname: String, motto: String, completion: @escaping (Bool) -> Void) {
         let parameters = [
             "nickname": nickname,
@@ -275,7 +277,7 @@ class AuthViewModel: NSObject, ObservableObject {
             if response.response?.statusCode == 200 {
                 self?.isInitialProfileSet = true
                 self?.profileErrorMessage = ""
-                self?.nickname = nickname  // 추가: 프로필 저장 성공시 뷰모델에도 저장
+                self?.nickname = nickname  // 추가: 프필 저장 성공시 뷰모델에도 저장
                 self?.motto = motto       // 추가: 프로필 저장 성공시 뷰모델에도 저장
                 completion(true)
             } else {
@@ -364,28 +366,6 @@ class AuthViewModel: NSObject, ObservableObject {
                 print("Failed to update profile: \(error)")
             }
         }
-    }
-}
-
-// Apple 로그인 델리게이트 구현
-extension AuthViewModel: ASAuthorizationControllerDelegate {
-    func authorizationController(controller: ASAuthorizationController, didCompleteWithAuthorization authorization: ASAuthorization) {
-        if let appleIDCredential = authorization.credential as? ASAuthorizationAppleIDCredential {
-            let userId = appleIDCredential.user
-            let email = appleIDCredential.email
-            
-            // 여기서 서버에 Apple 로그인 정보를 전송하고 처리
-            print("Apple User ID: \(userId)")
-            print("Apple User Email: \(email ?? "No email")")
-            
-            DispatchQueue.main.async {
-                self.isLoggedIn = true
-            }
-        }
-    }
-    
-    func authorizationController(controller: ASAuthorizationController, didCompleteWithError error: Error) {
-        print("Apple Sign In Error: \(error.localizedDescription)")
     }
 }
 
