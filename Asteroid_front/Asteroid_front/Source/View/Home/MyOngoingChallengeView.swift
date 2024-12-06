@@ -13,24 +13,24 @@ struct MyOngoingChallengeView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 24) {
             // 인기 챌린지
-            VStack(alignment: .leading, spacing: 12) {
-                Text("인기 챌린지")
-                    .font(.system(size: 20, weight: .bold))
-                    .padding(.horizontal)
-                
-                ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: 12) {
-                        // 각 섹션별로 별도의 색상 인덱스를 사용
-                        ForEach(0..<10) { index in
-                            ChallengeCard(
-                                title: "인기 챌린지 \(index + 1)",
-                                color: viewModel.randomPastelColor(forSection: "popular")
-                            )
-                        }
-                    }
-                    .padding(.horizontal)
-                }
-            }
+//            VStack(alignment: .leading, spacing: 12) {
+//                Text("인기 챌린지")
+//                    .font(.system(size: 20, weight: .bold))
+//                    .padding(.horizontal)
+//                
+//                ScrollView(.horizontal, showsIndicators: false) {
+//                    HStack(spacing: 12) {
+//                        // 각 섹션별로 별도의 색상 인덱스를 사용
+//                        ForEach(0..<10) { index in
+//                            ChallengeCard(
+//                                title: "인기 챌린지 \(index + 1)",
+//                                color: viewModel.randomPastelColor(forSection: "popular")
+//                            )
+//                        }
+//                    }
+//                    .padding(.horizontal)
+//                }
+//            }
             
             // 참여중인 챌린지
             VStack(alignment: .leading, spacing: 12) {
