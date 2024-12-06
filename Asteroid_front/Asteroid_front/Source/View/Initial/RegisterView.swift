@@ -67,35 +67,7 @@ struct RegisterView: View {
                 }
                 .modifier(CustomTextFieldStyle())
                 
-                // 비밀번호 확인 (수정된 부분)
-                HStack {
-                    if showConfirmPassword {
-                        TextField("비밀번호 확인", text: $viewModel.confirmPassword)
-                            .onChange(of: viewModel.confirmPassword) { _ in
-                                viewModel.validatePassword()
-                            }
-                    } else {
-                        SecureField("비밀번호 확인", text: $viewModel.confirmPassword)
-                            .onChange(of: viewModel.confirmPassword) { _ in
-                                viewModel.validatePassword()
-                            }
-                    }
-                    
-                    Button(action: { showConfirmPassword.toggle() }) {
-                        Image(systemName: showConfirmPassword ? "eye.slash.fill" : "eye.fill")
-                            .foregroundColor(.gray)
-                    }
-                }
-                .modifier(CustomTextFieldStyle())
-                
-                // 비밀번호 유효성 검사 메시지
-                if !viewModel.isPasswordMatching && !viewModel.confirmPassword.isEmpty {
-                    Text("비밀번호가 일치하지 않습니다")
-                        .font(.caption)
-                        .foregroundColor(.red)
-                }
-                
-                // 비밀번호 조건 표시
+                // 비밀번호 유효성 검사 UI를 여기로 이동
                 if isPasswordFieldActive {
                     VStack(alignment: .leading, spacing: 5) {
                         Text("비밀번호는 다음 조건을 만족해야 합니다:")
@@ -124,7 +96,36 @@ struct RegisterView: View {
                         .font(.caption)
                         .foregroundColor(viewModel.hasSpecialCharacter ? .green : .red)
                     }
-                    .padding(.horizontal, 10)
+                    .padding(.leading, 40) // 비밀번호 유효성 검사 왼쪽 패딩
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                }
+                
+                // 비밀번호 확인
+                HStack {
+                    if showConfirmPassword {
+                        TextField("비밀번호 확인", text: $viewModel.confirmPassword)
+                            .onChange(of: viewModel.confirmPassword) { _ in
+                                viewModel.validatePassword()
+                            }
+                    } else {
+                        SecureField("비밀번호 확인", text: $viewModel.confirmPassword)
+                            .onChange(of: viewModel.confirmPassword) { _ in
+                                viewModel.validatePassword()
+                            }
+                    }
+                    
+                    Button(action: { showConfirmPassword.toggle() }) {
+                        Image(systemName: showConfirmPassword ? "eye.slash.fill" : "eye.fill")
+                            .foregroundColor(.gray)
+                    }
+                }
+                .modifier(CustomTextFieldStyle())
+                
+                // 비밀번호 일치 여부 메시지
+                if !viewModel.isPasswordMatching && !viewModel.confirmPassword.isEmpty {
+                    Text("비밀번호가 일치하지 않습니다")
+                        .font(.caption)
+                        .foregroundColor(.red)
                 }
             }
             .padding(.horizontal, 20)
@@ -165,6 +166,15 @@ struct RegisterView: View {
             Spacer()
         }
         .padding(.top, 20)
+        .onAppear {
+            viewModel.emailErrorMessage = ""
+            viewModel.registerErrorMessage = ""
+            viewModel.isEmailValid = true
+            viewModel.isPasswordMatching = true
+            viewModel.isPasswordLengthValid = false
+            viewModel.hasNumber = false
+            viewModel.hasSpecialCharacter = false
+        }
     }
 }
 

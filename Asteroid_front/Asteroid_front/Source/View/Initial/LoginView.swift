@@ -137,6 +137,9 @@ struct LoginView: View {
             Spacer()
         }
         .padding(.top, 20)
+        .onAppear {
+            viewModel.loginErrorMessage = ""  // 에러 메시지만 초기화
+        }
     }
 }
 // 커스텀 텍스트필드 스타일

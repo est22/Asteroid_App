@@ -13,7 +13,7 @@ class CompletedChallengeViewModel: ObservableObject {
     @Published var totalPoints: Int = 0
     
     func fetchCompletedChallenges() async {
-        guard let url = URL(string: "http://localhost:3000/settings/rewards"),
+        guard let url = URL(string: "\(APIConstants.baseURL)/settings/rewards"),
               let accessToken = UserDefaults.standard.string(forKey: "accessToken") else { return }
         
         var request = URLRequest(url: url)
