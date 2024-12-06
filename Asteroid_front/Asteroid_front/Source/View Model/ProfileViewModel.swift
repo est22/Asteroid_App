@@ -11,9 +11,7 @@ class ProfileViewModel: ObservableObject {
     @Published var profileErrorMessage: String = ""
     @Published var isNicknameAvailable: Bool = false
     @Published var isNicknameChecked: Bool = false
-    
-    // MARK: - Private Properties
-    private let baseURL = "http://localhost:3000"
+
     
     // MARK: - Profile Methods
     func fetchProfile() async {
@@ -23,7 +21,7 @@ class ProfileViewModel: ObservableObject {
         isLoading = true
         
         do {
-            let response = try await AF.request("\(baseURL)/profile",
+            let response = try await AF.request("\(APIConstants.baseURL)/profile",
                                              method: .get,
                                              headers: headers)
                 .serializingDecodable(ProfileResponse.self)
@@ -55,7 +53,7 @@ class ProfileViewModel: ObservableObject {
         ]
         
         do {
-            let response = try await AF.request("\(baseURL)/profile/update-profile",
+            let response = try await AF.request("\(APIConstants.baseURL)/profile/update-profile",
                                              method: .post,
                                              parameters: parameters,
                                              encoding: JSONEncoding.default,
@@ -90,7 +88,7 @@ class ProfileViewModel: ObservableObject {
                     mimeType: "image/jpeg"
                 )
             },
-            to: "\(baseURL)/profile/upload-photo",
+            to: "\(APIConstants.baseURL)/profile/upload-photo",
             headers: headers
         )
         .responseDecodable(of: UpdateProfileResponse.self) { [weak self] response in
@@ -113,7 +111,7 @@ class ProfileViewModel: ObservableObject {
         let headers: HTTPHeaders = ["Authorization": "Bearer \(accessToken)"]
         
         do {
-            let response = try await AF.request("\(baseURL)/profile/check-nickname",
+            let response = try await AF.request("\(APIConstants.baseURL)/profile/check-nickname",
                                              method: .post,
                                              parameters: ["nickname": nickname],
                                              encoding: JSONEncoding.default,

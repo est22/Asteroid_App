@@ -39,7 +39,7 @@ const checkDailyUpload = async (userId, challengeId) => {
       return false;
     }
 
-    // period 일수만큼 연속으로 업��드했는지 확인
+    // period 일수만큼 연속으로 업로드했는지 확인
     if (uploadCount >= participation.Challenge.period) {
       // 챌린지 달성 처리
       participation.status = "챌린지 달성";
@@ -187,7 +187,7 @@ const giveRewardForCompletion = async (participation) => {
     }
     return false;
   } catch (error) {
-    console.error('수료 보상 지급 중 ��류:', error);
+    console.error('수료 보상 지급 중 오류:', error);
     throw error;
   }
 };
