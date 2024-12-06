@@ -17,7 +17,15 @@ const updateUserProfile = async (id, data) => {
   });
 };
 
+const getUserProfile = async (userId) => {
+  return await models.User.findOne({
+    where: { id: userId },
+    attributes: ['nickname', 'motto', 'profile_picture'],
+  });
+};
+
 module.exports = {
   findUserByNickname,
   updateUserProfile,
+  getUserProfile,
 };

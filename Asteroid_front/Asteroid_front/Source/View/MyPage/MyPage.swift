@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct MyPage: View {
-    @EnvironmentObject private var viewModel: AuthViewModel
+    @StateObject private var profileViewModel = ProfileViewModel()
     @State private var showingEditProfile = false
     
     var body: some View {
@@ -16,24 +16,24 @@ struct MyPage: View {
             VStack(spacing: 20) {
                 // 프로필 이미지와 수정 버튼
                 ZStack(alignment: .bottomTrailing) {
-                    if let profilePhoto = viewModel.profilePhoto, let url = URL(string: profilePhoto) {
+                    if let profilePhoto = profileViewModel.profilePhoto, let url = URL(string: profilePhoto) {
                         AsyncImage(url: url) { image in
                             image
                                 .resizable()
                                 .scaledToFill()
-                                .frame(width: 120, height: 120)
+                                .frame(width: 100, height: 100)
                                 .clipShape(Circle())
                         } placeholder: {
                             Image(systemName: "person.circle.fill")
                                 .resizable()
-                                .frame(width: 120, height: 120)
+                                .frame(width: 100, height: 100)
                                 .foregroundColor(.gray)
                         }
                     } else {
                         Image(systemName: "person.circle.fill")
                             .resizable()
                             .frame(width: 120, height: 120)
-                            .foregroundColor(.gray)
+                            .foregroundColor(.gray.opacity(0.5))
                     }
                     
                     Button(action: {
@@ -43,11 +43,11 @@ struct MyPage: View {
                             .resizable()
                             .frame(width: 32, height: 32)
                             .foregroundColor(.white)
-                            .background(Circle().fill(Color.keyColor))
+                            .background(Circle().fill(Color.blue))
                     }
-                    .offset(x: 5, y: 5)
+                    .offset(x: 8, y: -8)
                 }
-                .padding(.top, 20)
+                .padding(.bottom, 30)
                 
                 // 닉네임과 소비좌우명
                 HStack {
@@ -56,7 +56,7 @@ struct MyPage: View {
                             Text("닉네임")
                                 .font(.system(size: 16, weight: .bold))
                             Spacer()
-                            Text(viewModel.nickname)
+                            Text(profileViewModel.nickname)
                                 .font(.system(size: 16))
                         }
                         
@@ -64,11 +64,11 @@ struct MyPage: View {
                             Text("소비좌우명")
                                 .font(.system(size: 16, weight: .bold))
                             Spacer()
-                            Text(viewModel.motto)
+                            Text(profileViewModel.motto)
                                 .font(.system(size: 16))
                         }
                     }
-                    .padding(.horizontal, 20)
+                    .padding(.horizontal, 25)
                 }
                 
                 Divider()
@@ -102,7 +102,11 @@ struct MyPage: View {
             }
             .navigationBarTitleDisplayMode(.inline)
             .sheet(isPresented: $showingEditProfile) {
-                EditProfileView(currentNickname: viewModel.nickname, currentMotto: viewModel.motto)
+                EditProfileView(profileViewModel: profileViewModel)
+                    .environmentObject(profileViewModel)
+            }
+            .task {
+                await profileViewModel.fetchProfile()
             }
         }
     }

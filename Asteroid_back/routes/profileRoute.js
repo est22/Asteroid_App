@@ -1,5 +1,5 @@
 const express = require("express");
-const { checkNickname, updateProfile } = require("../controllers/profileController");
+const { checkNickname, updateProfile, getProfile } = require("../controllers/profileController");
 const { uploadPhotos, saveFilesToDB } = require("../services/fileUploadService");
 const { authenticateToken } = require("../middleware/auth_middleware");
 
@@ -24,5 +24,7 @@ router.post("/upload-photo", authenticateToken, async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
+
+router.get("/", authenticateToken, getProfile);
 
 module.exports = router;

@@ -36,6 +36,7 @@ class AuthViewModel: NSObject, ObservableObject {
         
         appleAuthViewModel.onLoginSuccess = { [weak self] isProfileSet in
             DispatchQueue.main.async {
+                print("Apple login success, isProfileSet: \(isProfileSet)")  // 디버깅용
                 self?.isLoggedIn = true
                 self?.isInitialProfileSet = isProfileSet
             }
@@ -48,9 +49,11 @@ class AuthViewModel: NSObject, ObservableObject {
     
     private func checkAuthStatus() {
         let (accessToken, _) = getTokens()
-        if accessToken != nil {
+        if let accessToken = accessToken, !accessToken.isEmpty {
             self.isLoggedIn = true
             self.isInitialProfileSet = UserDefaults.standard.bool(forKey: "isInitialProfileSet")
+        } else {
+            self.isLoggedIn = false
         }
     }
     
@@ -277,7 +280,7 @@ class AuthViewModel: NSObject, ObservableObject {
             if response.response?.statusCode == 200 {
                 self?.isInitialProfileSet = true
                 self?.profileErrorMessage = ""
-                self?.nickname = nickname  // 추가: 프필 저장 성공시 뷰모델에도 저장
+                self?.nickname = nickname  // 추가: 프로필 저장 성공시 뷰모델에도 저장
                 self?.motto = motto       // 추가: 프로필 저장 성공시 뷰모델에도 저장
                 completion(true)
             } else {
@@ -325,16 +328,35 @@ class AuthViewModel: NSObject, ObservableObject {
             "Content-Type": "multipart/form-data"
         ]
         
-        AF.upload(multipartFormData: { multipartFormData in
-            multipartFormData.append(imageData, withName: "photo", fileName: "profile.jpg", mimeType: "image/jpeg")
-        }, to: "http://localhost:3000/profile/upload-photo", headers: headers)
-        .responseDecodable(of: UpdateProfileResponse.self) { response in
-            switch response.result {
-            case .success(let response):
-                print("Profile photo updated: \(response.message)")
-            case .failure(let error):
-                print("Failed to update profile photo: \(error)")
+        print("업로드 시작")  // 디버깅용
+        
+        do {
+            let response = try await withCheckedThrowingContinuation { continuation in
+                AF.upload(
+                    multipartFormData: { multipartFormData in
+                        multipartFormData.append(
+                            imageData,
+                            withName: "photo",
+                            fileName: "profile.jpg",
+                            mimeType: "image/jpeg"
+                        )
+                    },
+                    to: "http://localhost:3000/profile/upload-photo",
+                    headers: headers
+                )
+                .responseDecodable(of: UpdateProfileResponse.self) { response in
+                    switch response.result {
+                    case .success(let value):
+                        continuation.resume(returning: value)
+                    case .failure(let error):
+                        continuation.resume(throwing: error)
+                    }
+                }
             }
+            
+            print("프로필 사진 업데이트 성공: \(response.message)")
+        } catch {
+            print("프로필 사진 업데이트 실패: \(error)")
         }
     }
     
