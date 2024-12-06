@@ -15,7 +15,7 @@ struct Home: View {
         ZStack {
             // 메인 컨텐츠
             NavigationView {
-                VStack {
+                VStack(spacing: 0) {
                     // 커스텀 네비게이션 바
                     HStack {
                         Text("  소행성")
@@ -49,11 +49,11 @@ struct Home: View {
                     }
                     .padding(.top, 8)
                     
-                    // ScrollView를 VStack 안으로 이동
-                    ScrollView {
-                        VStack(spacing: 16) {
+                    // 스크롤바 제거
+                    ScrollView(showsIndicators: false) {
+                        VStack(spacing: 24) {
                             ChallengeRankingView()
-                            // 다른 컨텐츠들...
+                            MyOngoingChallengeView()
                         }
                     }
                 }

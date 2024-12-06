@@ -152,7 +152,7 @@ class AuthViewModel: NSObject, ObservableObject {
             "password": password
         ]
         
-        AF.request("\(baseURL)/login",
+        AF.request("\(APIConstants.baseURL)/auth/login",
                   method: .post,
                   parameters: parameters,
                   encoding: JSONEncoding.default)
@@ -196,7 +196,7 @@ class AuthViewModel: NSObject, ObservableObject {
             password: password
         )
         
-        AF.request("\(baseURL)/register",
+        AF.request("\(APIConstants.baseURL)/register",
                   method: .post,
                   parameters: parameters,
                   encoder: JSONParameterEncoder.default)
@@ -262,7 +262,7 @@ class AuthViewModel: NSObject, ObservableObject {
             "Authorization": "Bearer \(accessToken)"
         ]
         
-        AF.request("\(baseURL)/init",
+        AF.request("\(APIConstants.baseURL)/init",
                   method: .post,
                   parameters: parameters,
                   encoding: JSONEncoding.default,
@@ -291,7 +291,7 @@ class AuthViewModel: NSObject, ObservableObject {
     }
     
     func checkNicknameAvailability(_ nickname: String, completion: @escaping (Bool) -> Void) {
-        let url = "\(baseURL)/auth/init"
+        let url = "\(APIConstants.baseURL)/auth/init"
         let parameters = ["nickname": nickname]
         
         AF.request(url, 
