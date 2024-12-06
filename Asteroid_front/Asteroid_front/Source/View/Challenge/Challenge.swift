@@ -19,9 +19,10 @@ struct Challenge: View {
         NavigationView {
             ScrollView {
                 VStack(alignment: .leading) {
-                    Text("진행중 챌린지")
+                    Text("진행중인 챌린지")
                         .font(.system(size: 20, weight: .bold))
                         .padding(.horizontal)
+                        .padding(.top, 20)
                     
                     LazyVGrid(columns: columns, spacing: 16) {
                         ForEach(viewModel.challenges) { challenge in
@@ -42,8 +43,6 @@ struct Challenge: View {
                     .padding()
                 }
             }
-            .navigationTitle("챌린지")
-            .navigationBarTitleDisplayMode(.inline)
             .task {
                 await viewModel.fetchChallenges()
             }

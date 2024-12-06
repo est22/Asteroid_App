@@ -23,7 +23,6 @@ struct ChallengeDetailView: View {
                 VStack(alignment: .leading, spacing: 24) {
                     Text(challengeName)
                         .font(.system(size: 22, weight: .bold))
-                        .padding(.top, 8)
                     
                     // 회색 배경 영역
                     ZStack {
@@ -34,7 +33,7 @@ struct ChallengeDetailView: View {
                         VStack(spacing: 16) {
                             Text("챌린지 기간: \(viewModel.selectedChallenge?.period ?? 0)주")
                                 .font(.system(size: 16, weight:.heavy))
-                                .foregroundColor(.orange)
+                                .foregroundColor(.keyColor)
                             
                             AsyncImage(url: URL(string: viewModel.selectedChallenge?.rewardImageUrl ?? "")) { image in
                                 image
@@ -48,9 +47,18 @@ struct ChallengeDetailView: View {
                             }
                             
                             Text("챌린지 달성 시 \(viewModel.selectedChallenge?.rewardName ?? "")을 받아요")
-                                .font(.system(size: 14, weight: .bold))
-                                .foregroundColor(.gray)
+                                .font(.system(size: 14))
                                 .multilineTextAlignment(.center)
+                            
+                            HStack {
+                                Text("참여중인 유저")
+                                    .font(.system(size: 14))
+                                Text("\(viewModel.selectedChallenge?.participantCount ?? 0)")
+                                    .foregroundColor(.orange)
+                                    .font(.system(size: 14, weight: .bold))
+                                Text("명")
+                                    .font(.system(size: 14))
+                            }
                         }
                         .padding(16)
                     }
@@ -155,6 +163,13 @@ struct ChallengeDetailView: View {
                         withAnimation(.spring()) {
                             showProgress = true
                         }
+                        
+                        // 참여하기 API 호출 후 상세 정보 다시 불러오기
+                        Task {
+                            await viewModel.participateInChallenge(id: challengeId)
+                            await viewModel.fetchChallengeDetail(id: challengeId)
+                        }
+                        
                         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
                             withAnimation(.spring()) {
                                 showPhotoUpload = true
@@ -259,5 +274,41 @@ struct ChallengePhotoUploadView: View {
             challengeName: "3일 동안 현금만 사용하기",
             viewModel: ChallengeViewModel()
         )
+    }
+}
+
+
+
+
+extension ChallengeViewModel {
+    func participateInChallenge(id: Int) async {
+        guard let url = URL(string: "\(APIConstants.baseURL)/challenge/\(id)/participate") else { return }
+        
+        guard let accessToken = UserDefaults.standard.string(forKey: "accessToken") else { return }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.setValue("Bearer \(accessToken)", forHTTPHeaderField: "Authorization") // 토큰 추가
+        
+        do {
+            let (data, response) = try await URLSession.shared.data(for: request)
+            
+            if let httpResponse = response as? HTTPURLResponse {
+                print("Participate API Response Status: \(httpResponse.statusCode)")
+                if httpResponse.statusCode == 200 {
+                    print("Successfully participated in challenge")
+                } else {
+                    print("Failed to participate: \(httpResponse.statusCode)")
+                }
+            }
+            
+            if let responseString = String(data: data, encoding: .utf8) {
+                print("API Response: \(responseString)")
+            }
+            
+        } catch {
+            print("Error participating in challenge: \(error)")
+        }
     }
 }
