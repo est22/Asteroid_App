@@ -41,7 +41,7 @@ struct MyRewardView: View {
                         }
                         
                         VStack(alignment: .leading, spacing: 4) {
-                            Text("화끈한 소행성")
+                            Text("<디버그모드 목업 미리보기용>")
                                 .font(.system(size: 18, weight: .bold))
                             Text("월 500만원 이내 소비하기 챌린지 달성")
                                 .font(.system(size: 14))
