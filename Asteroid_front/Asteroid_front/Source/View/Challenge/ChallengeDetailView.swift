@@ -123,7 +123,7 @@ struct ChallengeDetailView: View {
                                 .transition(.move(edge: .leading).combined(with: .opacity))
                             }
                             
-                            ForEach(0..<7) { _ in
+                            ForEach(0..<20) { _ in
                                 Rectangle()
                                     .fill(Color.gray.opacity(0.1))
                                     .aspectRatio(1, contentMode: .fit)
