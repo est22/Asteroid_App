@@ -13,9 +13,22 @@ extension Color {
     static let color2 = Color(hex: "#FBD960")
     static let color3 = Color(hex: "#A2D9A0")
     static let color4 = Color(hex: "#94C373")
-//  static let primaryShadow = Color.primary.opacity(0.2)
-//  static let secondaryText = Color(hex: "#6e6e6e")
-//  static let background = Color(UIColor.systemGray6)
+    
+    // 파스텔 컬러 추가
+    static let pastelOrange = Color(hex: "#f8decc")
+    static let pastelYellow = Color(hex: "#FFFFBA")
+    static let pastelLavender = Color(hex: "#d9cdf7")
+    static let pastelCoral = Color(hex: "#FFD6D6")
+    static let pastelBeige = Color(hex: "#FFB3BA")
+    static let pastelBlue = Color(hex: "#def0fb")
+    static let pastelGreen = Color(hex: "#def7d2")
+    
+    
+    // 파스텔 컬러 배열
+    static let pastelColors: [Color] = [
+        .pastelOrange, .pastelYellow, .pastelBlue, .pastelLavender,
+        .pastelCoral, .pastelBeige, .pastelGreen
+    ]
 }
 
 extension Color {
