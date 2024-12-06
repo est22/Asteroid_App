@@ -12,7 +12,7 @@ struct ContentView: View {
     
     var body: some View {
         if viewModel.isLoggedIn {
-            if viewModel.isInitialProfileSet {
+            if UserDefaults.standard.bool(forKey: "hasCompletedInitialProfile") {
                 MainTabView()
             } else {
                 InitialProfileView()

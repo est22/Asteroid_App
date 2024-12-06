@@ -20,7 +20,14 @@ class AuthViewModel: NSObject, ObservableObject {
     @Published var isPasswordLengthValid = false      // 8자 이상
     @Published var hasNumber = false                  // 숫자 포함
     @Published var hasSpecialCharacter = false        // 특수문자 포함
-    @Published var isInitialProfileSet = false  // 추가
+    @Published var isInitialProfileSet: Bool {
+        didSet {
+            // isInitialProfileSet이 true로 변경될 때 UserDefaults에 영구 저장
+            if isInitialProfileSet {
+                UserDefaults.standard.set(true, forKey: "hasCompletedInitialProfile")
+            }
+        }
+    }
     @Published var profileErrorMessage = ""  // 추가
     @Published var nickname = ""  // 추가
     @Published var motto = ""     // 추가
@@ -32,6 +39,8 @@ class AuthViewModel: NSObject, ObservableObject {
     private let appleAuthViewModel = AppleAuthViewModel()
     
     override init() {
+        // 초기화 시 UserDefaults에서 프로필 설정 완료 여부를 먼저 확인
+        self.isInitialProfileSet = UserDefaults.standard.bool(forKey: "hasCompletedInitialProfile")
         super.init()
         checkAuthStatus()
         
@@ -160,7 +169,7 @@ class AuthViewModel: NSObject, ObservableObject {
         .responseDecodable(of: LoginResponse.self) { [weak self] response in
             guard let self = self else { return }
             self.isLoading = false
-            
+            // 디버깅용
             print("Request URL: \(String(describing: response.request?.url))")
             print("Request Body: \(parameters)")
             print("Response Status Code: \(String(describing: response.response?.statusCode))")
@@ -170,12 +179,24 @@ class AuthViewModel: NSObject, ObservableObject {
             
             switch response.result {
             case .success(let loginResponse):
+                print("로그인 응답: \(loginResponse)") 
+                print("isProfileSet 값: \(loginResponse.isProfileSet)")
+                
+                // 1. UserDefaults에 토큰들 저장
                 UserDefaults.standard.set(loginResponse.accessToken, forKey: "accessToken")
                 UserDefaults.standard.set(loginResponse.refreshToken, forKey: "refreshToken")
-                UserDefaults.standard.set(loginResponse.isProfileSet, forKey: "isInitialProfileSet")
+                
+                // 2. hasCompletedInitialProfile 값을 우선적으로 확인
+                let hasCompletedProfile = UserDefaults.standard.bool(forKey: "hasCompletedInitialProfile")
+                
+                // 3. 이미 프로필을 완료했다면 그 값을 우선 사용
+                self.isInitialProfileSet = hasCompletedProfile
+                
+                // 4. 나머지 상태 업데이트
                 self.isLoggedIn = true
-                self.isInitialProfileSet = loginResponse.isProfileSet
                 self.isAuthenticated = true
+                
+                print("최종 isInitialProfileSet 값: \(self.isInitialProfileSet)")
                 
             case .failure(let error):
                 print("Login Error: \(error.localizedDescription)")
@@ -281,6 +302,7 @@ class AuthViewModel: NSObject, ObservableObject {
             
             if response.response?.statusCode == 200 {
                 self?.isInitialProfileSet = true
+                UserDefaults.standard.set(true, forKey: "hasCompletedInitialProfile")
                 self?.profileErrorMessage = ""
                 self?.nickname = nickname  // 추가: 프로필 저장 성공시 뷰모델에도 저장
                 self?.motto = motto       // 추가: 프로필 저장 성공시 뷰모델에도 저장
