@@ -25,7 +25,13 @@ struct Challenge: View {
                     
                     LazyVGrid(columns: columns, spacing: 16) {
                         ForEach(viewModel.challenges) { challenge in
-                            NavigationLink(destination: ChallengeDetailView(challengeId: challenge.id, viewModel: viewModel)) {
+                            NavigationLink(
+                                destination: ChallengeDetailView(
+                                    challengeId: challenge.id,
+                                    challengeName: challenge.displayName,
+                                    viewModel: viewModel
+                                )
+                            ) {
                                 ChallengeCard(
                                     title: challenge.displayName,
                                     color: viewModel.randomPastelColor(forSection: "challenges")
