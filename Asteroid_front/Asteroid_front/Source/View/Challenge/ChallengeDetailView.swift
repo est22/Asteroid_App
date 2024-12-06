@@ -12,95 +12,119 @@ struct ChallengeDetailView: View {
     let challengeId: Int
     let challengeName: String
     @ObservedObject var viewModel: ChallengeViewModel
+    @State private var showProgress: Bool = false
+    @State private var showPhotoUpload: Bool = false
+    @State private var showingImagePicker: Bool = false
+    @State private var selectedImage: UIImage?
 
     var body: some View {
-        ZStack {
+        NavigationView {
             ScrollView {
-                VStack(spacing: 24) {
-                    // 챌린지 제목
+                VStack(alignment: .leading, spacing: 24) {
                     Text(challengeName)
                         .font(.system(size: 22, weight: .bold))
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(.horizontal, 16)
                         .padding(.top, 8)
-
-                    // 기간과 보상 (배경 포함)
-                    VStack(spacing: 16) {
-                        // 배경 네모 영역
-                        ZStack {
-                            RoundedRectangle(cornerRadius: 16)
-                                .fill(Color(UIColor.systemGray6)) // 네모 배경 색상 (사진처럼 밝은 그레이)
-                                .frame(maxWidth: .infinity)
-                                .padding(.horizontal, 16)
-
-                            VStack(spacing: 12) {
-                                Text("챌린지 기간: \(viewModel.selectedChallenge?.period ?? 0)주")
-                                    .font(.system(size: 16, weight: .regular))
-                                    .foregroundColor(.secondary)
-
-                                // 이미지
-                                AsyncImage(url: URL(string: viewModel.selectedChallenge?.rewardImageUrl ?? "")) { image in
-                                    image
-                                        .resizable()
-                                        .scaledToFit()
-                                        .frame(width: 140, height: 140) // 적절한 크기 조정
-                                        .clipShape(Circle())
-                                } placeholder: {
-                                    ProgressView()
-                                        .frame(width: 140, height: 140)
-                                }
-
-                                // 텍스트
-                                Text("챌린지 달성 시 \(viewModel.selectedChallenge?.rewardName ?? "리워드")을 받아요")
-                                    .font(.system(size: 14, weight: .regular))
-                                    .multilineTextAlignment(.center)
-                            }
-                            .padding(16) // 배경 안쪽 여백
-                        }
-                    }
-
-                    // 참여자 정보
-                    VStack(spacing: 12) {
-                        Text("참여중인 유저 \(viewModel.selectedChallenge?.participantCount ?? 0)명")
-                            .font(.system(size: 18, weight: .semibold))
-                            .foregroundColor(.orange)
-
-                        Text("유저 참여 현황")
-                            .font(.system(size: 14, weight: .medium))
-                            .foregroundColor(.secondary)
-
-                        // 유저 그리드
-                        LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 12), count: 4), spacing: 12) {
-                            ForEach(0..<30, id: \.self) { _ in
-                                Image(systemName: "person.crop.circle.fill")
+                    
+                    // 회색 배경 영역
+                    ZStack {
+                        RoundedRectangle(cornerRadius: 16)
+                            .fill(Color(UIColor.systemGray6))
+                            .frame(maxWidth: .infinity)
+                        
+                        VStack(spacing: 16) {
+                            Text("챌린지 기간: \(viewModel.selectedChallenge?.period ?? 0)주")
+                                .font(.system(size: 16, weight:.heavy))
+                                .foregroundColor(.orange)
+                            
+                            AsyncImage(url: URL(string: viewModel.selectedChallenge?.rewardImageUrl ?? "")) { image in
+                                image
                                     .resizable()
                                     .scaledToFit()
-                                    .frame(width: 60, height: 60) // 적절한 아이콘 크기
-                                    .foregroundColor(.gray)
+                                    .frame(width: 140, height: 140)
+                                    .clipShape(Circle())
+                            } placeholder: {
+                                ProgressView()
+                                    .frame(width: 140, height: 140)
+                            }
+                            
+                            Text("챌린지 달성 시 \(viewModel.selectedChallenge?.rewardName ?? "")을 받아요")
+                                .font(.system(size: 14, weight: .bold))
+                                .foregroundColor(.gray)
+                                .multilineTextAlignment(.center)
+                        }
+                        .padding(16)
+                    }
+                    .padding(.horizontal, -10) // 회색 영역이 화면 가득 차게 설정
+                    
+                    // Progress Bar (조건부 표시)
+                    if showProgress {
+                        VStack(alignment: .leading, spacing: 5) {
+                            Text("내 진행 상황")
+                                .font(.system(size: 15, weight: .bold))
+                            HStack{
+                                GeometryReader { geometry in
+                                    ZStack(alignment: .leading) {
+                                        Rectangle()
+                                            .foregroundColor(.gray.opacity(0.2))
+                                            .frame(height: 8)
+                                        
+                                        Rectangle()
+                                            .foregroundColor(.orange)
+                                            .frame(width: geometry.size.width * 0.6, height: 8)
+                                    }
+                                    .cornerRadius(4)
+                                }
+                                .frame(height: 8)
+                                
+                                Text("60%")
+                                    .foregroundColor(.orange)
+                                    .font(.system(size: 12, weight: .bold))
+                            }
+                            
+                            
+                        }
+                        .transition(.move(edge: .top).combined(with: .opacity))
+                    }
+                    
+                    // showProgress 조건문 밖으로 이동
+                    VStack(alignment: .leading, spacing: 12) {
+                        Text(" 유저 참여 현황")
+                            .font(.system(size: 15, weight: .bold))
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                        
+                        LazyVGrid(columns: [
+                            GridItem(.flexible()),
+                            GridItem(.flexible()),
+                            GridItem(.flexible()),
+                            GridItem(.flexible())
+                        ], spacing: 8) {
+                            if showPhotoUpload {
+                                Button(action: {
+                                    showingImagePicker = true
+                                }) {
+                                    ZStack {
+                                        Rectangle()
+                                            .fill(Color.gray.opacity(0.1))
+                                            .aspectRatio(1, contentMode: .fit)
+                                        
+                                        Image(systemName: "camera.fill")
+                                            .foregroundColor(.gray)
+                                            .font(.system(size: 24))
+                                    }
+                                }
+                                .transition(.move(edge: .leading).combined(with: .opacity))
+                            }
+                            
+                            ForEach(0..<7) { _ in
+                                Rectangle()
+                                    .fill(Color.gray.opacity(0.1))
+                                    .aspectRatio(1, contentMode: .fit)
                             }
                         }
-                        .padding(.horizontal, 16)
                     }
                 }
-            }
-
-            // Floating Action Button
-            VStack {
-                Spacer()
-                Button(action: {
-                    // 참여 액션 추가
-                }) {
-                    Text("나도 참여하기")
-                        .font(.system(size: 18, weight: .bold))
-                        .foregroundColor(.white)
-                        .padding()
-                        .frame(maxWidth: .infinity)
-                        .background(Color.black)
-                        .cornerRadius(12)
-                        .shadow(color: .black.opacity(0.2), radius: 4, x: 0, y: 4)
-                }
-                .padding(.horizontal, 16)
-                .padding(.bottom, 16)
+                .padding(.horizontal, 24)
+                .padding(.top, 24)
             }
         }
         .navigationBarBackButtonHidden(true)
@@ -110,11 +134,120 @@ struct ChallengeDetailView: View {
                 presentationMode.wrappedValue.dismiss()
             }) {
                 Image(systemName: "chevron.left")
-                    .foregroundColor(.primary)
+                    .foregroundColor(.keyColor)
+            },
+            trailing: EmptyView()
+        )
+        .toolbar {
+            if showProgress {
+                ToolbarItem(placement: .principal) {
+                    Text("챌린지 참여중")
+                        .foregroundColor(.keyColor)
+                        .font(.system(size: 16))
+                }
+            }
+        }
+        .overlay(
+            VStack {
+                Spacer()
+                if !showProgress {
+                    Button(action: {
+                        withAnimation(.spring()) {
+                            showProgress = true
+                        }
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                            withAnimation(.spring()) {
+                                showPhotoUpload = true
+                            }
+                        }
+                    }) {
+                        Text("나도 참여하기")
+                            .font(.system(size: 18, weight: .bold))
+                            .foregroundColor(.white)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 16)
+                            .background(Color.black)
+                            .cornerRadius(12)
+                    }
+                    .padding(.horizontal, 24)
+                    .padding(.bottom, 24)
+                }
             }
         )
+        .sheet(isPresented: $showingImagePicker) {
+            ImagePicker(image: $selectedImage, isPresented: $showingImagePicker)
+        }
         .task {
             await viewModel.fetchChallengeDetail(id: challengeId)
+        }
+    }
+}
+
+
+
+// ImagePicker 구조체 추가
+struct ImagePicker: UIViewControllerRepresentable {
+    @Binding var image: UIImage?
+    @Binding var isPresented: Bool
+    
+    func makeUIViewController(context: Context) -> UIImagePickerController {
+        let picker = UIImagePickerController()
+        picker.delegate = context.coordinator
+        return picker
+    }
+    
+    func updateUIViewController(_ uiViewController: UIImagePickerController, context: Context) {}
+    
+    func makeCoordinator() -> Coordinator {
+        Coordinator(self)
+    }
+    
+    class Coordinator: NSObject, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
+        let parent: ImagePicker
+        
+        init(_ parent: ImagePicker) {
+            self.parent = parent
+        }
+        
+        func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
+            if let image = info[.originalImage] as? UIImage {
+                parent.image = image
+            }
+            parent.isPresented = false
+        }
+        
+        func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
+            parent.isPresented = false
+        }
+    }
+}
+
+struct ChallengePhotoUploadView: View {
+    @Environment(\.dismiss) var dismiss
+    @Binding var selectedImage: UIImage?
+    
+    var body: some View {
+        NavigationView {
+            VStack {
+                if let image = selectedImage {
+                    Image(uiImage: image)
+                        .resizable()
+                        .scaledToFit()
+                        .padding()
+                }
+            }
+            .navigationTitle("챌린지 인증")
+            .navigationBarTitleDisplayMode(.inline)
+            .navigationBarItems(
+                leading: Button("취소") {
+                    dismiss()
+                },
+                trailing: Button("업로드") {
+                    // 사진 업로드 로직
+                    dismiss()
+                }
+                .disabled(selectedImage == nil)
+            )
         }
     }
 }
