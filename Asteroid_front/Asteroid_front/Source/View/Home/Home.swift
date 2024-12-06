@@ -18,7 +18,7 @@ struct Home: View {
                 VStack {
                     // 커스텀 네비게이션 바
                     HStack {
-                        Text("소행성")
+                        Text("  소행성")
                             .font(.starFontB(size: 24))
                             .foregroundColor(.black)
                             .padding(.leading, 16)
@@ -49,14 +49,18 @@ struct Home: View {
                     }
                     .padding(.top, 8)
                     
-                    // 메인 컨텐츠
-                    
-                    Spacer()
+                    // ScrollView를 VStack 안으로 이동
+                    ScrollView {
+                        VStack(spacing: 16) {
+                            ChallengeRankingView()
+                            // 다른 컨텐츠들...
+                        }
+                    }
                 }
-                .navigationBarHidden(true)  // 기본 네비게이션 바 숨기기
+                .navigationBarHidden(true)
             }
             
-            // 알림창이 열릴 때 전체를 덮는 오버레이
+            // 알림 관련 오버레이
             if showNotifications {
                 Color.black
                     .opacity(0.3)
