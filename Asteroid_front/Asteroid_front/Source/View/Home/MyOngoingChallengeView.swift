@@ -40,11 +40,18 @@ struct MyOngoingChallengeView: View {
                 
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack(spacing: 12) {
-                        ForEach(viewModel.participatingChallenges) { challenge in
+                        if viewModel.participatingChallenges.isEmpty {
                             ChallengeCard(
-                                title: challenge.challengeName!,
-                                color: viewModel.randomPastelColor(forSection: "participating")
+                                title: "아직 참여중인 챌린지가 없습니다",
+                                color: Color(UIColor.systemGray6)
                             )
+                        } else {
+                            ForEach(viewModel.participatingChallenges) { challenge in
+                                ChallengeCard(
+                                    title: challenge.challengeName!,
+                                    color: viewModel.randomPastelColor(forSection: "participating")
+                                )
+                            }
                         }
                     }
                     .padding(.horizontal)
