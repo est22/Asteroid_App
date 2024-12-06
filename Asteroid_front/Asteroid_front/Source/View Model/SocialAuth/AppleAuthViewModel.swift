@@ -11,7 +11,6 @@ import Alamofire
 
 class AppleAuthViewModel: NSObject, ObservableObject {
     @Published var appleSignInError: String?
-    private let baseURL = "http://localhost:3000/auth"
     var onLoginSuccess: ((Bool) -> Void)?
     
     func handleSignInWithApple() {
@@ -30,7 +29,7 @@ class AppleAuthViewModel: NSObject, ObservableObject {
             "email": email as Any
         ]
         
-        AF.request("\(baseURL)/apple-login",
+        AF.request("\(APIConstants.baseURL)/auth/apple-login",
                   method: .post,
                   parameters: parameters,
                   encoding: JSONEncoding.default)
@@ -70,6 +69,6 @@ extension AppleAuthViewModel: ASAuthorizationControllerDelegate {
     
     func authorizationController(controller: ASAuthorizationController, didCompleteWithError error: Error) {
         print("Apple Sign In Error: \(error.localizedDescription)")
-        self.appleSignInError = "Apple 로그인에 실패했습니다."
+        self.appleSignInError = "Apple 로그인에 실패했습���다."
     }
 }

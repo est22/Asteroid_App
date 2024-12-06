@@ -7,8 +7,6 @@ class ChallengeRankingViewModel: ObservableObject {
     @Published var isLoading: Bool = false
     @Published var errorMessage: String = ""
     
-    private let baseURL = "http://localhost:3000"
-    
     func fetchRankings() async {
         guard let accessToken = UserDefaults.standard.string(forKey: "accessToken") else { return }
         
@@ -16,7 +14,7 @@ class ChallengeRankingViewModel: ObservableObject {
         isLoading = true
         
         do {
-            let response = try await AF.request("\(baseURL)/challenge/ranking",
+            let response = try await AF.request("\(APIConstants.baseURL)/challenge/ranking",
                                              method: .get,
                                              headers: headers)
                 .serializingDecodable([ChallengeRanking].self)

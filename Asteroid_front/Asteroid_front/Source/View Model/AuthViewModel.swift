@@ -26,7 +26,7 @@ class AuthViewModel: NSObject, ObservableObject {
     @Published var motto = ""     // 추가
     @Published var profilePhoto: String?  // 추가
     
-    private let baseURL = "http://localhost:3000/auth"
+    
     private var emailCheckCancellable: AnyCancellable? // combine 구독 저장 및 관리하기 위한 프로퍼티
     private let appleAuthViewModel = AppleAuthViewModel()
     
@@ -80,7 +80,7 @@ class AuthViewModel: NSObject, ObservableObject {
         
         print("Checking email: \(email)")
         
-        emailCheckCancellable = AF.request("\(baseURL)/check-email",
+        emailCheckCancellable = AF.request("\(APIConstants.baseURL)/check-email",
                                          method: .post,
                                          parameters: parameters,
                                          encoding: JSONEncoding.default)
