@@ -98,7 +98,7 @@ struct MyPage: View {
                 }
                 .padding(.horizontal, 20)
                 
-                Spacer()
+//                Spacer()
             }
             .navigationBarTitleDisplayMode(.inline)
             .sheet(isPresented: $showingEditProfile) {
