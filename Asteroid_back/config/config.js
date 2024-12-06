@@ -7,6 +7,12 @@ module.exports = {
     host: process.env.AZURE_HOST,
     dialect: process.env.AZURE_DIALECT,
     database: process.env.AZURE_DATABASE,
+    dialectOptions: {
+      ssl: {
+        require: true,
+        rejectUnauthorized: false,
+      },
+    },
   },
   production: {
     username: process.env.AZURE_USERNAME,
@@ -14,5 +20,11 @@ module.exports = {
     host: process.env.AZURE_HOST,
     dialect: process.env.AZURE_DIALECT,
     database: process.env.AZURE_DATABASE,
+    dialectOptions: {
+      ssl: {
+        require: true,
+        rejectUnauthorized: false,
+      },
+    },
   },
 };
