@@ -7,6 +7,7 @@
 
 import SwiftUI
 import KakaoSDKCommon
+import KakaoSDKAuth
 
 @main
 struct Asteroid_frontApp: App {
@@ -30,4 +31,13 @@ class AppDelegate: NSObject, UIApplicationDelegate {
         KakaoSDK.initSDK(appKey: kakaoNativeAppKey)
         return true
     }
+    
+    func application(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey : Any] = [:]) -> Bool {
+            if (AuthApi.isKakaoTalkLoginUrl(url)) {
+                return AuthController.handleOpenUrl(url: url)
+            }
+
+            return false
+        }
+    
 }

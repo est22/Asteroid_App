@@ -40,11 +40,16 @@ class AppleAuthViewModel: NSObject, ObservableObject {
                 UserDefaults.standard.set(loginResponse.accessToken, forKey: "accessToken")
                 UserDefaults.standard.set(loginResponse.refreshToken, forKey: "refreshToken")
                 UserDefaults.standard.set(loginResponse.isProfileSet, forKey: "isInitialProfileSet")
-                self?.onLoginSuccess?(loginResponse.isProfileSet)
+                
+                DispatchQueue.main.async {
+                    self?.onLoginSuccess?(loginResponse.isProfileSet)
+                }
                 
             case .failure(let error):
                 print("Apple Sign In Error: \(error.localizedDescription)")
-                self?.appleSignInError = "Apple 로그인에 실패했습니다."
+                DispatchQueue.main.async {
+                    self?.appleSignInError = "Apple 로그인에 실패했습니다."
+                }
             }
         }
     }
