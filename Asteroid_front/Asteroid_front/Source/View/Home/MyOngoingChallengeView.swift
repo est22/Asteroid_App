@@ -42,7 +42,7 @@ struct MyOngoingChallengeView: View {
                     HStack(spacing: 12) {
                         ForEach(viewModel.participatingChallenges) { challenge in
                             ChallengeCard(
-                                title: challenge.challengeName,
+                                title: challenge.challengeName!,
                                 color: viewModel.randomPastelColor(forSection: "participating")
                             )
                         }
