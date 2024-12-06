@@ -92,7 +92,7 @@ struct MyPage: View {
                         MyPageButton(title: "좋아요한 게시글", emoji: "👍")
                     }
                     
-                    NavigationLink(destination: ChallengeRewardsView()) {
+                    NavigationLink(destination: MyRewardView()) {
                         MyPageButton(title: "내 챌린지 보상", emoji: "🎯")
                     }
                 }

@@ -61,3 +61,19 @@ struct ChallengeDetail: Codable {
         case participantCount
     }
 }
+
+
+// 내 보상 페이지에 사용되는 모델
+struct CompletedChallenge: Codable {
+    let challengeName: String
+    let rewardName: String?
+    let rewardImageUrl: String?
+    let credit: Int?
+    let achievedAt: String
+    let status: String
+}
+
+struct CompletedChallengeResponse: Codable {
+    let message: String?
+    let data: [CompletedChallenge]?
+}

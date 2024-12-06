@@ -31,7 +31,7 @@ struct ChallengeDetailView: View {
                             .frame(maxWidth: .infinity)
                         
                         VStack(spacing: 16) {
-                            Text("챌린지 기간: \(viewModel.selectedChallenge?.period ?? 0)주")
+                            Text("챌린지 기간: \(viewModel.selectedChallenge?.period ?? 0)일")
                                 .font(.system(size: 16, weight:.heavy))
                                 .foregroundColor(.keyColor)
                             
