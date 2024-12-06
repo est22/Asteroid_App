@@ -9,15 +9,76 @@ import SwiftUI
 
 struct Home: View {
     @EnvironmentObject private var authViewModel: AuthViewModel
+    @State private var showNotifications = false
     
     var body: some View {
-        VStack {
-            Text("홈 화면")
-            
-            Button("로그아웃") {
-                authViewModel.logout()
+        ZStack {
+            // 메인 컨텐츠
+            NavigationView {
+                VStack {
+                    // 커스텀 네비게이션 바
+                    HStack {
+                        Text("소행성")
+                            .font(.starFontB(size: 24))
+                            .foregroundColor(.black)
+                            .padding(.leading, 16)
+                        
+                        Spacer()
+                        
+                        // 로그아웃 버튼 (개발용)
+                        #if DEBUG
+                        Button {
+                            authViewModel.logout()
+                        } label: {
+                            Image(systemName: "rectangle.portrait.and.arrow.right")
+                                .foregroundColor(.keyColor)
+                                .padding(.trailing, 8)
+                        }
+                        #endif
+                        
+                        // 알림 버튼
+                        Button {
+                            withAnimation(.spring()) {
+                                showNotifications.toggle()
+                            }
+                        } label: {
+                            Image(systemName: "bell.fill")
+                                .foregroundColor(.keyColor)
+                                .padding(.trailing, 16)
+                        }
+                    }
+                    .padding(.top, 8)
+                    
+                    // 메인 컨텐츠
+                    
+                    Spacer()
+                }
+                .navigationBarHidden(true)  // 기본 네비게이션 바 숨기기
             }
             
+            // 알림창이 열릴 때 전체를 덮는 오버레이
+            if showNotifications {
+                Color.black
+                    .opacity(0.3)
+                    .ignoresSafeArea()
+                    .onTapGesture {
+                        withAnimation(.spring()) {
+                            showNotifications = false
+                        }
+                    }
+            }
+            
+            // 알림 사이드 패널
+            GeometryReader { geometry in
+                HStack {
+                    Spacer()
+                    NotificationsView()
+                        .frame(width: geometry.size.width * 0.85)
+                        .background(Color(.systemBackground))
+                        .offset(x: showNotifications ? 0 : geometry.size.width)
+                }
+            }
+            .ignoresSafeArea()
         }
     }
 }
@@ -25,3 +86,4 @@ struct Home: View {
 #Preview {
     Home()
 }
+
