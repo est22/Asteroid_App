@@ -7,7 +7,7 @@ import KakaoSDKAuth
 class KakaoAuthViewModel: ObservableObject {
 //    @Published var kakaoSignInError: String?
 //    var onLoginSuccess: ((Bool) -> Void)?
-//    private let baseURL = "http://localhost:3000/auth"
+//    private let baseURL = "\(APIConstants.baseURL)/auth"
 //    
 //    func handleSignInWithKakao() {
 //        if UserApi.isKakaoTalkLoginAvailable() {

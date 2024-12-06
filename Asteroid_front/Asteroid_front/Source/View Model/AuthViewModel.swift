@@ -25,6 +25,7 @@ class AuthViewModel: NSObject, ObservableObject {
     @Published var nickname = ""  // 추가
     @Published var motto = ""     // 추가
     @Published var profilePhoto: String?  // 추가
+    @Published var isAuthenticated = false  
     
     
     private var emailCheckCancellable: AnyCancellable? // combine 구독 저장 및 관리하기 위한 프로퍼티
@@ -80,7 +81,7 @@ class AuthViewModel: NSObject, ObservableObject {
         
         print("Checking email: \(email)")
         
-        emailCheckCancellable = AF.request("\(APIConstants.baseURL)/check-email",
+        emailCheckCancellable = AF.request("\(APIConstants.baseURL)/auth/check-email",
                                          method: .post,
                                          parameters: parameters,
                                          encoding: JSONEncoding.default)
@@ -174,6 +175,7 @@ class AuthViewModel: NSObject, ObservableObject {
                 UserDefaults.standard.set(loginResponse.isProfileSet, forKey: "isInitialProfileSet")
                 self.isLoggedIn = true
                 self.isInitialProfileSet = loginResponse.isProfileSet
+                self.isAuthenticated = true
                 
             case .failure(let error):
                 print("Login Error: \(error.localizedDescription)")
@@ -196,7 +198,7 @@ class AuthViewModel: NSObject, ObservableObject {
             password: password
         )
         
-        AF.request("\(APIConstants.baseURL)/register",
+        AF.request("\(APIConstants.baseURL)/auth/register",
                   method: .post,
                   parameters: parameters,
                   encoder: JSONParameterEncoder.default)
@@ -262,7 +264,7 @@ class AuthViewModel: NSObject, ObservableObject {
             "Authorization": "Bearer \(accessToken)"
         ]
         
-        AF.request("\(APIConstants.baseURL)/init",
+        AF.request("\(APIConstants.baseURL)/auth/init",
                   method: .post,
                   parameters: parameters,
                   encoding: JSONEncoding.default,
@@ -341,7 +343,7 @@ class AuthViewModel: NSObject, ObservableObject {
                             mimeType: "image/jpeg"
                         )
                     },
-                    to: "http://localhost:3000/profile/upload-photo",
+                    to: "\(APIConstants.baseURL)/profile/upload-photo",
                     headers: headers
                 )
                 .responseDecodable(of: UpdateProfileResponse.self) { response in
@@ -373,7 +375,7 @@ class AuthViewModel: NSObject, ObservableObject {
             "motto": motto
         ]
         
-        AF.request("http://localhost:3000/profile/update-profile",
+        AF.request("\(APIConstants.baseURL)/profile/update-profile",
                   method: .post,
                   parameters: parameters,
                   encoding: JSONEncoding.default,
