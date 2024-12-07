@@ -148,3 +148,4 @@ struct LoginView: View {
     LoginView()
         .environmentObject(AuthViewModel())
 }
+
