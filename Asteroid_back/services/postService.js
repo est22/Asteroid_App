@@ -198,12 +198,6 @@ const hotPost = async () => {
         [Op.gte]: period, // period 이후 날짜 조회
       },
     },
-    include: [
-      {
-        model: Category,
-        attributes: ["category_name"],
-      },
-    ],
     order: [["likeTotal", "DESC"]],
     limit: 3,
   });
