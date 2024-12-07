@@ -186,13 +186,10 @@ class AuthViewModel: NSObject, ObservableObject {
                 UserDefaults.standard.set(loginResponse.accessToken, forKey: "accessToken")
                 UserDefaults.standard.set(loginResponse.refreshToken, forKey: "refreshToken")
                 
-                // 2. hasCompletedInitialProfile 값을 우선적으로 확인
-                let hasCompletedProfile = UserDefaults.standard.bool(forKey: "hasCompletedInitialProfile")
+                // 2. 로그인 후 프로필 설정 필요 여부 확인
+                self.isInitialProfileSet = loginResponse.isProfileSet
                 
-                // 3. 이미 프로필을 완료했다면 그 값을 우선 사용
-                self.isInitialProfileSet = hasCompletedProfile
-                
-                // 4. 나머지 상태 업데이트
+                // 3. 나머지 상태 업데이트
                 self.isLoggedIn = true
                 self.isAuthenticated = true
                 
@@ -240,6 +237,7 @@ class AuthViewModel: NSObject, ObservableObject {
                 self.confirmPassword = ""
                 DispatchQueue.main.async {
                     self.isRegistering = false
+                    // 회원가입 후 로그인 뷰로 이동
                 }
                 
             case .failure(let error):
