@@ -42,8 +42,8 @@ struct MyPage: View {
                         Image(systemName: "pencil.circle.fill")
                             .resizable()
                             .frame(width: 32, height: 32)
-                            .foregroundColor(.white)
-                            .background(Circle().fill(Color.blue))
+                            .foregroundColor(Color.keyColor)
+                            .background(Circle().fill(Color.white))
                     }
                     .offset(x: 8, y: -8)
                 }
@@ -102,12 +102,18 @@ struct MyPage: View {
             }
             .navigationBarTitleDisplayMode(.inline)
             .sheet(isPresented: $showingEditProfile) {
-                EditProfileView(profileViewModel: profileViewModel)
+                EditProfileView(viewModel: profileViewModel)
                     .environmentObject(profileViewModel)
                     .presentationDetents([.medium])
             }
             .task {
-                await profileViewModel.fetchProfile()
+                do {
+                    try await profileViewModel.fetchProfile()
+                } catch {
+                    print("프로필 불러오기 실패: \(error.localizedDescription)")
+                    // 필요한 경우 에러 처리 로직 추가
+                    // 예: 알림 표시, 에러 상태 업데이트 등
+                }
             }
         }
     }
