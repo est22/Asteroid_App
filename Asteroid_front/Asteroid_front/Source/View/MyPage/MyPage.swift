@@ -32,7 +32,7 @@ struct MyPage: View {
                     } else {
                         Image(systemName: "person.circle.fill")
                             .resizable()
-                            .frame(width: 120, height: 120)
+                            .frame(width: 100, height: 100)
                             .foregroundColor(.gray.opacity(0.5))
                     }
                     
@@ -47,7 +47,7 @@ struct MyPage: View {
                     }
                     .offset(x: 8, y: -8)
                 }
-                .padding(.bottom, 30)
+                .padding(.bottom, 20)
                 
                 // 닉네임과 소비좌우명
                 HStack {
@@ -104,6 +104,7 @@ struct MyPage: View {
             .sheet(isPresented: $showingEditProfile) {
                 EditProfileView(profileViewModel: profileViewModel)
                     .environmentObject(profileViewModel)
+                    .presentationDetents([.medium])
             }
             .task {
                 await profileViewModel.fetchProfile()

@@ -24,7 +24,7 @@ class EditProfileViewModel: ObservableObject {
     func validateMotto(_ newValue: String) {
         if newValue.count > 30 {
             isMottoExceeded = true
-            motto = String(newValue.prefix(30))
+            motto = String(newValue.prefix(31))
             shakeMottoField()
         } else {
             isMottoExceeded = false
