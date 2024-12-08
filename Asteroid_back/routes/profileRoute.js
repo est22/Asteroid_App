@@ -2,6 +2,7 @@ const express = require("express");
 const { checkNickname, updateProfile, getProfile } = require("../controllers/profileController");
 const { uploadPhotos, saveFilesToDB } = require("../services/fileUploadService");
 const { authenticateToken } = require("../middleware/auth_middleware");
+const profileService = require('../services/profileService');
 
 const router = express.Router();
 
@@ -22,6 +23,16 @@ router.post("/upload-photo", authenticateToken, async (req, res) => {
   } catch (error) {
     console.error("프로필 사진 업데이트 오류:", error);
     res.status(500).json({ error: error.message });
+  }
+});
+
+// 프로필 사진 삭제
+router.delete("/delete-photo", authenticateToken, async (req, res) => {
+  try {
+    await profileService.deleteProfilePhoto(req.user.id);
+    res.json({ status: 'success', message: '프로필 사진이 삭제되었습니다.' });
+  } catch (error) {
+    res.status(500).json({ status: 'error', message: error.message });
   }
 });
 

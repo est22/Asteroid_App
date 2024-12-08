@@ -17,30 +17,35 @@ class ProfileViewModel: ObservableObject {
     @Published var isMottoExceeded: Bool = false
     
     // MARK: - Profile Methods
-    func fetchProfile() async throws {
-        guard let accessToken = UserDefaults.standard.string(forKey: "accessToken") else { return }
-        
-        let headers: HTTPHeaders = ["Authorization": "Bearer \(accessToken)"]
-        isLoading = true
-        
-        do {
-            let response = try await AF.request("\(APIConstants.baseURL)/profile",
-                                                method: .get,
-                                                headers: headers)
-                .serializingDecodable(ProfileResponse.self)
-                .value
-            
-            nickname = response.data.nickname
-            motto = response.data.motto
-            profilePhoto = response.data.profilePhoto
-            
-        } catch {
-            print("Profile fetch error: \(error)")
-            profileErrorMessage = error.localizedDescription
+    @MainActor
+func fetchProfile() async throws {
+    guard let accessToken = UserDefaults.standard.string(forKey: "accessToken") else { return }
+    
+    let headers: HTTPHeaders = ["Authorization": "Bearer \(accessToken)"]
+    
+    let response = try await AF.request("\(APIConstants.baseURL)/profile",
+                                      headers: headers)
+        .serializingDecodable(ProfileResponse.self)
+        .value
+    
+    print("=== 프로필 응답 ===")
+    print(response)
+    
+    self.nickname = response.data.nickname
+    self.motto = response.data.motto
+    self.profilePhoto = response.data.profilePhoto 
+
+    
+    if let photoURLString = response.data.profilePhoto,
+       let photoURL = URL(string: photoURLString) {
+        print("프로필 사진 URL: \(photoURL)")
+        let (data, _) = try await URLSession.shared.data(from: photoURL)
+        if let uiImage = UIImage(data: data) {
+            print("이미지 로드 성공")
+            self.profileImage = Image(uiImage: uiImage)
         }
-        
-        isLoading = false
     }
+}
     
     func updateProfile(nickname: String, motto: String) async throws {
         guard let accessToken = UserDefaults.standard.string(forKey: "accessToken") else { return }
@@ -129,7 +134,22 @@ class ProfileViewModel: ObservableObject {
         print("===== 프로필 사진 업로드 종료 =====\n")
     }
 }
+        func deleteProfilePhoto() async throws {
+        guard let accessToken = UserDefaults.standard.string(forKey: "accessToken") else { return }
         
+        let headers: HTTPHeaders = [
+            "Authorization": "Bearer \(accessToken)"
+        ]
+        
+        try await AF.request(
+            "\(APIConstants.baseURL)/profile/delete-photo",
+            method: .delete,
+            headers: headers
+        )
+        .serializingDecodable(UpdateProfileResponse.self)
+        .value
+    }
+
         // MARK: - Validation Methods
         func checkNicknameAvailability(_ nickname: String) async {
             guard let accessToken = UserDefaults.standard.string(forKey: "accessToken") else { return }
