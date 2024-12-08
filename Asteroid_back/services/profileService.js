@@ -24,8 +24,16 @@ const getUserProfile = async (userId) => {
   });
 };
 
+const deleteProfilePhoto = async (userId) => {
+  return await models.User.update(
+    { profile_picture: null },
+    { where: { id: userId } }
+  );
+};
+
 module.exports = {
   findUserByNickname,
   updateUserProfile,
   getUserProfile,
+  deleteProfilePhoto,
 };
