@@ -14,10 +14,17 @@ struct EditProfileView: View {
     
     var body: some View {
         NavigationView {
-            VStack(spacing: 20) {
-                profilePhotoSection
-                nicknameSection
-                mottoSection
+            VStack(spacing: 40) {
+                profileImageSection
+                    .padding(.top, 40) // 프로필 이미지 위에 여백 추가
+                
+                VStack(spacing: 15) {
+                    nicknameField
+                    mottoField
+                }
+                .padding()
+                
+                Spacer()
             }
             .padding()
             .navigationTitle("프로필 수정")
@@ -53,7 +60,7 @@ struct EditProfileView: View {
     }
     
     // MARK: - View Components
-    private var profilePhotoSection: some View {
+    private var profileImageSection: some View {
         PhotosPicker(selection: $selectedItem, matching: .images) {
             profileImageView
         }
@@ -66,13 +73,13 @@ struct EditProfileView: View {
                 profileImage
                     .resizable()
                     .scaledToFill()
-                    .frame(width: 120, height: 120)
+                    .frame(width: 100, height: 100)
                     .clipShape(Circle())
             } else {
                 Image(systemName: "person.circle.fill")
                     .resizable()
-                    .frame(width: 120, height: 120)
-                    .foregroundColor(.gray)
+                    .frame(width: 100, height: 100)
+                    .foregroundColor(.gray.opacity(0.5))
             }
             
             cameraButton
@@ -88,7 +95,7 @@ struct EditProfileView: View {
             .offset(x: 40, y: 40)
     }
     
-    private var nicknameSection: some View {
+    private var nicknameField: some View {
         VStack(alignment: .leading, spacing: 4) {
             ClearableTextField(
                 text: $viewModel.nickname,
@@ -116,7 +123,7 @@ struct EditProfileView: View {
         }
     }
     
-    private var mottoSection: some View {
+    private var mottoField: some View {
         VStack(alignment: .leading, spacing: 4) {
             ClearableTextField(
                 text: $viewModel.motto,
@@ -150,5 +157,17 @@ struct EditProfileView: View {
                 }
             }
         }
+    }
+}
+
+#Preview("프로필 수정 화면") {
+    let profileViewModel = ProfileViewModel()
+    // 프리뷰용 더미 데이터 설정
+    profileViewModel.nickname = "테스트 닉네임"
+    profileViewModel.motto = "테스트 좌우명"
+    
+    return NavigationView {
+        EditProfileView(profileViewModel: profileViewModel)
+            .environmentObject(profileViewModel)
     }
 } 
