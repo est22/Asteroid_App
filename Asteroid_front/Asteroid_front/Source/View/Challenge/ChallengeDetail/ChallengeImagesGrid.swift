@@ -42,21 +42,25 @@ struct ChallengeImagesGrid: View {
                         case .empty:
                             SkeletonView()
                         case .success(let image):
-                            image
-                                .resizable()
-                                .aspectRatio(1, contentMode: .fit)
-                                .contextMenu {
-                                    Button(role: .destructive, action: {
-                                        print("=== 신고하기 버튼 클릭 ===")
-                                        print("선택된 이미지 ID:", challengeImages[index].id)
-                                        print("이미지 업로더 ID:", challengeImages[index].userId)
-                                        selectedImageId = challengeImages[index].id
-                                        showReportView.toggle()
-                                    }) {
-                                        Label("신고하기", systemImage: "exclamationmark.bubble.fill")
+                            if #available(iOS 17.0, *) {
+                                image
+                                    .resizable()
+                                    .aspectRatio(1, contentMode: .fit)
+                                    .contextMenu {
+                                        Button(role: .destructive, action: {
+                                            print("=== 신고하기 버튼 클릭 ===")
+                                            print("선택된 이미지 ID:", challengeImages[index].id)
+                                            print("이미지 업로더 ID:", challengeImages[index].userId)
+                                            selectedImageId = challengeImages[index].id
+                                            showReportView.toggle()
+                                        }) {
+                                            Label("신고하기", systemImage: "exclamationmark.bubble.fill")
+                                        }
                                     }
-                                }
-                                .sensoryFeedback(.impact(weight: .medium), trigger: true) // 3D 터치 햅틱
+                                    .sensoryFeedback(.impact(weight: .medium), trigger: true)
+                            } else {
+                                // Fallback on earlier versions
+                            } // 3D 터치 햅틱
                         case .failure(_):
                             Rectangle()
                                 .fill(Color.gray.opacity(0.1))
