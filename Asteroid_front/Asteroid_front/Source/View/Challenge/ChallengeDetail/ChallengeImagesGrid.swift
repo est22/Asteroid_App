@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 struct ChallengeImagesGrid: View {
     let challengeImages: [ChallengeImage]
@@ -6,6 +7,7 @@ struct ChallengeImagesGrid: View {
     @Binding var showingImagePicker: Bool
     @Binding var showReportView: Bool
     @State private var selectedImageId: Int?
+    @State private var shouldShowReport: Bool = false
     
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -42,25 +44,24 @@ struct ChallengeImagesGrid: View {
                         case .empty:
                             SkeletonView()
                         case .success(let image):
-                            if #available(iOS 17.0, *) {
-                                image
-                                    .resizable()
-                                    .aspectRatio(1, contentMode: .fit)
-                                    .contextMenu {
-                                        Button(role: .destructive, action: {
-                                            print("=== 신고하기 버튼 클릭 ===")
-                                            print("선택된 이미지 ID:", challengeImages[index].id)
-                                            print("이미지 업로더 ID:", challengeImages[index].userId)
-                                            selectedImageId = challengeImages[index].id
-                                            showReportView.toggle()
-                                        }) {
-                                            Label("신고하기", systemImage: "exclamationmark.bubble.fill")
-                                        }
+                            image
+                                .resizable()
+                                .aspectRatio(1, contentMode: .fit)
+                                .contextMenu {
+                                    Button(role: .destructive, action: {
+                                        print("=== 신고하기 버튼 클릭 ===")
+                                        print("선택된 이미지 ID:", challengeImages[index].id)
+                                        print("이미지 업로더 ID:", challengeImages[index].userId)
+                                        selectedImageId = challengeImages[index].id
+                                        // .sensoryFeedback은 iOS 17 이상에서만 사용 가능해서 대체
+                                        // 3D 터치 햅틱 (Haptic Feedback) - UIKit의 것을 사용
+                                        let impactGenerator = UIImpactFeedbackGenerator(style: .medium)
+                                        impactGenerator.impactOccurred()
+                                        shouldShowReport = true
+                                    }) {
+                                        Label("신고하기", systemImage: "exclamationmark.bubble.fill")
                                     }
-                                    .sensoryFeedback(.impact(weight: .medium), trigger: true)
-                            } else {
-                                // Fallback on earlier versions
-                            } // 3D 터치 햅틱
+                                }
                         case .failure(_):
                             Rectangle()
                                 .fill(Color.gray.opacity(0.1))
@@ -76,13 +77,14 @@ struct ChallengeImagesGrid: View {
                 }
             }
         }
+        .onChange(of: shouldShowReport) { newValue in
+            if newValue {
+                showReportView = true
+                shouldShowReport = false
+            }
+        }
         .sheet(isPresented: $showReportView) {
             if let imageId = selectedImageId {
-                let _ = print("\n=== 신고하기 뷰 열림 ===")
-                let _ = print("전달되는 파라미터:")
-                let _ = print("- Target Type: L")
-                let _ = print("- Target ID:", imageId)
-                
                 ReportView(targetType: "L", targetId: imageId)
             }
         }
