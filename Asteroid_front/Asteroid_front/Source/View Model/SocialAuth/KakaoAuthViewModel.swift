@@ -39,8 +39,10 @@ class KakaoAuthViewModel: ObservableObject {
                 
                 // 메인 스레드에서 상태 업데이트
                 DispatchQueue.main.async {
-                    self?.authViewModel.isLoggedIn = true
-                    self?.authViewModel.isInitialProfileSet = loginResponse.isProfileSet
+                    self?.authViewModel.updateLoginState(
+                        isLoggedIn: true,
+                        isProfileSet: loginResponse.isProfileSet
+                    )
                     // print("Updated auth state - isLoggedIn: true, isProfileSet:", loginResponse.isProfileSet)
                 }
                 

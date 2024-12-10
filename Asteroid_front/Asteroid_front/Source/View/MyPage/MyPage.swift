@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct MyPage: View {
+    @EnvironmentObject private var authViewModel: AuthViewModel
     @StateObject private var profileViewModel = ProfileViewModel()
     @State private var showingEditProfile = false
     

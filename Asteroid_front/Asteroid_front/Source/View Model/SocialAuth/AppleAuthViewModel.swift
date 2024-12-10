@@ -43,16 +43,20 @@ class AppleAuthViewModel: NSObject, ObservableObject {
             case .success(let loginResponse):
                 UserDefaults.standard.set(loginResponse.accessToken, forKey: "accessToken")
                 UserDefaults.standard.set(loginResponse.refreshToken, forKey: "refreshToken")
-                UserDefaults.standard.set(loginResponse.isProfileSet, forKey: "isInitialProfileSet")
+                UserDefaults.standard.set(loginResponse.isProfileSet, forKey: "hasCompletedInitialProfile")
+                UserDefaults.standard.set(true, forKey: "isLoggedIn")
+                UserDefaults.standard.synchronize()
                 
-                Task { @MainActor in
-                    self?.authViewModel.isLoggedIn = true
-                    self?.authViewModel.isInitialProfileSet = loginResponse.isProfileSet
-                    print("Apple login success, isProfileSet: \(loginResponse.isProfileSet)")
+                DispatchQueue.main.async { [weak self] in
+                    guard let self = self else { return }
+                    self.authViewModel.updateLoginState(
+                        isLoggedIn: true,
+                        isProfileSet: loginResponse.isProfileSet
+                    )
+                    print("State updated - isLoggedIn: \(self.authViewModel.isLoggedIn), isProfileSet: \(self.authViewModel.isInitialProfileSet)")
                 }
                 
             case .failure(let error):
-                print("Apple Sign In Error: \(error.localizedDescription)")
                 DispatchQueue.main.async {
                     self?.appleSignInError = "Apple 로그인에 실패했습니다."
                 }

@@ -11,7 +11,7 @@ import KakaoSDKAuth
 
 @main
 struct Asteroid_frontApp: App {
-    @StateObject private var authViewModel = AuthViewModel()
+    @StateObject private var authViewModel = AuthViewModel.shared
     @StateObject private var socialAuthManager = SocialAuthManager()
     @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
     

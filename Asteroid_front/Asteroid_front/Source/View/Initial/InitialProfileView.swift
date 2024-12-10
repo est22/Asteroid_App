@@ -17,7 +17,7 @@ extension String {
 }
 
 struct InitialProfileView: View {
-    @EnvironmentObject private var viewModel: AuthViewModel
+    @EnvironmentObject private var authViewModel: AuthViewModel
     @State private var nickname = ""
     @State private var motto = ""
     @State private var isLoading = false
@@ -49,14 +49,14 @@ struct InitialProfileView: View {
             ClearableTextField(
                 text: $nickname, 
                 placeholder: "닉네임", 
-                isError: viewModel.profileErrorMessage.isEmpty ? false : !viewModel.profileErrorMessage.contains("사용 가능한 닉네임입니다"),
+                isError: authViewModel.profileErrorMessage.isEmpty ? false : !authViewModel.profileErrorMessage.contains("사용 가능한 닉네임입니다"),
                 isSuccess: isNicknameChecked && isNicknameAvailable
             )
             .focused($nicknameFieldIsFocused)
             .onChange(of: nickname) { _ in
                 isNicknameChecked = false
                 isNicknameAvailable = false
-                viewModel.profileErrorMessage = ""
+                authViewModel.profileErrorMessage = ""
             }
             
             Button("중복확인") {
@@ -65,10 +65,10 @@ struct InitialProfileView: View {
             .disabled(nickname.isEmpty)
         }
         
-        if !viewModel.profileErrorMessage.isEmpty {
-            Text(viewModel.profileErrorMessage)
+        if !authViewModel.profileErrorMessage.isEmpty {
+            Text(authViewModel.profileErrorMessage)
                 .foregroundColor(
-                    viewModel.profileErrorMessage == "사용 가능한 닉네임입니다." 
+                    authViewModel.profileErrorMessage == "사용 가능한 닉네임입니다." 
                     ? Color(UIColor.systemGreen) 
                     : .red
                 )
@@ -165,10 +165,10 @@ struct InitialProfileView: View {
         }
         
         isLoading = true
-        viewModel.updateInitialProfile(nickname: nickname, motto: motto) { success in
+        authViewModel.updateInitialProfile(nickname: nickname, motto: motto) { success in
             isLoading = false
             if !success {
-                viewModel.profileErrorMessage = "프로필 설정에 실패했습니다. 다시 시도해주세요."
+                authViewModel.profileErrorMessage = "프로필 설정에 실패했습니다. 다시 시도해주세요."
             }
         }
     }
@@ -178,7 +178,7 @@ struct InitialProfileView: View {
         
         print("닉네임 체크 시작: \(nickname)")  // 디버깅용
         
-        viewModel.checkNicknameAvailability(nickname) { success in
+        authViewModel.checkNicknameAvailability(nickname) { success in
             print("닉네임 체크 결과: \(success)")  // 디버깅용
             
             DispatchQueue.main.async {

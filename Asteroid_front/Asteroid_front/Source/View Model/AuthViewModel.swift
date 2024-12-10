@@ -5,17 +5,19 @@ import Alamofire
 import AuthenticationServices
 
 class AuthViewModel: NSObject, ObservableObject {
+    static let shared = AuthViewModel()
+    
     @Published var email = ""
     @Published var password = ""
     @Published var confirmPassword = ""
-    @Published var isLoggedIn = false
+    @Published var isLoggedIn: Bool
     @Published var isUserExists = true
     @Published var isEmailValid = true
     @Published var isPasswordMatching = true
     @Published var isLoading = false
     @Published var loginErrorMessage = ""
     @Published var registerErrorMessage = ""
-    @Published var isRegistering = false
+    @Published var isRegistering: Bool = false
     @Published var emailErrorMessage = ""
     @Published var isPasswordLengthValid = false      // 8자 이상
     @Published var hasNumber = false                  // 숫자 포함
@@ -37,10 +39,30 @@ class AuthViewModel: NSObject, ObservableObject {
     
     private var emailCheckCancellable: AnyCancellable? // combine 구독 저장 및 관리하기 위한 프로퍼티
     
-    override init() {
-        self.isInitialProfileSet = UserDefaults.standard.bool(forKey: "hasCompletedInitialProfile")
+    override init() {  
+        let isLoggedInValue = UserDefaults.standard.bool(forKey: "isLoggedIn")
+        let isProfileSetValue = UserDefaults.standard.bool(forKey: "hasCompletedInitialProfile")
+        
+        self.isLoggedIn = isLoggedInValue
+        self.isInitialProfileSet = isProfileSetValue
+        
         super.init()
-        checkAuthStatus()
+        
+        print("AuthViewModel initialized with - isLoggedIn: \(isLoggedInValue), isProfileSet: \(isProfileSetValue)")
+    }
+    
+    // UserDefaults와 상태를 동시에 업데이트하는 메서드
+    func updateLoginState(isLoggedIn: Bool, isProfileSet: Bool) {
+        DispatchQueue.main.async { [weak self] in
+            UserDefaults.standard.set(isLoggedIn, forKey: "isLoggedIn")
+            UserDefaults.standard.set(isProfileSet, forKey: "hasCompletedInitialProfile")
+            UserDefaults.standard.synchronize()  // 즉시 저장
+            
+            self?.isLoggedIn = isLoggedIn
+            self?.isInitialProfileSet = isProfileSet
+            
+            print("AuthViewModel state updated - isLoggedIn: \(isLoggedIn), isProfileSet: \(isProfileSet)")
+        }
     }
     
     private func checkAuthStatus() {
@@ -325,7 +347,7 @@ class AuthViewModel: NSObject, ObservableObject {
                 switch response.result {
                 case .success(let response):
                     self?.profileErrorMessage = response.message
-                    let isAvailable = response.message.contains("사용 가능한 닉네임입니다")
+                    let isAvailable = response.message.contains("사용 가능한 닉네임���니다")
                     print("닉네임 사용 가능 여부: \(isAvailable)")  // 디버깅용
                     completion(isAvailable)
                 case .failure(let error):
@@ -376,7 +398,7 @@ class AuthViewModel: NSObject, ObservableObject {
                 }
             }
             
-            print("프로필 사진 ��데이트 성공: \(response.message)")
+            print("프로필 사진 업데이트 성공: \(response.message)")
         } catch {
             print("프로필 사진 업데이트 실패: \(error)")
         }

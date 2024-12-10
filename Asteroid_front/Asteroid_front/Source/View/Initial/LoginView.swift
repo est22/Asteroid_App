@@ -7,15 +7,11 @@
 import SwiftUI
 
 struct LoginView: View {
-    @EnvironmentObject private var viewModel: AuthViewModel
+    @EnvironmentObject private var authViewModel: AuthViewModel
     @EnvironmentObject private var socialAuthManager: SocialAuthManager
-    @StateObject private var kakaoAuthVM: KakaoAuthViewModel
+    @StateObject private var kakaoAuthVM = KakaoAuthViewModel(authViewModel: AuthViewModel.shared)
     @State private var showPassword = false
     @State private var buttonOffset: CGFloat = 0
-    
-    init() {
-        _kakaoAuthVM = StateObject(wrappedValue: KakaoAuthViewModel(authViewModel: AuthViewModel()))
-    }
     
     var body: some View {
         VStack(spacing: 30) {
@@ -29,10 +25,9 @@ struct LoginView: View {
             }
             .padding(.top, 60)
             
-            
             // 입력 필드들
             VStack(spacing: 15) {
-                TextField("이메일", text: $viewModel.email)
+                TextField("이메일", text: $authViewModel.email)
                     .modifier(CustomTextFieldStyle())
                     .autocapitalization(.none)
                     .keyboardType(.emailAddress)
@@ -40,9 +35,9 @@ struct LoginView: View {
                 // 비밀번호 입력 필드
                 HStack {
                     if showPassword {
-                        TextField("비밀번호", text: $viewModel.password)
+                        TextField("비밀번호", text: $authViewModel.password)
                     } else {
-                        SecureField("비밀번호", text: $viewModel.password)
+                        SecureField("비밀번호", text: $authViewModel.password)
                     }
                     
                     Button(action: { showPassword.toggle() }) {
@@ -71,17 +66,17 @@ struct LoginView: View {
             .padding(.horizontal, 20)
             
             // 로그인 버튼 위에 에러 메시지 표시
-            if !viewModel.loginErrorMessage.isEmpty {
-                Text(viewModel.loginErrorMessage)
+            if !authViewModel.loginErrorMessage.isEmpty {
+                Text(authViewModel.loginErrorMessage)
                     .foregroundColor(.red)
                     .font(.caption)
             }
             
             // 로그인 버튼
             Button(action: {
-                viewModel.login()
+                authViewModel.login()
             }) {
-                if viewModel.isLoading {
+                if authViewModel.isLoading {
                     ProgressView()
                         .progressViewStyle(CircularProgressViewStyle(tint: .white))
                 } else {
@@ -90,19 +85,19 @@ struct LoginView: View {
                         .fontWeight(.heavy)
                         .frame(maxWidth: .infinity)
                         .frame(height: 50)
-                        .background(viewModel.canLogin ? Color.keyColor : Color.gray)
+                        .background(authViewModel.canLogin ? Color.keyColor : Color.gray)
                         .cornerRadius(10)
                 }
             }
             .padding(.horizontal, 20)
-            .disabled(!viewModel.canLogin || viewModel.isLoading)
+            .disabled(!authViewModel.canLogin || authViewModel.isLoading)
             
             // 회원가입 전환 버튼
             Button(action: {
                 withAnimation(.easeInOut(duration: 0.3)) {
                     buttonOffset = 50
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                        viewModel.isRegistering = true
+                        authViewModel.isRegistering = true
                         buttonOffset = 0
                     }
                 }
@@ -143,7 +138,7 @@ struct LoginView: View {
         }
         .padding(.top, 20)
         .onAppear {
-            viewModel.loginErrorMessage = ""  // 에러 메시지만 초기화
+            authViewModel.loginErrorMessage = ""  // 에러 메시지만 초기화
         }
     }
 }

@@ -5,13 +5,14 @@ import Combine
 class SocialAuthManager: ObservableObject {
     @Published var lastUsedAuth: SocialAuthType?
     private var authViewModel: AuthViewModel
-    private let kakaoAuthViewModel: KakaoAuthViewModel
-    private let appleAuthViewModel: AppleAuthViewModel
+    @Published var kakaoAuthViewModel: KakaoAuthViewModel
+    @Published var appleAuthViewModel: AppleAuthViewModel
     // 구현 전
     // private let googleAuthViewModel = GoogleAuthViewModel()
     // private let naverAuthViewModel = NaverAuthViewModel()
     
-    init(authViewModel: AuthViewModel = AuthViewModel()) {
+
+    init(authViewModel: AuthViewModel = AuthViewModel.shared) {
         self.authViewModel = authViewModel
         self.kakaoAuthViewModel = KakaoAuthViewModel(authViewModel: authViewModel)
         self.appleAuthViewModel = AppleAuthViewModel(authViewModel: authViewModel)
