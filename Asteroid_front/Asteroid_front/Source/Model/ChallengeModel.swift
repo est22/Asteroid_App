@@ -1,5 +1,6 @@
 import Foundation
 
+// Home화면에서 챌린지 랭킹 가져오는 모델
 struct ChallengeRanking: Codable {
     let challengeId: Int
     let challengeName: String
@@ -8,6 +9,7 @@ struct ChallengeRanking: Codable {
 
 struct UserRanking: Codable {
     let nickname: String
+    let motto: String
     let profilePicture: String?
     let credit: Int
 }
@@ -15,8 +17,9 @@ struct UserRanking: Codable {
 struct ChallengeRankingResponse: Codable {
     let status: String
     let data: [ChallengeRanking]
-} 
+}
 
+// 챌린지 상세 정보 가져오는 모델
 struct ChallengeInfo: Identifiable, Codable {
     private let _id: Int?
     private let _challengeId: Int?

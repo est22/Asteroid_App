@@ -261,7 +261,7 @@ const getTopUsersByChallenge = async (req, res) => {
         model: Reward,
         include: [{
           model: User,
-          attributes: ['nickname', 'profile_picture']
+          attributes: ['nickname', 'motto', 'profile_picture']
         }]
       }]
     });
@@ -272,6 +272,7 @@ const getTopUsersByChallenge = async (req, res) => {
         .slice(0, 5)
         .map(reward => ({
           nickname: reward.User.nickname,
+          motto: reward.User.motto,
           profilePicture: reward.User.profile_picture,
           credit: reward.credit
         }));

@@ -81,12 +81,14 @@ struct ChallengeRankingView: View {
                 
                 // 랭킹 리스트
                 VStack(spacing: 0) {
-                    ForEach(Array(filteredRankings.prefix(5).enumerated()), id: \.element.challengeId) { index, ranking in
-                        RankingRow(ranking: ranking.topUsers.first, rank: index + 1)
-                        
-                        if index < 4 {
-                            Divider()
-                                .padding(.horizontal)
+                    ForEach(0..<min(5, filteredRankings.first?.topUsers.count ?? 0), id: \.self) { index in
+                        if let user = filteredRankings.first?.topUsers[index] {
+                            RankingRow(ranking: user, rank: index + 1)
+                            
+                            if index < 4 {
+                                Divider()
+                                    .padding(.horizontal)
+                            }
                         }
                     }
                 }
@@ -150,16 +152,29 @@ struct RankingRow: View {
                     .foregroundColor(.gray)
             }
             
-            // 닉네임
-            Text(ranking?.nickname ?? "챌린지에 참여해서 순위에 들어보세요!")
-                .font(.system(size: 15, weight: .medium))
+            // 닉네임과 좌우명을 VStack으로 배치
+            VStack(alignment: .leading, spacing: 2) {
+                Text(ranking?.nickname ?? "챌린지에 참여해서 순위에 들어보세요!")
+                    .font(.system(size: 15, weight: .medium))
+                
+                if let motto = ranking?.motto {
+                    Text(motto)
+                        .font(.system(size: 12))
+                        .foregroundColor(.gray)
+                }
+            }
             
             Spacer()
             
             // 포인트
-            Text("\(ranking?.credit ?? 0) 점")
-                .font(.system(size: 14))
-                .foregroundColor(.gray)
+            HStack(spacing: 0) {
+                Text("\(ranking?.credit ?? 0)")
+                    .font(.system(size: 14, weight: .bold))
+                    .foregroundColor(.keyColor)
+                Text("점")
+                    .font(.system(size: 14))
+                    .foregroundColor(.gray)
+            }
         }
         .padding(.vertical, 8) 
         .padding(.horizontal)
