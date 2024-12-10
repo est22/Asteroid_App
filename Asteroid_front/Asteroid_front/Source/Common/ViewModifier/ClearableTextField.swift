@@ -4,6 +4,7 @@ struct ClearableTextField: View {
     @Binding var text: String
     let placeholder: String
     var isError: Bool = false
+    var isSuccess: Bool = false
     
     var body: some View {
         ZStack(alignment: .trailing) {
@@ -13,7 +14,12 @@ struct ClearableTextField: View {
                 .cornerRadius(10)
                 .overlay(
                     RoundedRectangle(cornerRadius: 10)
-                        .stroke(isError ? Color.red : Color.gray.opacity(0.3), lineWidth: 1)
+                        .stroke(
+                            isError ? Color.red : 
+                            isSuccess ? Color.gray.opacity(0.3) :
+                            Color.gray.opacity(0.3),
+                            lineWidth: 1
+                        )
                 )
             
             if !text.isEmpty {

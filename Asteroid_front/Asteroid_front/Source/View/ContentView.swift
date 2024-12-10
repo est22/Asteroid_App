@@ -9,11 +9,18 @@ import SwiftUI
 
 struct ContentView: View {
     var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("소행성").font(.starFontB(size: 24))
+        if viewModel.isLoggedIn {
+            if !viewModel.isInitialProfileSet {
+                InitialProfileView()
+            } else {
+                MainTabView()
+            }
+        } else {
+            if viewModel.isRegistering {
+                RegisterView(isRegistering: $viewModel.isRegistering)
+            } else {
+                LoginView()
+            }
         }
     }
 }
