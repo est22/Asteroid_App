@@ -63,6 +63,25 @@ const participateInChallenge = async (req, res) => {
     const userId = req.user.id;
     const challengeId = req.params.challengeId;
 
+    // 현재 진행중인 동일한 챌린지 참여 여부 확인
+    const existingParticipation = await ChallengeParticipation.findOne({
+      where: {
+        user_id: userId,
+        challenge_id: challengeId,
+        status: "참여중",
+        end_date: {
+          [Op.gte]: new Date() // 현재 날짜보다 종료일이 더 큰 경우
+        }
+      }
+    });
+
+    if (existingParticipation) {
+      return res.status(400).json({
+        message: "이미 참여 중인 챌린지입니다.",
+        endDate: existingParticipation.end_date
+      });
+    }
+
     // 최근 신고 대상 여부 확인 (3일 이내)
     const recentParticipation = await ChallengeParticipation.findOne({
       where: {
@@ -173,7 +192,7 @@ const uploadChallengeImage = async (req, res) => {
     endDate.setHours(0, 0, 0, 0);
     const isLastDay = today.getTime() === endDate.getTime();
 
-    // 마지막 날이고 신고가 없는 경우 바로 상태 변경 및 보상 지급
+    // 마지막 날이고 신고��� 없는 경우 바로 상태 변경 및 보상 지급
     if (isLastDay && participation.challenge_reported_count === 0) {
       participation.status = "챌린지 달성";
       await participation.save();
