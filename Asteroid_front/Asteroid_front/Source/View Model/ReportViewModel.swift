@@ -16,6 +16,13 @@ class ReportViewModel: ObservableObject {
     @Published var alertMessage = ""
     
     func submitReport(targetType: String, targetId: Int) {
+        print("\n=== 신고 API 요청 ===")
+        print("요청 파라미터:")
+        print("- Target Type:", targetType)
+        print("- Target ID:", targetId)
+        print("- Report Type:", selectedReportType ?? "nil")
+        print("- Report Reason:", reportReason)
+        
         guard let reportType = selectedReportType else {
             alertMessage = "신고 사유를 선택해주세요."
             showAlert = true
@@ -46,6 +53,13 @@ class ReportViewModel: ObservableObject {
                    headers: headers)
             .validate()
             .responseDecodable(of: ReportResponse.self) { [weak self] response in
+                print("\n=== 신고 API 응답 ===")
+                print("Status Code:", response.response?.statusCode ?? 0)
+                if let data = response.data,
+                   let json = try? JSONSerialization.jsonObject(with: data, options: []) {
+                    print("Response:", json)
+                }
+                
                 switch response.result {
                 case .success(let reportResponse):
                     self?.alertMessage = reportResponse.message

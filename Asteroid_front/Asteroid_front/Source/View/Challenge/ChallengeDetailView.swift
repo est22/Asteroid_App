@@ -16,10 +16,11 @@ struct ChallengeDetailView: View {
     @State private var showPhotoUpload: Bool = false
     @State private var showingImagePicker: Bool = false
     @State private var selectedImage: UIImage?
-    @State private var challengeImages: [String] = []
+    @State private var challengeImages: [ChallengeImage] = []
     @State private var currentPage: Int = 1
     @State private var isLoading: Bool = false
     @State private var hasMoreData: Bool = true
+    @State private var showReportView: Bool = false
     
     let itemsPerPage: Int = 20
     
@@ -132,8 +133,35 @@ struct ChallengeDetailView: View {
                             }
                             
                             ForEach(challengeImages.indices, id: \.self) { index in
-                                AsyncImage(url: URL(string: challengeImages[index])) { phase in
+                                AsyncImage(url: URL(string: challengeImages[index].imageUrl)) { phase in
                                     switch phase {
+                                    case .success(let image):
+                                        image
+                                            .resizable()
+                                            .aspectRatio(1, contentMode: .fit)
+                                            .contextMenu {
+                                                Button(role: .destructive, action: {
+                                                     // 신고하기 버튼 클릭 시 디버깅
+                                                    print("=== 신고하기 버튼 클릭 ===") 
+                                                    print("선택된 이미지 ID:", challengeImages[index].id)
+                                                    print("이미지 업로더 ID:", challengeImages[index].userId)
+                                                    print("Target Type: L")
+                                                    print("Target ID:", challengeImages[index].id)
+                                                    // 신고 뷰 표시
+                                                    showReportView.toggle()
+                                                }) {
+                                                    Label("신고하기", systemImage: "exclamationmark.bubble.fill")
+                                                }
+                                            }
+                                            .sheet(isPresented: $showReportView) {
+                                                // 신고하기 뷰가 열릴 때 디버깅
+                                                print("\n=== 신고하기 뷰 열림 ===")
+                                                print("전달되는 파라미터:")
+                                                print("- Target Type: L")
+                                                print("- Target ID:", challengeImages[index].id)
+                    
+                                                ReportView(targetType: "L", targetId: challengeImages[index].id)
+                                            }
                                     case .empty:
                                         // 로딩 중
                                         SkeletonView(
@@ -141,13 +169,7 @@ struct ChallengeDetailView: View {
                                             middleColor: Color.keyColor.opacity(0.2),
                                             endColor: Color.keyColor.opacity(0.1)
                                         )
-                                    case .success(let image):
-                                        // 성공적으로 로드
-                                        image
-                                            .resizable()
-                                            .aspectRatio(1, contentMode: .fit)
                                     case .failure(_):
-                                        // 로드 실패
                                         Rectangle()
                                             .fill(Color.gray.opacity(0.1))
                                             .aspectRatio(1, contentMode: .fit)
@@ -250,7 +272,13 @@ struct ChallengeDetailView: View {
                     limit: itemsPerPage
                 )
                 
+                print("=== API 응답 데이터 ===")
+                print("응답 전체:", response)
+                print("이미지 배열:", response.images)
+                print("첫 번째 이미지:", response.images.first ?? "없음")
+                
                 await MainActor.run {
+                    // 응답으로 받은 이미지 데이터를 ChallengeImage 모델로 변환하여 추가
                     challengeImages.append(contentsOf: response.images)
                     currentPage += 1  // 다음 페이지를 위해 증가
                     hasMoreData = currentPage <= response.totalPages // 우변이 참면 true, 거짓이면 false
@@ -258,6 +286,7 @@ struct ChallengeDetailView: View {
                 }
             } catch {
                 print("Error loading images: \(error)")
+                print("Error details:", error.localizedDescription)
                 isLoading = false
             }
         }

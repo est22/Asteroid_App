@@ -15,40 +15,16 @@ struct ContentView: View {
             if authViewModel.isLoggedIn {
                 if !authViewModel.isInitialProfileSet {
                     InitialProfileView()
-                        .onAppear {
-                            print("Displaying InitialProfileView")
-                        }
                 } else {
                     MainTabView()
-                        .onAppear {
-                            print("Displaying MainTabView")
-                        }
                 }
             } else {
                 if authViewModel.isRegistering {
                     RegisterView(isRegistering: $authViewModel.isRegistering)
-                        .onAppear {
-                            print("Displaying RegisterView")
-                        }
                 } else {
                     LoginView()
-                        .onAppear {
-                            print("Displaying LoginView")
-                        }
                 }
             }
-        }
-        .onChange(of: authViewModel.isLoggedIn) { newValue in
-            print("ContentView detected isLoggedIn change to: \(newValue)")
-        }
-        .onChange(of: authViewModel.isInitialProfileSet) { newValue in
-            print("ContentView detected isInitialProfileSet change to: \(newValue)")
-        }
-        .onAppear {
-            print("ContentView appeared - Current State:")
-            print("isLoggedIn: \(authViewModel.isLoggedIn)")
-            print("isInitialProfileSet: \(authViewModel.isInitialProfileSet)")
-            print("isRegistering: \(authViewModel.isRegistering)")
         }
     }
 }

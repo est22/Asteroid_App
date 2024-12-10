@@ -64,14 +64,18 @@ const getChallengeImages = async (req, res) => {
   try {
     const images = await ChallengeImage.findAndCountAll({
       where: { challenge_id: challengeId },
-      attributes: ["image_url"], // image_url만 가져오기
+      attributes: ["id", "image_url", "user_id"], // id와 user_id 추가
       order: [["createdAt", "DESC"]],
       limit: parseInt(limit),
       offset: (page - 1) * limit
     });
 
     res.json({
-      images: images.rows.map(img => img.image_url),
+      images: images.rows.map(img => ({
+        id: img.id,
+        imageUrl: img.image_url,
+        userId: img.user_id
+      })),
       total: images.count,
       currentPage: parseInt(page),
       totalPages: Math.ceil(images.count / limit)
