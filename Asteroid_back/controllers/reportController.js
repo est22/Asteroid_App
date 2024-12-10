@@ -55,8 +55,8 @@ const report = async (req, res) => {
       reportedUserId = result;
     }
 
-    console.log("Reporting User ID:", reportingUserId); // 디버그: 신고한 유저
-    console.log("Reported User ID:", reportedUserId); // 디버그: 신고 당한 유저
+    // console.log("Reporting User ID:", reportingUserId); // 디버그: 신고한 유저
+    // console.log("Reported User ID:", reportedUserId); // 디버그: 신고 당한 유저
 
     // 중복 신고 방지
     const existingReport = await Report.findOne({

@@ -43,11 +43,11 @@ struct ChallengeDetailView: View {
                 .padding(.top, 0) // 네비게이션 바 아래 영역
             }
             .onAppear {
-                print("=== View appeared ===")
+//                print("=== View appeared ===")
                 loadMoreContent()  // 뷰가 나타날 때 첫 페이지 로드
             }
             .onChange(of: challengeImages.count) { _ in
-                print("=== Images count changed ===")
+//                print("=== Images count changed ===")
                 // 스크롤이 끝에 도달했는지 확인
                 if !isLoading && hasMoreData {
                     loadMoreContent()
@@ -218,72 +218,6 @@ struct ChallengePhotoUploadView: View {
             challengeName: "3일 동안 현금만 사용하기",
             viewModel: ChallengeViewModel()
         )
-    }
-}
-
-
-
-
-extension ChallengeViewModel {
-    func participateInChallenge(id: Int) async {
-        guard let url = URL(string: "\(APIConstants.baseURL)/challenge/\(id)/participate") else { return }
-        
-        guard let accessToken = UserDefaults.standard.string(forKey: "accessToken") else { return }
-        
-        var request = URLRequest(url: url)
-        request.httpMethod = "POST"
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.setValue("Bearer \(accessToken)", forHTTPHeaderField: "Authorization") // 토큰 추가
-        
-        do {
-            let (data, response) = try await URLSession.shared.data(for: request)
-            
-            if let httpResponse = response as? HTTPURLResponse {
-                print("Participate API Response Status: \(httpResponse.statusCode)")
-                if httpResponse.statusCode == 200 {
-                    print("Successfully participated in challenge")
-                } else {
-                    print("Failed to participate: \(httpResponse.statusCode)")
-                }
-            }
-            
-            if let responseString = String(data: data, encoding: .utf8) {
-                print("API Response: \(responseString)")
-            }
-            
-        } catch {
-            print("Error participating in challenge: \(error)")
-        }
-    }
-    
-
-    
-    func fetchChallengeImages(challengeId: Int, page: Int, limit: Int) async throws -> ChallengeImagesResponse {
-        guard let url = URL(string: "\(APIConstants.baseURL)/challenge/\(challengeId)/images?page=\(page)&limit=\(limit)") else {
-            throw URLError(.badURL)
-        }
-        
-        
-        var request = URLRequest(url: url)
-        request.httpMethod = "GET"
-        
-        // 토큰 추가
-        if let token = UserDefaults.standard.string(forKey: "accessToken") {
-            request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
-        }
-        
-        let (data, response) = try await URLSession.shared.data(for: request)
-        
-        guard let httpResponse = response as? HTTPURLResponse else {
-            throw URLError(.badServerResponse)
-        }
-        
-        guard httpResponse.statusCode == 200 else {
-            throw URLError(.badServerResponse)
-        }
-        
-        let decoder = JSONDecoder()
-        return try decoder.decode(ChallengeImagesResponse.self, from: data)
     }
 }
 
