@@ -46,27 +46,29 @@ class ReportViewModel: ObservableObject {
             "Authorization": "Bearer \(UserDefaults.standard.string(forKey: "accessToken") ?? "")"
         ]
         
-        AF.request("\(APIConstants.baseURL)/report",
-                   method: .post,
-                   parameters: parameters,
-                   encoding: JSONEncoding.default,
-                   headers: headers)
-            .validate()
-            .responseDecodable(of: ReportResponse.self) { [weak self] response in
-                print("\n=== 신고 API 응답 ===")
-                print("Status Code:", response.response?.statusCode ?? 0)
-                if let data = response.data,
-                   let json = try? JSONSerialization.jsonObject(with: data, options: []) {
-                    print("Response:", json)
+        Task {
+            AF.request("\(APIConstants.baseURL)/report",
+                       method: .post,
+                       parameters: parameters,
+                       encoding: JSONEncoding.default,
+                       headers: headers)
+                .validate()
+                .responseDecodable(of: ReportResponse.self, decoder: JSONDecoder()) { [weak self] response in
+                    print("\n=== 신고 API 응답 ===")
+                    print("Status Code:", response.response?.statusCode ?? 0)
+                    if let data = response.data,
+                       let responseString = String(data: data, encoding: .utf8) {
+                        print("Response:", responseString)
+                    }
+                    
+                    switch response.result {
+                    case .success(_):
+                        self?.alertMessage = "신고가 성공적으로 접수되었습니다."
+                    case .failure(let error):
+                        self?.alertMessage = "신고에 실패했습니다: \(error.localizedDescription)"
+                    }
+                    self?.showAlert = true
                 }
-                
-                switch response.result {
-                case .success(let reportResponse):
-                    self?.alertMessage = reportResponse.message
-                case .failure(let error):
-                    self?.alertMessage = "신고에 실패했습니다: \(error.localizedDescription)"
-                }
-                self?.showAlert = true
-            }
+        }
     }
 }
