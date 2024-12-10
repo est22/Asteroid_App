@@ -12,7 +12,6 @@ module.exports = (sequelize, DataTypes) => {
           target_type: 'P'
         }
       });
-
       Post.belongsTo(models.User, {
         foreignKey: "user_id",
         onDelete: "CASCADE",

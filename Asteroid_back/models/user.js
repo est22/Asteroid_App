@@ -20,11 +20,11 @@ module.exports = (sequelize, DataTypes) => {
     {
       email: {
         type: DataTypes.STRING,
-        allowNull: false,
+        allowNull: true,
       },
       password: {
         type: DataTypes.STRING,
-        allowNull: false,
+        allowNull: true,
       },
       nickname: {
         type: DataTypes.STRING,
@@ -46,6 +46,22 @@ module.exports = (sequelize, DataTypes) => {
         defaultValue: "A", // A: Active, S: Suspended, D:Deactivated
       },
       device_token: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      apple_id: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      kakao_id: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      google_id: {
+        type: DataTypes.STRING,
+        allowNull: true
+      },
+      naver_id: {
         type: DataTypes.STRING,
         allowNull: true
       }

@@ -12,12 +12,12 @@ module.exports = {
       },
       email: {
         type: Sequelize.STRING,
-        allowNull: false,
+        allowNull: true,
         unique: true,
       },
       password: {
         type: Sequelize.STRING,
-        allowNull: false,
+        allowNull: true,
       },
       nickname: {
         type: Sequelize.STRING(18), // nickname 글자 수 제한
@@ -51,8 +51,24 @@ module.exports = {
       },
       device_token: {
         type: Sequelize.STRING,
-        allowNull: true
-      }
+        allowNull: true,
+      },
+      apple_id: {
+        type: Sequelize.STRING,
+        allowNull: true,
+      },
+      kakao_id: {
+        type: Sequelize.STRING,
+        allowNull: true,
+      },
+      google_id: {
+        type: Sequelize.STRING,
+        allowNull: true,
+      },
+      naver_id: {
+        type: Sequelize.STRING,
+        allowNull: true,
+      },
     });
   },
 
