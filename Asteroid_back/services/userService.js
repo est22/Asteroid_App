@@ -51,6 +51,21 @@ const findUserByNickname = async (nickname) => {
     }
 };
 
+const findUserByKakaoId = async (kakaoId) => {
+    return await models.User.findOne({ 
+        where: { kakao_id: kakaoId.toString() } 
+    });
+};
+
+const createKakaoUser = async (userData) => {
+    return await models.User.create({
+        kakao_id: userData.kakao_id.toString(),
+        nickname: null,
+        motto: null,
+        profile_photo: null
+    });
+};
+
 module.exports = {
   createUser,
   findAllUsers,
@@ -59,4 +74,6 @@ module.exports = {
   findUserByAppleId,
   createAppleUser,
   findUserByNickname,
+  findUserByKakaoId,
+  createKakaoUser,
 };

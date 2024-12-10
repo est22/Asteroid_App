@@ -193,12 +193,56 @@ const checkNickname = async (req, res) => {
     }
 };
 
+const kakaoLogin = async (req, res) => {
+    const { kakao_id } = req.body;
+    
+    console.log('카카오 로그인 요청:', { kakao_id });
+    
+    try {
+        let user = await userService.findUserByKakaoId(kakao_id);
+        console.log('기존 사용자 검색 결과:', user);
+        
+        if (!user) {
+            console.log('새 사용자 생성 시도');
+            try {
+                user = await userService.createKakaoUser({
+                    kakao_id: kakao_id
+                });
+                console.log('새 사용자 생성 성공:', user);
+            } catch (createError) {
+                console.error('사용자 생성 실패:', createError);
+                throw createError;
+            }
+        }
+        
+        const accessToken = generateAccessToken(user);
+        const refreshToken = generateRefreshToken(user);
+        
+        console.log('토큰 생성 완료');
+        
+        // LoginResponse 형식에 맞춰 응답
+        res.json({
+            accessToken: accessToken,
+            refreshToken: refreshToken,
+            isProfileSet: Boolean(user.nickname && user.motto)
+        });
+        
+    } catch (e) {
+        console.error('카카오 로그인 에러:', e);
+        res.status(500).json({ 
+            message: '카카오 로그인 처리 중 오류가 발생했습니다.' 
+        });
+    }
+};
+
 module.exports = {
   register,
   login,
   refresh,
   updateUser,
-  checkEmail,  // 추가
-  appleLogin,  // 추가
-  checkNickname,  // 추가
+  checkEmail, 
+  appleLogin, 
+  kakaoLogin,
+  checkNickname, 
+
 };

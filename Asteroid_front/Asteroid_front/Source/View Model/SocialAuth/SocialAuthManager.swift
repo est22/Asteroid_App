@@ -4,13 +4,17 @@ import Combine
 
 class SocialAuthManager: ObservableObject {
     @Published var lastUsedAuth: SocialAuthType?
-    private let appleAuthViewModel = AppleAuthViewModel()
-    private let kakaoAuthViewModel = KakaoAuthViewModel()
+    private var authViewModel: AuthViewModel
+    private let kakaoAuthViewModel: KakaoAuthViewModel
+    private let appleAuthViewModel: AppleAuthViewModel
     // 구현 전
     // private let googleAuthViewModel = GoogleAuthViewModel()
     // private let naverAuthViewModel = NaverAuthViewModel()
     
-    init() {
+    init(authViewModel: AuthViewModel = AuthViewModel()) {
+        self.authViewModel = authViewModel
+        self.kakaoAuthViewModel = KakaoAuthViewModel(authViewModel: authViewModel)
+        self.appleAuthViewModel = AppleAuthViewModel(authViewModel: authViewModel)
         lastUsedAuth = SocialAuthType(rawValue: UserDefaults.standard.string(forKey: "lastUsedAuth") ?? "")
     }
     

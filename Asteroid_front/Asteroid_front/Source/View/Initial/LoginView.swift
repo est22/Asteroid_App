@@ -9,8 +9,13 @@ import SwiftUI
 struct LoginView: View {
     @EnvironmentObject private var viewModel: AuthViewModel
     @EnvironmentObject private var socialAuthManager: SocialAuthManager
+    @StateObject private var kakaoAuthVM: KakaoAuthViewModel
     @State private var showPassword = false
     @State private var buttonOffset: CGFloat = 0
+    
+    init() {
+        _kakaoAuthVM = StateObject(wrappedValue: KakaoAuthViewModel(authViewModel: AuthViewModel()))
+    }
     
     var body: some View {
         VStack(spacing: 30) {

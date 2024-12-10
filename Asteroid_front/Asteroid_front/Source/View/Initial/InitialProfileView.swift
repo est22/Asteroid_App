@@ -146,14 +146,14 @@ struct InitialProfileView: View {
                      isNicknameAvailable && 
                      !isMottoExceeded
         
-        // 디버깅용 출력
-        print("canProceed 상태:")
-        print("- nickname not empty: \(!nickname.isEmpty)")
-        print("- motto not empty: \(!motto.isEmpty)")
-        print("- nickname checked: \(isNicknameChecked)")
-        print("- nickname available: \(isNicknameAvailable)")
-        print("- motto not exceeded: \(!isMottoExceeded)")
-        print("Final result: \(result)")
+//        // 디버깅용 출력
+//        print("canProceed 상태:")
+//        print("- nickname not empty: \(!nickname.isEmpty)")
+//        print("- motto not empty: \(!motto.isEmpty)")
+//        print("- nickname checked: \(isNicknameChecked)")
+//        print("- nickname available: \(isNicknameAvailable)")
+//        print("- motto not exceeded: \(!isMottoExceeded)")
+//        print("Final result: \(result)")
         
         return result
     }

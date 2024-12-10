@@ -11,7 +11,12 @@ import Alamofire
 
 class AppleAuthViewModel: NSObject, ObservableObject {
     @Published var appleSignInError: String?
-    var onLoginSuccess: ((Bool) -> Void)?
+    private var authViewModel: AuthViewModel
+    
+    init(authViewModel: AuthViewModel) {
+        self.authViewModel = authViewModel
+        super.init()
+    }
     
     func handleSignInWithApple() {
         let provider = ASAuthorizationAppleIDProvider()
@@ -40,8 +45,10 @@ class AppleAuthViewModel: NSObject, ObservableObject {
                 UserDefaults.standard.set(loginResponse.refreshToken, forKey: "refreshToken")
                 UserDefaults.standard.set(loginResponse.isProfileSet, forKey: "isInitialProfileSet")
                 
-                DispatchQueue.main.async {
-                    self?.onLoginSuccess?(loginResponse.isProfileSet)
+                Task { @MainActor in
+                    self?.authViewModel.isLoggedIn = true
+                    self?.authViewModel.isInitialProfileSet = loginResponse.isProfileSet
+                    print("Apple login success, isProfileSet: \(loginResponse.isProfileSet)")
                 }
                 
             case .failure(let error):
@@ -69,6 +76,6 @@ extension AppleAuthViewModel: ASAuthorizationControllerDelegate {
     
     func authorizationController(controller: ASAuthorizationController, didCompleteWithError error: Error) {
         print("Apple Sign In Error: \(error.localizedDescription)")
-        self.appleSignInError = "Apple 로그인에 실패했습���다."
+        self.appleSignInError = "Apple 로그인에 실패했습니다."
     }
 }

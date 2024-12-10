@@ -36,25 +36,11 @@ class AuthViewModel: NSObject, ObservableObject {
     
     
     private var emailCheckCancellable: AnyCancellable? // combine 구독 저장 및 관리하기 위한 프로퍼티
-    private let appleAuthViewModel = AppleAuthViewModel()
     
     override init() {
-        // 초기화 시 UserDefaults에서 프로필 설정 완료 여부를 먼저 확인
         self.isInitialProfileSet = UserDefaults.standard.bool(forKey: "hasCompletedInitialProfile")
         super.init()
         checkAuthStatus()
-        
-        appleAuthViewModel.onLoginSuccess = { [weak self] isProfileSet in
-            DispatchQueue.main.async {
-                print("Apple login success, isProfileSet: \(isProfileSet)")  // 디버깅용
-                self?.isLoggedIn = true
-                self?.isInitialProfileSet = isProfileSet
-            }
-        }
-    }
-    
-    func handleSignInWithApple() {
-        appleAuthViewModel.handleSignInWithApple()
     }
     
     private func checkAuthStatus() {
@@ -390,7 +376,7 @@ class AuthViewModel: NSObject, ObservableObject {
                 }
             }
             
-            print("프로필 사진 업데이트 성공: \(response.message)")
+            print("프로필 사진 ��데이트 성공: \(response.message)")
         } catch {
             print("프로필 사진 업데이트 실패: \(error)")
         }
