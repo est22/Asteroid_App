@@ -20,9 +20,9 @@ struct ChallengeDetailView: View {
     var body: some View {
         NavigationView {
             ScrollView {
-                VStack(alignment: .leading, spacing: 24) {
-                    Text(challengeName)
-                        .font(.system(size: 22, weight: .bold))
+                VStack(alignment: .leading, spacing: 20) {
+//                    Text(challengeName)
+//                        .font(.system(size: 22, weight: .bold))
                     
                     // 회색 배경 영역
                     ZStack {
@@ -132,7 +132,7 @@ struct ChallengeDetailView: View {
                     }
                 }
                 .padding(.horizontal, 24)
-                .padding(.top, 24)
+                .padding(.top, 0) // 네비게이션 바 아래 영역
             }
         }
         .navigationBarBackButtonHidden(true)
@@ -147,12 +147,10 @@ struct ChallengeDetailView: View {
             trailing: EmptyView()
         )
         .toolbar {
-            if showProgress {
-                ToolbarItem(placement: .principal) {
-                    Text("챌린지 참여중")
-                        .foregroundColor(.keyColor)
-                        .font(.system(size: 16))
-                }
+            // 챌린지 이름 네비바에 표시
+            ToolbarItem(placement: .principal) {
+                Text(challengeName)
+                    .font(.system(size: 20, weight: .bold))
             }
         }
         .overlay(
