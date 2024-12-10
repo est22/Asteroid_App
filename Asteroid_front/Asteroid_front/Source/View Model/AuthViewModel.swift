@@ -61,7 +61,7 @@ class AuthViewModel: NSObject, ObservableObject {
         let (accessToken, _) = getTokens()
         if let accessToken = accessToken, !accessToken.isEmpty {
             self.isLoggedIn = true
-            self.isInitialProfileSet = UserDefaults.standard.bool(forKey: "isInitialProfileSet")
+            self.isInitialProfileSet = UserDefaults.standard.bool(forKey: "hasCompletedInitialProfile")
         } else {
             self.isLoggedIn = false
         }
@@ -313,30 +313,44 @@ class AuthViewModel: NSObject, ObservableObject {
     }
     
     func checkNicknameAvailability(_ nickname: String, completion: @escaping (Bool) -> Void) {
-        let url = "\(APIConstants.baseURL)/auth/init"
+        guard let accessToken = getTokens().accessToken else {
+            completion(false)
+            return
+        }
+        
+        let url = "\(APIConstants.baseURL)/auth/check-nickname"
         let parameters = ["nickname": nickname]
+        let headers: HTTPHeaders = ["Authorization": "Bearer \(accessToken)"]
+        
+        print("닉네임 체크 요청: \(nickname)")
         
         AF.request(url, 
                   method: .post,
                   parameters: parameters,
-                  encoding: JSONEncoding.default)
+                  encoding: JSONEncoding.default,
+                  headers: headers)
             .validate()
-            .responseString { [weak self] response in
+            .responseDecodable(of: NicknameCheckResponse.self) { [weak self] response in
+                print("응답 상태 코드: \(String(describing: response.response?.statusCode))")
+                if let data = response.data, let responseString = String(data: data, encoding: .utf8) {
+                    print("응답 데이터: \(responseString)")
+                }
+                
                 switch response.result {
-                case .success(let message):
-                    DispatchQueue.main.async {
-                        if message == "닉네임 사용 가능" {
-                            completion(true)
-                        } else {
-                            self?.profileErrorMessage = message
-                            completion(false)
-                        }
-                    }
+                case .success(let response):
+                    self?.profileErrorMessage = response.message
+                    let isAvailable = response.message.contains("사용 가능한 닉네임입니다")
+                    print("닉네임 사용 가능 여부: \(isAvailable)")  // 디버깅용
+                    completion(isAvailable)
                 case .failure(let error):
-                    DispatchQueue.main.async {
-                        self?.profileErrorMessage = error.localizedDescription
-                        completion(false)
+                    print("닉네임 체크 에러: \(error)")
+                    if let data = response.data,
+                       let errorResponse = try? JSONDecoder().decode(ErrorResponse.self, from: data) {
+                        self?.profileErrorMessage = errorResponse.message
+                    } else {
+                        self?.profileErrorMessage = "닉네임 중복 확인에 실패했습니다."
                     }
+                    completion(false)
                 }
             }
     }

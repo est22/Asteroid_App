@@ -58,7 +58,7 @@ struct EditProfileView: View {
             
             Button("기본 이미지로 설정하기", role: .destructive) {
                 shouldResetImage = true
-                tempImage = Image(systemName: "person.circle.fill").foregroundColor(.gray.opacity(0.5))
+                tempImage = Image(systemName: "person.circle.fill")
                 selectedImageData = nil
             }
             

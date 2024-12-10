@@ -37,11 +37,26 @@ const createAppleUser = async (data) => {
   });
 };
 
+// 닉네임으로 사용자 찾기
+const findUserByNickname = async (nickname) => {
+    try {
+        const user = await models.User.findOne({
+            where: {
+                nickname: nickname
+            }
+        });
+        return user;
+    } catch (error) {
+        throw error;
+    }
+};
+
 module.exports = {
   createUser,
   findAllUsers,
   updateUser, // 최초 닉네임, 소비좌우명 설정도 포함
   findUserByEmail,
   findUserByAppleId,
-  createAppleUser
+  createAppleUser,
+  findUserByNickname,
 };
