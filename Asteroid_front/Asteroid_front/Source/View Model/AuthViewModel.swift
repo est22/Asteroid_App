@@ -22,14 +22,7 @@ class AuthViewModel: NSObject, ObservableObject {
     @Published var isPasswordLengthValid = false      // 8자 이상
     @Published var hasNumber = false                  // 숫자 포함
     @Published var hasSpecialCharacter = false        // 특수문자 포함
-    @Published var isInitialProfileSet: Bool {
-        didSet {
-            // isInitialProfileSet이 true로 변경될 때 UserDefaults에 영구 저장
-            if isInitialProfileSet {
-                UserDefaults.standard.set(true, forKey: "hasCompletedInitialProfile")
-            }
-        }
-    }
+    @Published var isInitialProfileSet: Bool
     @Published var profileErrorMessage = ""  // 추가
     @Published var nickname = ""  // 추가
     @Published var motto = ""     // 추가
@@ -347,7 +340,7 @@ class AuthViewModel: NSObject, ObservableObject {
                 switch response.result {
                 case .success(let response):
                     self?.profileErrorMessage = response.message
-                    let isAvailable = response.message.contains("사용 가능한 닉네임���니다")
+                    let isAvailable = response.message.contains("사용 가능한 닉네임입니다")
                     print("닉네임 사용 가능 여부: \(isAvailable)")  // 디버깅용
                     completion(isAvailable)
                 case .failure(let error):
