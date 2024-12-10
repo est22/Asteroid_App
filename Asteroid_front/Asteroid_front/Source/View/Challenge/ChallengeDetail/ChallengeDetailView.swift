@@ -96,6 +96,11 @@ struct ChallengeDetailView: View {
                         // 참여하기 API 호출 후 상세 정보 다시 불러오기
                         Task {
                             await viewModel.participateInChallenge(id: challengeId)
+                            // 참여 성공 시 ViewModel의 카운트 증가
+                            // 즉시 UI 업데이트 (프론트엔드적으로만, only for 사용자 즉각적인 피드백)
+                            DispatchQueue.main.async {
+                                viewModel.incrementParticipantCount()
+                            }
                             await viewModel.fetchChallengeDetail(id: challengeId)
                         }
                         

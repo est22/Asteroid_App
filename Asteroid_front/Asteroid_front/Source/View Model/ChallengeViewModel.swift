@@ -11,6 +11,7 @@ class ChallengeViewModel: ObservableObject {
     @Published var errorMessage: String = ""
     @Published var isParticipating: Bool = false
     @Published var participantCount: Int = 0
+    @Published var currentParticipantCount: Int = 0  // 현재 참여자 수를 추적하는 새로운 변수
     
     // 섹션별로 마지막 색상 인덱스를 저장
     private var lastColorIndices: [String: Int] = [:]
@@ -189,5 +190,9 @@ class ChallengeViewModel: ObservableObject {
         } catch {
             print("Error checking participation status: \(error)")
         }
+    }
+    // '참여'시 참여자수 +1을 위한 사용자 즉각 피드백
+    func incrementParticipantCount() {
+        currentParticipantCount += 1
     }
 }
