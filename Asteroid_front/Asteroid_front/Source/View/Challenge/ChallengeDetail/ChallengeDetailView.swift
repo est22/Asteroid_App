@@ -42,6 +42,19 @@ struct ChallengeDetailView: View {
                 .padding(.horizontal, 24)
                 .padding(.top, 0) // 네비게이션 바 아래 영역
             }
+            .refreshable {
+                // 새로고침 시 실행될 코드
+                Task {
+                    // 챌린지 상세 정보 새로고침
+                    await viewModel.fetchChallengeDetail(id: challengeId)
+                    
+                    // 이미지 그리드 새로고침
+                    currentPage = 1  // 페이지 초기화
+                    hasMoreData = true
+                    challengeImages.removeAll()  // 기존 이미지 제거
+                    await loadMoreContent()  // 새로운 이미지 로드
+                }
+            }
             .onAppear {
 //                print("=== View appeared ===")
                 loadMoreContent()  // 뷰가 나타날 때 첫 페이지 로드
