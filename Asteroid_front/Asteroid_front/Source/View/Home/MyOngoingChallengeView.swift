@@ -12,27 +12,6 @@ struct MyOngoingChallengeView: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 24) {
-            // 인기 챌린지
-//            VStack(alignment: .leading, spacing: 12) {
-//                Text("인기 챌린지")
-//                    .font(.system(size: 20, weight: .bold))
-//                    .padding(.horizontal)
-//                
-//                ScrollView(.horizontal, showsIndicators: false) {
-//                    HStack(spacing: 12) {
-//                        // 각 섹션별로 별도의 색상 인덱스를 사용
-//                        ForEach(0..<10) { index in
-//                            ChallengeCard(
-//                                title: "인기 챌린지 \(index + 1)",
-//                                color: viewModel.randomPastelColor(forSection: "popular")
-//                            )
-//                        }
-//                    }
-//                    .padding(.horizontal)
-//                }
-//            }
-            
-            // 참여중인 챌린지
             VStack(alignment: .leading, spacing: 12) {
                 Text("내 챌린지")
                     .font(.system(size: 20, weight: .bold))
@@ -41,16 +20,21 @@ struct MyOngoingChallengeView: View {
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack(spacing: 12) {
                         if viewModel.participatingChallenges.isEmpty {
-                            ChallengeCard(
-                                title: "아직 참여중인 챌린지가 없습니다",
-                                color: Color(UIColor.systemGray6)
-                            )
+                            ChallengeCard(title: "아직 참여중인 챌린지가 없습니다", gradientIndex: 0)
                         } else {
-                            ForEach(viewModel.participatingChallenges) { challenge in
-                                ChallengeCard(
-                                    title: challenge.challengeName!,
-                                    color: viewModel.randomPastelColor(forSection: "participating")
-                                )
+                            ForEach(Array(viewModel.participatingChallenges.enumerated()), id: \.element.id) { index, challenge in
+                                NavigationLink(
+                                    destination: ChallengeDetailView(
+                                        challengeId: challenge.id,
+                                        challengeName: challenge.displayName,
+                                        viewModel: viewModel
+                                    )
+                                ) {
+                                    ChallengeCard(
+                                        title: challenge.displayName,
+                                        gradientIndex: index
+                                    )
+                                }
                             }
                         }
                     }
@@ -61,24 +45,6 @@ struct MyOngoingChallengeView: View {
         .task {
             await viewModel.fetchParticipatingChallenges()
         }
-    }
-}
-
-struct ChallengeCard: View {
-    let title: String
-    let color: Color
-    
-    var body: some View {
-        VStack {
-            Text(title)
-                .font(.system(size: 16, weight: .medium))
-                .foregroundColor(.black)
-                .multilineTextAlignment(.center)
-                .padding()
-        }
-        .frame(width: 150, height: 150)
-        .background(color)
-        .cornerRadius(12)
     }
 }
 

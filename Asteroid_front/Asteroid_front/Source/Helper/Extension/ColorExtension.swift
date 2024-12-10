@@ -22,13 +22,6 @@ extension Color {
     static let pastelBeige = Color(hex: "#FFB3BA")
     static let pastelBlue = Color(hex: "#def0fb")
     static let pastelGreen = Color(hex: "#def7d2")
-    
-    
-    // 파스텔 컬러 배열
-    static let pastelColors: [Color] = [
-        .pastelOrange, .pastelYellow, .pastelBlue, .pastelLavender,
-        .pastelCoral, .pastelBeige, .pastelGreen
-    ]
 }
 
 extension Color {
@@ -44,4 +37,45 @@ extension Color {
     let b = Double((rgb >>  0) & 0xFF) / 255.0
     self.init(red: r, green: g, blue: b)
   }
+}
+
+// 그라디언트 배열 추가
+extension LinearGradient {
+    static let pastelGradients: [LinearGradient] = [
+        LinearGradient(
+            colors: [.pastelOrange.opacity(0.8), .pastelOrange.opacity(0.4)],
+            startPoint: .topLeading,
+            endPoint: .bottomTrailing
+        ),
+        LinearGradient(
+            colors: [.pastelYellow.opacity(0.8), .pastelYellow.opacity(0.4)],
+            startPoint: .topLeading,
+            endPoint: .bottomTrailing
+        ),
+        LinearGradient(
+            colors: [.pastelBlue.opacity(0.8), .pastelBlue.opacity(0.4)],
+            startPoint: .topLeading,
+            endPoint: .bottomTrailing
+        ),
+        LinearGradient(
+            colors: [.pastelLavender.opacity(0.8), .pastelLavender.opacity(0.4)],
+            startPoint: .topLeading,
+            endPoint: .bottomTrailing
+        ),
+        LinearGradient(
+            colors: [.pastelCoral.opacity(0.8), .pastelCoral.opacity(0.4)],
+            startPoint: .topLeading,
+            endPoint: .bottomTrailing
+        ),
+        LinearGradient(
+            colors: [.pastelBeige.opacity(0.8), .pastelBeige.opacity(0.4)],
+            startPoint: .topLeading,
+            endPoint: .bottomTrailing
+        ),
+        LinearGradient(
+            colors: [.pastelGreen.opacity(0.8), .pastelGreen.opacity(0.4)],
+            startPoint: .topLeading,
+            endPoint: .bottomTrailing
+        )
+    ]
 }

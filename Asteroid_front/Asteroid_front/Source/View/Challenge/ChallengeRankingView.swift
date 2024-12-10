@@ -46,11 +46,11 @@ struct ChallengeRankingView: View {
                                 selectedFilter = 1
                             }
                         }
-                        FilterButton(title: "주간랭킹", isSelected: selectedFilter == 2) {
-                            withAnimation(.spring()) {
-                                selectedFilter = 2
-                            }
-                        }
+//                        FilterButton(title: "주간랭킹", isSelected: selectedFilter == 2) {
+//                            withAnimation(.spring()) {
+//                                selectedFilter = 2
+//                            }
+//                        }
                     }
                     .padding(.horizontal)
                 }
