@@ -16,7 +16,13 @@ struct ChallengeDetailView: View {
     @State private var showPhotoUpload: Bool = false
     @State private var showingImagePicker: Bool = false
     @State private var selectedImage: UIImage?
-
+    @State private var challengeImages: [String] = []
+    @State private var currentPage: Int = 1
+    @State private var isLoading: Bool = false
+    @State private var hasMoreData: Bool = true
+    
+    let itemsPerPage: Int = 20
+    
     var body: some View {
         NavigationView {
             ScrollView {
@@ -31,6 +37,8 @@ struct ChallengeDetailView: View {
                             .frame(maxWidth: .infinity)
                         
                         VStack(spacing: 16) {
+                            Text("\(viewModel.selectedChallenge?.description ?? "")")
+                                .font(.system(size: 14))
                             Text("챌린지 기간: \(viewModel.selectedChallenge?.period ?? 0)일")
                                 .font(.system(size: 16, weight:.heavy))
                                 .foregroundColor(.keyColor)
@@ -123,10 +131,43 @@ struct ChallengeDetailView: View {
                                 .transition(.move(edge: .leading).combined(with: .opacity))
                             }
                             
-                            ForEach(0..<20) { _ in
-                                Rectangle()
-                                    .fill(Color.gray.opacity(0.1))
-                                    .aspectRatio(1, contentMode: .fit)
+                            ForEach(challengeImages.indices, id: \.self) { index in
+                                AsyncImage(url: URL(string: challengeImages[index])) { phase in
+                                    switch phase {
+                                    case .empty:
+                                        // 로딩 중
+                                        SkeletonView(
+                                            startColor: Color.keyColor.opacity(0.1),
+                                            middleColor: Color.keyColor.opacity(0.2),
+                                            endColor: Color.keyColor.opacity(0.1)
+                                        )
+                                    case .success(let image):
+                                        // 성공적으로 로드
+                                        image
+                                            .resizable()
+                                            .aspectRatio(1, contentMode: .fit)
+                                    case .failure(_):
+                                        // 로드 실패
+                                        Rectangle()
+                                            .fill(Color.gray.opacity(0.1))
+                                            .aspectRatio(1, contentMode: .fit)
+                                            .overlay(
+                                                Image(systemName: "photo")
+                                                    .foregroundColor(.gray)
+                                            )
+                                    @unknown default:
+                                        EmptyView()
+                                    }
+                                }
+                            }
+                        }
+                        .onAppear {
+                            loadMoreContent()
+                        }
+                        .onChange(of: challengeImages.count) { _ in
+                            // 스크롤이 끝에 도달했는지 확인
+                            if !isLoading && hasMoreData {
+                                loadMoreContent()
                             }
                         }
                     }
@@ -194,6 +235,33 @@ struct ChallengeDetailView: View {
             await viewModel.fetchChallengeDetail(id: challengeId)
         }
     }
+    
+    private func loadMoreContent() {
+        guard !isLoading && hasMoreData else { return }
+        
+        isLoading = true
+        
+        // API 호출
+        Task {
+            do {
+                let response = try await viewModel.fetchChallengeImages(
+                    challengeId: challengeId,
+                    page: currentPage,
+                    limit: itemsPerPage
+                )
+                
+                await MainActor.run {
+                    challengeImages.append(contentsOf: response.images)
+                    currentPage += 1  // 다음 페이지를 위해 증가
+                    hasMoreData = currentPage <= response.totalPages // 우변이 참면 true, 거짓이면 false
+                    isLoading = false
+                }
+            } catch {
+                print("Error loading images: \(error)")
+                isLoading = false
+            }
+        }
+    }
 }
 
 
@@ -249,7 +317,7 @@ struct ChallengePhotoUploadView: View {
                         .padding()
                 }
             }
-            .navigationTitle("챌린지 인증")
+            .navigationTitle("챌린지 인")
             .navigationBarTitleDisplayMode(.inline)
             .navigationBarItems(
                 leading: Button("취소") {
@@ -309,4 +377,35 @@ extension ChallengeViewModel {
             print("Error participating in challenge: \(error)")
         }
     }
+    
+
+    
+    func fetchChallengeImages(challengeId: Int, page: Int, limit: Int) async throws -> ChallengeImagesResponse {
+        guard let url = URL(string: "\(APIConstants.baseURL)/challenge/\(challengeId)/images?page=\(page)&limit=\(limit)") else {
+            throw URLError(.badURL)
+        }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "GET"
+        
+        // 토큰 추가
+        if let token = UserDefaults.standard.string(forKey: "accessToken") {
+            request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        }
+        
+        let (data, response) = try await URLSession.shared.data(for: request)
+        
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw URLError(.badServerResponse)
+        }
+        
+        guard httpResponse.statusCode == 200 else {
+            throw URLError(.badServerResponse)
+        }
+        
+        let decoder = JSONDecoder()
+        return try decoder.decode(ChallengeImagesResponse.self, from: data)
+    }
 }
+
+

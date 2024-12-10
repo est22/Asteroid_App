@@ -56,6 +56,31 @@ const getChallengeDetails = async (req, res) => {
   }
 };
 
+// 2-1. 챌린지 이미지 조회 API
+const getChallengeImages = async (req, res) => {
+  const { challengeId } = req.params;
+  const { page = 1, limit = 20 } = req.query;
+
+  try {
+    const images = await ChallengeImage.findAndCountAll({
+      where: { challenge_id: challengeId },
+      attributes: ["image_url"], // image_url만 가져오기
+      order: [["createdAt", "DESC"]],
+      limit: parseInt(limit),
+      offset: (page - 1) * limit
+    });
+
+    res.json({
+      images: images.rows.map(img => img.image_url),
+      total: images.count,
+      currentPage: parseInt(page),
+      totalPages: Math.ceil(images.count / limit)
+    });
+  } catch (error) {
+    console.error("Error fetching challenge images:", error);
+    res.status(500).json({ message: "서버 오류가 발생했습니다." });
+  }
+};
 
 // 3. 챌린지 참여
 const participateInChallenge = async (req, res) => {
@@ -192,7 +217,7 @@ const uploadChallengeImage = async (req, res) => {
     endDate.setHours(0, 0, 0, 0);
     const isLastDay = today.getTime() === endDate.getTime();
 
-    // 마지막 날이고 신고��� 없는 경우 바로 상태 변경 및 보상 지급
+    // 마지막 날이고 신고 없는 경우 바로 상태 변경 및 보상 지급
     if (isLastDay && participation.challenge_reported_count === 0) {
       participation.status = "챌린지 달성";
       await participation.save();
@@ -266,5 +291,6 @@ module.exports = {
   getChallengeDetails,
   participateInChallenge,
   uploadChallengeImage,
-  getTopUsersByChallenge
+  getTopUsersByChallenge,
+  getChallengeImages
 };

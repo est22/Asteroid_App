@@ -62,6 +62,13 @@ struct ChallengeDetail: Codable {
     }
 }
 
+// 챌린지별 이미지를 로드하는 모델
+struct ChallengeImagesResponse: Codable {
+    let images: [String]  // 이미지 URL 문자열 배열
+    let total: Int
+    let currentPage: Int
+    let totalPages: Int
+}
 
 // 내 보상 페이지에 사용되는 모델
 struct CompletedChallenge: Codable {
