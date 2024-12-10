@@ -52,11 +52,15 @@ const getMyRewards = async (req, res) => {
 const getMyOngoingChallenges = async (req, res) => {
   try {
     const userId = req.user.id;
+    const currentDate = new Date();
 
     const ongoingChallenges = await ChallengeParticipation.findAll({
       where: {
         user_id: userId,
-        status: "참여중"
+        status: "참여중",
+        end_date: {
+          [Op.gte]: currentDate  // end_date가 현재 날짜보다 크거나 같은 경우만 조회
+        }
       },
       include: [{
         model: Challenge,
