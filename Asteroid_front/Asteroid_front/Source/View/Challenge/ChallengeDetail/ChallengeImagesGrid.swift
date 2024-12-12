@@ -21,6 +21,28 @@ struct ChallengeImagesGrid: View {
     let viewModel: ChallengeViewModel
     var onRefresh: () -> Void  // 새로고침 시 호출될 콜백 추가
 
+    // 챌린지별 마지막 업로드 날짜를 저장
+    @AppStorage private var lastUploadDate: Double
+    
+    init(challengeImages: [ChallengeImage], showPhotoUpload: Bool, showingImagePicker: Binding<Bool>, showReportView: Binding<Bool>, selectedImage: Binding<UIImage?>, challengeId: Int, viewModel: ChallengeViewModel, onRefresh: @escaping () -> Void) {
+        self.challengeImages = challengeImages
+        self.showPhotoUpload = showPhotoUpload
+        self._showingImagePicker = showingImagePicker
+        self._showReportView = showReportView
+        self._selectedImage = selectedImage
+        self.challengeId = challengeId
+        self.viewModel = viewModel
+        self.onRefresh = onRefresh
+        // 챌린지별 키 생성
+        self._lastUploadDate = AppStorage(wrappedValue: 0, "lastUploadDate_\(challengeId)")
+    }
+    
+    private var hasUploadedToday: Bool {
+        let calendar = Calendar.current
+        let lastDate = Date(timeIntervalSince1970: lastUploadDate)
+        return calendar.isDateInToday(lastDate)
+    }
+    
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text(" 유저 참여 현황")
@@ -35,17 +57,34 @@ struct ChallengeImagesGrid: View {
             ], spacing: 8) {
                 // 1. 카메라 버튼을 항상 첫 번째로
                 if showPhotoUpload {
-                    Button(action: {
-                        showingActionSheet = true
-                    }) {
-                        ZStack {
+                    ZStack {
+                        Button(action: {
+                            if !hasUploadedToday {
+                                showingActionSheet = true
+                            }
+                        }) {
+                            ZStack {
+                                Rectangle()
+                                    .fill(Color.gray.opacity(0.1))
+                                    .frame(width: UIScreen.main.bounds.width / 4 - 8, height: UIScreen.main.bounds.width / 4 - 8)
+                                
+                                Image(systemName: "camera.fill")
+                                    .foregroundColor(.gray)
+                                    .font(.system(size: 24))
+                            }
+                        }
+                        .disabled(hasUploadedToday)
+                        
+                        // 오늘 업로드 완료 시 오버레이
+                        if hasUploadedToday {
                             Rectangle()
-                                .fill(Color.gray.opacity(0.1))
-                                .aspectRatio(1, contentMode: .fit)
-                            
-                            Image(systemName: "camera.fill")
-                                .foregroundColor(.gray)
-                                .font(.system(size: 24))
+                                .fill(Color.black.opacity(0.7))
+                                .frame(width: UIScreen.main.bounds.width / 4 - 8, height: UIScreen.main.bounds.width / 4 - 8)
+                                .overlay(
+                                    Text("오늘 참여 완료")
+                                        .font(.system(size: 14, weight: .medium))
+                                        .foregroundColor(.white)
+                                )
                         }
                     }
                     .actionSheet(isPresented: $showingActionSheet) {
@@ -79,23 +118,21 @@ struct ChallengeImagesGrid: View {
                         }
                         Button("확인") {
                             if let image = selectedImage {
-                                withAnimation {
-                                    Task {
-                                        do {
-                                            let responseString = try await viewModel.uploadChallengeImage(challengeId: challengeId, image: image)
-                                            if responseString.contains("챌린지 인증 이미지가 업로드되었습니다") {
-                                                print("=== 이미지 업로드 성공 및 검증 통과 ===")
-                                                // 진행률 업데이트
-                                                try? await Task.sleep(nanoseconds: 1_000_000_000)  // 1초 대기
-                                                await viewModel.fetchChallengeProgress(challengeId: challengeId)
-                                                print("진행률 업데이트 완료")
-                                            }
-                                            selectedImage = nil  // 업로드 후 이미지 초기화
-                                        } catch {
-                                            print("이미지 업로드 실패:", error)
-                                            errorMessage = "이미지 업로드에 실패했습니다. 다시 시도해주세요."
-                                            showError = true
+                                Task {
+                                    do {
+                                        let responseString = try await viewModel.uploadChallengeImage(challengeId: challengeId, image: image)
+                                        if responseString.contains("챌린지 인증 이미지가 업로드되었습니다") {
+                                            
+                                            // 해당 챌린지에 대한 업로드 날짜 저장
+                                            lastUploadDate = Date().timeIntervalSince1970
+                                            print("=== 챌린지 \(challengeId) 이미지 업로드 성공 및 검증 통과 ===")
+                                            await viewModel.fetchChallengeProgress(challengeId: challengeId)
                                         }
+                                        
+                                    } catch {
+                                        print("이미지 업로드 실패:", error)
+                                        errorMessage = "이미지 업로드에 실패했습니다. 다시 시도해주세요."
+                                        showError = true
                                     }
                                 }
                             }
@@ -110,7 +147,7 @@ struct ChallengeImagesGrid: View {
                     ZStack {
                         Rectangle()
                             .fill(Color.gray.opacity(0.1))
-                            .aspectRatio(1, contentMode: .fit)
+                            .frame(width: UIScreen.main.bounds.width / 4 - 8, height: UIScreen.main.bounds.width / 4 - 8)
                         
                         Image(uiImage: image)
                             .resizable()
@@ -134,6 +171,7 @@ struct ChallengeImagesGrid: View {
                                 middleColor: Color.keyColor.opacity(0.2),
                                 endColor: Color.keyColor.opacity(0.1)
                             )
+                            .frame(width: UIScreen.main.bounds.width / 4 - 8, height: UIScreen.main.bounds.width / 4 - 8)
                         case .success(let image):
                             image
                                 .resizable()
@@ -208,7 +246,7 @@ struct ChallengeImagesGrid: View {
     }
 }
 
-// ChallengeImage 모�� 확장
+// ChallengeImage 모델 확장
 extension ChallengeImage {
     var localImage: UIImage? { // 로컬 이미지를 저장하기 위한 프로퍼티
         get { objc_getAssociatedObject(self, &localImageKey) as? UIImage }
