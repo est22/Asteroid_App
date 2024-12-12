@@ -291,15 +291,24 @@ const getTopUsersByChallenge = async (req, res) => {
     });
 
     const formattedResults = topUsers.map(challenge => {
-      const top5Users = challenge.Rewards
+      // 닉네임 기준으로 중복 제거하면서 가장 높은 크레딧 값을 가진 기록 유지
+      const uniqueUsers = new Map();
+      
+      challenge.Rewards.forEach(reward => {
+        const nickname = reward.User.nickname;
+        if (!uniqueUsers.has(nickname) || uniqueUsers.get(nickname).credit < reward.credit) {
+          uniqueUsers.set(nickname, {
+            nickname: reward.User.nickname,
+            motto: reward.User.motto,
+            profilePicture: reward.User.profile_picture,
+            credit: reward.credit
+          });
+        }
+      });
+
+      const top5Users = Array.from(uniqueUsers.values())
         .sort((a, b) => b.credit - a.credit)
-        .slice(0, 5)
-        .map(reward => ({
-          nickname: reward.User.nickname,
-          motto: reward.User.motto,
-          profilePicture: reward.User.profile_picture,
-          credit: reward.credit
-        }));
+        .slice(0, 5);
 
       return {
         challengeId: challenge.id,
