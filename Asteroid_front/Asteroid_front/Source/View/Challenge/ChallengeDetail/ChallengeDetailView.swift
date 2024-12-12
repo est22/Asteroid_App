@@ -32,7 +32,7 @@ struct ChallengeDetailView: View {
                 VStack(alignment: .leading, spacing: 20) {
                     ChallengeInfoSection(viewModel: viewModel)
                     if showProgress {
-                        ProgressSection()
+                        ProgressSection(viewModel: viewModel)
                     }
                     ChallengeImagesGrid(
                         challengeImages: challengeImages,
@@ -159,9 +159,22 @@ struct ChallengeDetailView: View {
                     showPhotoUpload = true
                 }
             }
+            if viewModel.isParticipatingIn(challengeId: challengeId) {
+                await viewModel.fetchChallengeProgress(challengeId: challengeId)
+            }
         }
         .onChange(of: viewModel.isParticipating) { newValue in
             isParticipating = viewModel.isParticipatingIn(challengeId: challengeId)
+        }
+        .task {
+            print("\n=== 이미지 업로드 후 진행률 업데이트 ===")
+            if viewModel.isParticipatingIn(challengeId: challengeId) {
+                print("진행률 조회 시작...")
+                await viewModel.fetchChallengeProgress(challengeId: challengeId)
+                print("진행률 조회 완료")
+            } else {
+                print("참여 중이 아닌 챌린지")
+            }
         }
     }
     
@@ -306,7 +319,7 @@ struct ChallengePhotoUploadView: View {
     NavigationView {
         ChallengeDetailView(
             challengeId: 1,
-            challengeName: "3일 동안 현금�� 사용하기",
+            challengeName: "3일 동안 현금 사용하기",
             viewModel: ChallengeViewModel()
         )
     }

@@ -80,7 +80,23 @@ struct ChallengeImagesGrid: View {
                         Button("확인") {
                             if let image = selectedImage {
                                 withAnimation {
-                                    uploadImage(image)
+                                    Task {
+                                        do {
+                                            let responseString = try await viewModel.uploadChallengeImage(challengeId: challengeId, image: image)
+                                            if responseString.contains("챌린지 인증 이미지가 업로드되었습니다") {
+                                                print("=== 이미지 업로드 성공 및 검증 통과 ===")
+                                                // 진행률 업데이트
+                                                try? await Task.sleep(nanoseconds: 1_000_000_000)  // 1초 대기
+                                                await viewModel.fetchChallengeProgress(challengeId: challengeId)
+                                                print("진행률 업데이트 완료")
+                                            }
+                                            selectedImage = nil  // 업로드 후 이미지 초기화
+                                        } catch {
+                                            print("이미지 업로드 실패:", error)
+                                            errorMessage = "이미지 업로드에 실패했습니다. 다시 시도해주세요."
+                                            showError = true
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -190,31 +206,9 @@ struct ChallengeImagesGrid: View {
                 }
         }
     }
-
-    private func uploadImage(_ image: UIImage) {
-        print("=== uploadImage 시작 ===")
-        isUploading = true
-        Task {
-            do {
-                try await viewModel.uploadChallengeImage(challengeId: challengeId, image: image)
-                print("이미지 업로드 성공")
-                
-                await MainActor.run {
-                    isUploading = false
-                }
-            } catch {
-                print("이미지 업로드 실패:", error)
-                await MainActor.run {
-                    errorMessage = "이미지 업로드에 실패했습니다. 다시 시도해주세요."
-                    showError = true
-                    isUploading = false
-                }
-            }
-        }
-    }
 }
 
-// ChallengeImage 모델 확장
+// ChallengeImage 모�� 확장
 extension ChallengeImage {
     var localImage: UIImage? { // 로컬 이미지를 저장하기 위한 프로퍼티
         get { objc_getAssociatedObject(self, &localImageKey) as? UIImage }

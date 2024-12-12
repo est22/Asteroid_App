@@ -170,6 +170,12 @@ const uploadChallengeImage = async (req, res) => {
     const userId = req.user.id;
     const challengeId = req.params.challengeId;
 
+    console.log("\n=== 챌린지 이미지 업로드 ===");
+    console.log("요청 정보:");
+    console.log("- User ID:", userId);
+    console.log("- Challenge ID:", challengeId);
+
+
     // 참여 상태 확인
     const participation = await ChallengeParticipation.findOne({
       where: {
@@ -188,6 +194,7 @@ const uploadChallengeImage = async (req, res) => {
         message: "챌린지에 참여 중이 아닙니다."
       });
     }
+
 
     // 오늘 날짜의 시작과 끝 설정
     const today = new Date();
@@ -216,6 +223,18 @@ const uploadChallengeImage = async (req, res) => {
     const files = await uploadPhotos(req, res, 1);
     await saveFilesToDB(files, userId, "ChallengeImage", challengeId);
 
+
+    console.log("\n이미지 저장 후 현재 업로드 수:");
+    const afterCount = await ChallengeImage.count({
+      where: {
+        user_id: userId,
+        challenge_id: challengeId
+      }
+    });
+    console.log("업데이트된 업로드 수:", afterCount);
+
+
+    
     // 오늘이 end_date인지 확인
     const endDate = new Date(participation.end_date);
     endDate.setHours(0, 0, 0, 0);
@@ -246,6 +265,7 @@ const uploadChallengeImage = async (req, res) => {
     });
 
   } catch (error) {
+    console.error("\n이미지 업로드 실패:", error);
     return res.status(500).json({ 
       error: "이미지 업로드 중 오류가 발생했습니다.",
       details: error.message 
@@ -291,11 +311,42 @@ const getTopUsersByChallenge = async (req, res) => {
   }
 };
 
+// 챌린지 진행률 조회 API
+const getChallengeProgress = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const challengeId = req.params.challengeId;
+    
+    console.log("\n=== 챌린지 진행률 조회 ===");
+    console.log("요청 파라미터:");
+    console.log("- User ID:", userId);
+    console.log("- Challenge ID:", challengeId);
+
+    const uploadCount = await ChallengeImage.count({
+      where: {
+        user_id: userId,
+        challenge_id: challengeId
+      }
+    });
+
+    console.log("\n업로드 수:", uploadCount);
+
+    res.json({
+      uploadCount: uploadCount,  // 단순히 업로드 수만 반환
+    });
+
+  } catch (error) {
+    console.error("\n진행률 조회 실패:", error);
+    res.status(500).json({ message: "서버 오류가 발생했습니다." });
+  }
+};
+
 module.exports = {
   getChallengeList,
   getChallengeDetails,
   participateInChallenge,
   uploadChallengeImage,
   getTopUsersByChallenge,
-  getChallengeImages
+  getChallengeImages,
+  getChallengeProgress
 };

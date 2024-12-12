@@ -12,6 +12,8 @@ class ChallengeViewModel: ObservableObject {
     @Published var isParticipating: Bool = false
     @Published var participantCount: Int = 0
     @Published var currentParticipantCount: Int = 0  // 현재 참여자 수를 추적하는 새로운 변수
+    @Published var challengeProgress: Int = 0
+    @Published var uploadCount: Int = 0
     
     // 섹션별로 마지막 색상 인덱스를 저장
     private var lastColorIndices: [String: Int] = [:]
@@ -200,7 +202,7 @@ class ChallengeViewModel: ObservableObject {
         currentParticipantCount += 1
     }
     
-    func uploadChallengeImage(challengeId: Int, image: UIImage) async throws {
+    func uploadChallengeImage(challengeId: Int, image: UIImage) async throws -> String{
         print("이미지 업로드 시작: 챌린지 ID \(challengeId)")
         
         guard let url = URL(string: "\(APIConstants.baseURL)/challenge/\(challengeId)/upload"),
@@ -230,6 +232,7 @@ class ChallengeViewModel: ObservableObject {
         
         if let responseString = String(data: data, encoding: .utf8) {
             print("서버 응답:", responseString)
+            return responseString  // 응답 문자열 반환
         }
         
         guard let httpResponse = response as? HTTPURLResponse else {
@@ -242,5 +245,28 @@ class ChallengeViewModel: ObservableObject {
         guard httpResponse.statusCode == 200 else {
             throw URLError(.badServerResponse)
         }
+        
+        return ""  // 기본 반환값
+    }
+    
+    func fetchChallengeProgress(challengeId: Int) async {
+        guard let accessToken = UserDefaults.standard.string(forKey: "accessToken") else { return }
+        
+        let headers: HTTPHeaders = ["Authorization": "Bearer \(accessToken)"]
+        
+        do {
+            let response = try await AF.request("\(APIConstants.baseURL)/challenge/\(challengeId)/progress",
+                                         method: .get,
+                                         headers: headers)
+                .serializingDecodable(ChallengeProgressResponse.self)
+                .value
+            
+            await MainActor.run {
+                self.uploadCount = response.uploadCount
+            }
+        } catch {
+            print("진행률 조회 실패:", error)
+        }
     }
 }
+

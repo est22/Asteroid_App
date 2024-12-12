@@ -79,6 +79,11 @@ struct ChallengeImagesResponse: Codable {
     let totalPages: Int
 }
 
+// 챌린지 진행률 조회 모델
+struct ChallengeProgressResponse: Codable {
+    let uploadCount: Int
+}
+
 // 내 보상 페이지에 사용되는 모델
 struct CompletedChallenge: Codable {
     let challengeName: String
@@ -93,3 +98,4 @@ struct CompletedChallengeResponse: Codable {
     let message: String?
     let data: [CompletedChallenge]?
 }
+
