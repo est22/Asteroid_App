@@ -196,7 +196,7 @@ const uploadChallengeImage = async (req, res) => {
     }
 
 
-    // 오늘 날짜의 시작과 끝 설정
+    // 날짜 체크를 위한 변수들
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const tomorrow = new Date(today);
@@ -223,45 +223,49 @@ const uploadChallengeImage = async (req, res) => {
     const files = await uploadPhotos(req, res, 1);
     await saveFilesToDB(files, userId, "ChallengeImage", challengeId);
 
-
-    console.log("\n이미지 저장 후 현재 업로드 수:");
-    const afterCount = await ChallengeImage.count({
+    // 기존 보상 레코드 확인
+    let reward = await Reward.findOne({
       where: {
         user_id: userId,
         challenge_id: challengeId
       }
     });
-    console.log("업데이트된 업로드 수:", afterCount);
 
-
-    
-    // 오늘이 end_date인지 확인
-    const endDate = new Date(participation.end_date);
-    endDate.setHours(0, 0, 0, 0);
-    const isLastDay = today.getTime() === endDate.getTime();
-
-    // 마지막 날이고 신고 없는 경우 바로 상태 변경 및 보상 지급
-    if (isLastDay && participation.challenge_reported_count === 0) {
-      participation.status = "챌린지 달성";
-      await participation.save();
-
-      // 보상 지급
-      const dailyCredit = 10;
-      await Reward.create({
+    // 보상 레코드가 없으면 새로 생성, 있으면 크레딧 추가
+    const dailyCredit = 10;
+    if (!reward) {
+      reward = await Reward.create({
         user_id: userId,
         challenge_id: challengeId,
         credit: dailyCredit
       });
+    } else {
+      reward.credit += dailyCredit;
+      await reward.save();
+    }
+    
+    // 오늘이 end_date인지 확인
+    const currentDate = new Date();
+    currentDate.setHours(0, 0, 0, 0);
+    const endDate = new Date(participation.end_date);
+    endDate.setHours(0, 0, 0, 0);
+    const isLastDay = currentDate.getTime() === endDate.getTime();
+
+    // 마지막 날이고 신고 없는 경우 상태 변경
+    if (isLastDay && participation.challenge_reported_count === 0) {
+      participation.status = "챌린지 달성";
+      await participation.save();
 
       return res.status(200).json({
         message: "챌린지가 성공적으로 달성되었습니다! 보상이 지급되었습니다.",
         status: "챌린지 달성",
-        credit: dailyCredit
+        credit: reward.credit
       });
     }
 
     return res.status(200).json({
-      message: "챌린지 인증 이미지가 업로드되었습니다."
+      message: "챌린지 인증 이미지가 업로드되었습니다.",
+      credit: dailyCredit
     });
 
   } catch (error) {

@@ -97,5 +97,6 @@ struct CompletedChallenge: Codable {
 struct CompletedChallengeResponse: Codable {
     let message: String?
     let data: [CompletedChallenge]?
+    let totalPoints: Int
 }
 

@@ -29,8 +29,8 @@ class CompletedChallengeViewModel: ObservableObject {
                     self.completedChallenges = []
                 } else if let challenges = response.data {
                     self.completedChallenges = challenges
-                    self.totalPoints = challenges.reduce(0) { $0 + ($1.credit ?? 0) }
                 }
+                self.totalPoints = response.totalPoints
             }
         } catch {
             print("Error fetching completed challenges: \(error)")

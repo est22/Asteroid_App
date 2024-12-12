@@ -38,9 +38,16 @@ struct ChallengeImagesGrid: View {
     }
     
     private var hasUploadedToday: Bool {
+        // lastUploadDate가 0이면 아직 업로드하지 않은 것
+        if lastUploadDate == 0 {
+            return false
+        }
+        
         let calendar = Calendar.current
-        let lastDate = Date(timeIntervalSince1970: lastUploadDate)
-        return calendar.isDateInToday(lastDate)
+        let uploadDate = Date(timeIntervalSince1970: lastUploadDate)
+        let today = Date()
+        
+        return calendar.isDate(uploadDate, inSameDayAs: today)
     }
     
     var body: some View {
