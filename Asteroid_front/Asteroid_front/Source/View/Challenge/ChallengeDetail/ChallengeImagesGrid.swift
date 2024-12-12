@@ -6,9 +6,21 @@ struct ChallengeImagesGrid: View {
     let showPhotoUpload: Bool
     @Binding var showingImagePicker: Bool
     @Binding var showReportView: Bool
-    @State private var selectedImageId: Int?
-    @State private var shouldShowReport: Bool = false
-    
+    @State private var selectedImageId: Int? // for report
+    @State private var showingActionSheet = false
+    @State private var showingCamera = false
+    @Binding var selectedImage: UIImage?  // @State를 @Binding으로 변경
+    @State private var isUploading = false
+    @State private var showError = false
+    @State private var errorMessage = ""
+    @State private var showUploadConfirmation = false
+    @State private var uploadedImages: [ChallengeImage] = []  // 유저가 방금 업로드한 챌린지 이미지(유저 피드백을 위한 프론트에서의 처리)
+
+    // 챌린지 사진 업로드 관련(구조체의 프로퍼티로 정의해야 ChallengeDetailView에서 해당 값들을 전달 가능)
+    let challengeId: Int
+    let viewModel: ChallengeViewModel
+    var onRefresh: () -> Void  // 새로고침 시 호출될 콜백 추가
+
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text(" 유저 참여 현황")
@@ -21,9 +33,10 @@ struct ChallengeImagesGrid: View {
                 GridItem(.flexible()),
                 GridItem(.flexible())
             ], spacing: 8) {
+                // 1. 카메라 버튼을 항상 첫 번째로
                 if showPhotoUpload {
                     Button(action: {
-                        showingImagePicker = true
+                        showingActionSheet = true
                     }) {
                         ZStack {
                             Rectangle()
@@ -35,33 +48,104 @@ struct ChallengeImagesGrid: View {
                                 .font(.system(size: 24))
                         }
                     }
-                    .transition(.move(edge: .leading).combined(with: .opacity))
+                    .actionSheet(isPresented: $showingActionSheet) {
+                        ActionSheet(
+                            title: Text("사진 선택"),
+                            buttons: [
+                                .default(Text("카메라로 촬영")) {
+                                    showingCamera = true
+                                },
+                                .default(Text("앨범에서 선택")) {
+                                    showingImagePicker = true
+                                },
+                                .cancel(Text("취소"))
+                            ]
+                        )
+                    }
+                    .sheet(isPresented: $showingCamera) {
+                        ImagePicker(image: $selectedImage, isPresented: $showingCamera, sourceType: .camera)
+                    }
+                    .sheet(isPresented: $showingImagePicker) {
+                        ImagePicker(image: $selectedImage, isPresented: $showingImagePicker, sourceType: .photoLibrary)
+                    }
+                    .onChange(of: selectedImage) { newImage in
+                        if newImage != nil {
+                            showUploadConfirmation = true
+                        }
+                    }
+                    .alert("사진 업로드", isPresented: $showUploadConfirmation) {
+                        Button("취소") {
+                            selectedImage = nil
+                        }
+                        Button("확인") {
+                            if let image = selectedImage {
+                                withAnimation {
+                                    uploadImage(image)
+                                }
+                            }
+                        }
+                    } message: {
+                        Text("선택한 사진으로 오늘 챌린지를 인증할까요?")
+                    }
                 }
                 
+                // 2. 선택된 이미지를 카메라 버튼 다음에 표시
+                if let image = selectedImage {
+                    ZStack {
+                        Rectangle()
+                            .fill(Color.gray.opacity(0.1))
+                            .aspectRatio(1, contentMode: .fit)
+                        
+                        Image(uiImage: image)
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                            .frame(width: UIScreen.main.bounds.width / 4 - 8, height: UIScreen.main.bounds.width / 4 - 8)
+                            .clipped()
+                    }
+                    .transition(.asymmetric(
+                        insertion: .opacity.combined(with: .scale(scale: 0.3)),
+                        removal: .opacity.combined(with: .scale(scale: 0.3))
+                    ))
+                }
+                
+                // 3. 기존 이미지들
                 ForEach(challengeImages.indices, id: \.self) { index in
                     AsyncImage(url: URL(string: challengeImages[index].imageUrl)) { phase in
                         switch phase {
                         case .empty:
-                            SkeletonView()
+                            SkeletonView(
+                                startColor: Color.keyColor.opacity(0.1),
+                                middleColor: Color.keyColor.opacity(0.2),
+                                endColor: Color.keyColor.opacity(0.1)
+                            )
                         case .success(let image):
                             image
                                 .resizable()
-                                .aspectRatio(1, contentMode: .fit)
+                                .aspectRatio(contentMode: .fill)
+                                .frame(width: UIScreen.main.bounds.width / 4 - 8, height: UIScreen.main.bounds.width / 4 - 8)
+                                .clipped()
+                                .transition(.asymmetric(
+                                    insertion: .opacity.combined(with: .scale(scale: 0.3)),
+                                    removal: .opacity.combined(with: .scale(scale: 0.3))
+                                ))
                                 .contextMenu {
                                     Button(role: .destructive, action: {
                                         print("=== 신고하기 버튼 클릭 ===")
                                         print("선택된 이미지 ID:", challengeImages[index].id)
                                         print("이미지 업로더 ID:", challengeImages[index].userId)
                                         selectedImageId = challengeImages[index].id
+                                        showReportView.toggle()
+                                        
                                         // .sensoryFeedback은 iOS 17 이상에서만 사용 가능해서 대체
                                         // 3D 터치 햅틱 (Haptic Feedback) - UIKit의 것을 사용
                                         let impactGenerator = UIImpactFeedbackGenerator(style: .medium)
                                         impactGenerator.impactOccurred()
-                                        shouldShowReport = true
+                                        showReportView = true
                                     }) {
                                         Label("신고하기", systemImage: "exclamationmark.bubble.fill")
-                                    }
-                                }
+                            }
+                        }
+
                         case .failure(_):
                             Rectangle()
                                 .fill(Color.gray.opacity(0.1))
@@ -77,16 +161,70 @@ struct ChallengeImagesGrid: View {
                 }
             }
         }
-        .onChange(of: shouldShowReport) { newValue in
-            if newValue {
-                showReportView = true
-                shouldShowReport = false
-            }
+        .alert("오늘은 이미 챌린지 사진을 업로드했어요.", isPresented: $showError) {
+            Button("확인", role: .cancel) { }
+        } message: {
+            Text(errorMessage)
+        }
+        .onReceive(viewModel.$selectedChallenge) { _ in
+            print("챌린지 상세 정보 업데이트됨, selectedImage 초기화")
+            selectedImage = nil
+        }
+        .onAppear {
+            // 뷰가 나타날 때 초기화
+            selectedImage = nil
+        }
+        .onDisappear {
+            // 뷰가 사라질 때 초기화
+            selectedImage = nil
         }
         .sheet(isPresented: $showReportView) {
-            if let imageId = selectedImageId {
-                ReportView(targetType: "L", targetId: imageId)
+            ReportView(targetType: "L", targetId: selectedImageId ?? 0)
+                .onAppear {
+                    print("\n=== 신고하기 뷰 열림 ===")
+                    print("전달되는 파라미터:")
+                    print("- Target Type: L")
+                    print("- Target ID:", selectedImageId ?? 0)
+                }
+        }
+    }
+
+    private func uploadImage(_ image: UIImage) {
+        print("=== uploadImage 시작 ===")
+        isUploading = true
+        Task {
+            do {
+                try await viewModel.uploadChallengeImage(challengeId: challengeId, image: image)
+                print("이미지 업로드 성공")
+                
+                await MainActor.run {
+                    isUploading = false
+                }
+            } catch {
+                print("이미지 업로드 실패:", error)
+                await MainActor.run {
+                    errorMessage = "이미지 업로드에 실패했습니다. 다시 시도해주세요."
+                    showError = true
+                    isUploading = false
+                }
             }
         }
     }
-} 
+}
+
+// ChallengeImage 모델 확장
+extension ChallengeImage {
+    var localImage: UIImage? { // 로컬 이미지를 저장하기 위한 프로퍼티
+        get { objc_getAssociatedObject(self, &localImageKey) as? UIImage }
+        set { objc_setAssociatedObject(self, &localImageKey, newValue, .OBJC_ASSOCIATION_RETAIN) }
+    }
+}
+
+private var localImageKey: UInt8 = 0  // Associated Object를 위한 키
+
+extension View {
+    func debug(_ message: String) -> some View {
+        print(message)
+        return self
+    }
+}

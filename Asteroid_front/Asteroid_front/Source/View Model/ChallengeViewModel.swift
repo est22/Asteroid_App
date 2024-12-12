@@ -195,4 +195,48 @@ class ChallengeViewModel: ObservableObject {
     func incrementParticipantCount() {
         currentParticipantCount += 1
     }
+    
+    func uploadChallengeImage(challengeId: Int, image: UIImage) async throws {
+        print("이미지 업로드 시작: 챌린지 ID \(challengeId)")
+        
+        guard let url = URL(string: "\(APIConstants.baseURL)/challenge/\(challengeId)/upload"),
+              let imageData = image.jpegData(compressionQuality: 0.8) else {
+            throw URLError(.badURL)
+        }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("Bearer \(UserDefaults.standard.string(forKey: "accessToken") ?? "")", forHTTPHeaderField: "Authorization")
+        
+        let boundary = UUID().uuidString
+        request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
+        
+        var body = Data()
+        // 이미지 데이터 추가
+        body.append("--\(boundary)\r\n".data(using: .utf8)!)
+        body.append("Content-Disposition: form-data; name=\"images\"; filename=\"image.jpg\"\r\n".data(using: .utf8)!)
+        body.append("Content-Type: image/jpeg\r\n\r\n".data(using: .utf8)!)
+        body.append(imageData)
+        body.append("\r\n".data(using: .utf8)!)
+        body.append("--\(boundary)--\r\n".data(using: .utf8)!)
+        
+        request.httpBody = body
+        
+        let (data, response) = try await URLSession.shared.data(for: request)
+        
+        if let responseString = String(data: data, encoding: .utf8) {
+            print("서버 응답:", responseString)
+        }
+        
+        guard let httpResponse = response as? HTTPURLResponse else {
+            print("잘못된 응답 형식")
+            throw URLError(.badServerResponse)
+        }
+        
+        print("응답 상태 코드:", httpResponse.statusCode)
+        
+        guard httpResponse.statusCode == 200 else {
+            throw URLError(.badServerResponse)
+        }
+    }
 }

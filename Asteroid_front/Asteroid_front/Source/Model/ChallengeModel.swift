@@ -66,7 +66,7 @@ struct ChallengeDetail: Codable {
 }
 
 // 챌린지별 이미지를 로드하는 모델
-struct ChallengeImage: Codable {
+struct ChallengeImage: Codable, Identifiable {
     let id: Int
     let imageUrl: String
     let userId: Int

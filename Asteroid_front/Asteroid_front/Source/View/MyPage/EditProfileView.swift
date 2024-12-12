@@ -74,7 +74,7 @@ struct EditProfileView: View {
                         selectedImageData = image.jpegData(compressionQuality: 0.7)
                     }
                 }
-            ), isPresented: $showImagePicker)
+            ), isPresented: $showImagePicker, sourceType: .photoLibrary)
         }
     }
     

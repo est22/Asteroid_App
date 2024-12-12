@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import PhotosUI
 
 struct ChallengeDetailView: View {
     @Environment(\.presentationMode) var presentationMode
@@ -25,7 +26,7 @@ struct ChallengeDetailView: View {
     let itemsPerPage: Int = 20
     
     var body: some View {
-        NavigationView {
+
             ScrollView {
                 VStack(alignment: .leading, spacing: 20) {
                     ChallengeInfoSection(viewModel: viewModel)
@@ -36,7 +37,17 @@ struct ChallengeDetailView: View {
                         challengeImages: challengeImages,
                         showPhotoUpload: showPhotoUpload,
                         showingImagePicker: $showingImagePicker,
-                        showReportView: $showReportView
+                        showReportView: $showReportView,
+                        selectedImage: $selectedImage, 
+                        challengeId: challengeId,
+                        viewModel: viewModel,
+                        onRefresh: {
+                            Task {
+                                print("새로고침 시작")
+                                await viewModel.fetchChallengeDetail(id: challengeId)
+                                print("새로고침 완료")
+                            }
+                        }
                     )
                 }
                 .padding(.horizontal, 24)
@@ -66,7 +77,7 @@ struct ChallengeDetailView: View {
                     loadMoreContent()
                 }
             }
-        }
+        
         .navigationBarBackButtonHidden(true)
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarItems(
@@ -124,7 +135,7 @@ struct ChallengeDetailView: View {
             }
         )
         .sheet(isPresented: $showingImagePicker) {
-            ImagePicker(image: $selectedImage, isPresented: $showingImagePicker)
+            ImagePicker(image: $selectedImage, isPresented: $showingImagePicker, sourceType: .photoLibrary)
         }
         .task {
             await viewModel.fetchChallengeDetail(id: challengeId)
@@ -166,26 +177,46 @@ struct ChallengeDetailView: View {
 struct ImagePicker: UIViewControllerRepresentable {
     @Binding var image: UIImage?
     @Binding var isPresented: Bool
+    let sourceType: ImagePickerSourceType
     
-    func makeUIViewController(context: Context) -> UIImagePickerController {
-        let picker = UIImagePickerController()
-        picker.delegate = context.coordinator
-        return picker
+    enum ImagePickerSourceType {
+        case camera
+        case photoLibrary
     }
     
-    func updateUIViewController(_ uiViewController: UIImagePickerController, context: Context) {}
+    func makeUIViewController(context: Context) -> UIViewController {
+        switch sourceType {
+        case .camera:
+            let picker = UIImagePickerController()
+            picker.delegate = context.coordinator
+            picker.sourceType = .camera
+            return picker
+            
+        case .photoLibrary:
+            var config = PHPickerConfiguration()
+            config.selectionLimit = 1
+            config.filter = .images
+            
+            let picker = PHPickerViewController(configuration: config)
+            picker.delegate = context.coordinator
+            return picker
+        }
+    }
+    
+    func updateUIViewController(_ uiViewController: UIViewController, context: Context) {}
     
     func makeCoordinator() -> Coordinator {
         Coordinator(self)
     }
     
-    class Coordinator: NSObject, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
+    class Coordinator: NSObject, UIImagePickerControllerDelegate, UINavigationControllerDelegate, PHPickerViewControllerDelegate {
         let parent: ImagePicker
         
         init(_ parent: ImagePicker) {
             self.parent = parent
         }
         
+        // UIImagePickerController delegate (for camera)
         func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
             if let image = info[.originalImage] as? UIImage {
                 parent.image = image
@@ -195,6 +226,25 @@ struct ImagePicker: UIViewControllerRepresentable {
         
         func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
             parent.isPresented = false
+        }
+        
+        // PHPickerViewController delegate (for photo library)
+        func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
+            guard let provider = results.first?.itemProvider else {
+                parent.isPresented = false
+                return
+            }
+            
+            if provider.canLoadObject(ofClass: UIImage.self) {
+                provider.loadObject(ofClass: UIImage.self) { [weak self] image, error in
+                    DispatchQueue.main.async {
+                        if let image = image as? UIImage {
+                            self?.parent.image = image
+                        }
+                        self?.parent.isPresented = false
+                    }
+                }
+            }
         }
     }
 }
