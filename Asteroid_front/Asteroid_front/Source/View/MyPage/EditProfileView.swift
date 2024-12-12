@@ -55,14 +55,15 @@ struct EditProfileView: View {
             }
         }
         .confirmationDialog("프로필 사진 변경", isPresented: $showActionSheet) {
-            Button("앨범에서 사진 선택하기") {
+            Button("앨범에서 사진 선택") {
                 showImagePicker = true
             }
             
-            Button("기본 이미지로 설정하기", role: .destructive) {
-                shouldResetImage = true
-                tempImage = Image(systemName: "person.circle.fill")
-                selectedImageData = nil
+            if viewModel.profilePhoto != nil {
+                Button("기본 이미지로 설정", role: .destructive) {
+                    shouldResetImage = true
+                    tempImage = Image(systemName: "person.circle.fill")
+                }
             }
             
             Button("취소", role: .cancel) {}
