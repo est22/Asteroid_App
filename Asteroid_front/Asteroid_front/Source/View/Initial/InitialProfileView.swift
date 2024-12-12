@@ -43,75 +43,16 @@ struct InitialProfileView: View {
                 .padding(.top, 20)
                 .padding(.bottom, 10)
             
-            VStack(spacing: 15) {
-    VStack(alignment: .leading, spacing: 4) {
-        HStack {
-            ClearableTextField(
-                text: $nickname, 
-                placeholder: "닉네임", 
-                isError: authViewModel.profileErrorMessage.isEmpty ? false : !authViewModel.profileErrorMessage.contains("사용 가능한 닉네임입니다"),
-                isSuccess: isNicknameChecked && isNicknameAvailable
+            ProfileFieldsView(
+                nickname: $nickname,
+                motto: $motto,
+                isNicknameChecked: $isNicknameChecked,
+                isNicknameAvailable: $isNicknameAvailable,
+                isMottoExceeded: $isMottoExceeded,
+                profileErrorMessage: authViewModel.profileErrorMessage,
+                onNicknameCheck: { await checkNicknameAvailability() }, 
+                currentNickname: "" // 초기 설정이므로 빈 문자열
             )
-            .focused($nicknameFieldIsFocused)
-            .onChange(of: nickname) { _ in
-                isNicknameChecked = false
-                isNicknameAvailable = false
-                authViewModel.profileErrorMessage = ""
-            }
-            
-            Button("중복확인") {
-                checkNicknameAvailability()
-            }.foregroundStyle(Color.keyColor)
-            .disabled(nickname.isEmpty)
-        }
-        
-        if !authViewModel.profileErrorMessage.isEmpty {
-            Text(authViewModel.profileErrorMessage)
-                .foregroundColor(
-                    authViewModel.profileErrorMessage == "사용 가능한 닉네임입니다." 
-                    ? Color(UIColor.systemGreen) 
-                    : .red
-                )
-                .font(.caption)
-                .padding(.leading, 4)
-        }
-    }
-    
-    VStack(alignment: .leading, spacing: 4) {
-        ClearableTextField(text: $motto, placeholder: "내 소비 좌우명", isError: isMottoExceeded)
-            .offset(x: mottoShakeOffset)
-            .onChange(of: motto) { newValue in
-                if newValue.count > 30 {
-                    isMottoExceeded = true
-                    motto = String(newValue.prefix(31))
-                    
-                    withAnimation(.default) {
-                        mottoShakeOffset = 10
-                    }
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                        withAnimation(.default) {
-                            mottoShakeOffset = -10
-                        }
-                    }
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-                        withAnimation(.default) {
-                            mottoShakeOffset = 0
-                        }
-                    }
-                } else {
-                    isMottoExceeded = false
-                }
-            }
-        
-        HStack {
-            Spacer()
-            Text("\(motto.count)/30")
-                .font(.caption)
-                .foregroundColor(isMottoExceeded ? .red : .gray)
-                .padding(.trailing, 4)
-        }
-    }
-}
             .padding(.horizontal, 40)
             
             // 시작하기 버튼

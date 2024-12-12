@@ -16,6 +16,9 @@ struct EditProfileView: View {
     @State private var selectedImageData: Data?
     @State private var showActionSheet = false
     @State private var shouldResetImage: Bool = false  // 기본 이미지로 설정할지 여부
+    @State private var isNicknameChecked = false
+    @State private var isNicknameAvailable = false
+    @State private var isMottoExceeded = false
     
     init(viewModel: ProfileViewModel) {
         self.viewModel = viewModel
@@ -84,11 +87,25 @@ struct EditProfileView: View {
                 profileImageSection
                     .padding(.top, 40)
                 
-                VStack(spacing: 15) {
-                    nicknameField
-                    mottoField
-                }
+                ProfileFieldsView(
+                    nickname: $tempNickname,
+                    motto: $tempMotto,
+                    isNicknameChecked: $isNicknameChecked,
+                    isNicknameAvailable: $isNicknameAvailable,
+                    isMottoExceeded: $isMottoExceeded,
+                    profileErrorMessage: AuthViewModel.shared.profileErrorMessage,
+                    onNicknameCheck: { 
+                        AuthViewModel.shared.checkNicknameAvailability(tempNickname) { success in
+                            isNicknameChecked = true
+                            isNicknameAvailable = success
+                        }
+                    },
+                    currentNickname: viewModel.nickname
+                )
                 .padding()
+                .onDisappear {
+                    AuthViewModel.shared.profileErrorMessage = ""  // 뷰가 사라질 때 메시지 초기화
+                }
                 
                 Spacer()
             }
@@ -98,6 +115,7 @@ struct EditProfileView: View {
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
                     Button("취소") {
+                        AuthViewModel.shared.profileErrorMessage = ""  // 취소 시 메시지 초기화
                         dismiss()
                     }
                 }
@@ -105,28 +123,24 @@ struct EditProfileView: View {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button("완료") {
                         Task {
-                            do {
-                                // 최종 선택된 이미지 상태를 기준으로 판단
-                                if let imageData = selectedImageData {
-                                    // 새로운 이미지가 선택됐다면 업로드
-                                    await viewModel.uploadProfilePhoto(imageData: imageData)
-                                } else {
-                                    // 이미지가 없다면 (기본 이미지 상태) 삭제 요청
-                                    try await viewModel.deleteProfilePhoto()
-                                    viewModel.profileImage = Image(systemName: "person.circle.fill")
+                            if let imageData = selectedImageData {
+                                await viewModel.uploadProfilePhoto(imageData: imageData)
+                            } else if !shouldResetImage {
+                                // 이미지 관련 작업 스킵
+                            } else {
+                                try await viewModel.deleteProfilePhoto()
+                                viewModel.profileImage = Image(systemName: "person.circle.fill")
                                     viewModel.profilePhoto = nil
-                                }
-                                
-                                // 닉네임과 좌우명 업데이트
-                                try await viewModel.updateProfile(nickname: tempNickname, motto: tempMotto)
-                                
-                                dismiss()
-                            } catch {
-                                print("프로필 업데이트 실패: \(error)")
                             }
+                            
+                            try await viewModel.updateProfile(nickname: tempNickname, motto: tempMotto)
+                            dismiss()
                         }
                     }
-                    .disabled(viewModel.isLoading || viewModel.isMottoExceeded)
+                    .disabled(viewModel.isLoading || isMottoExceeded || 
+                              // 닉네임이나 모토가 변경되었을 때만 중복 체크 조건 적용
+                              ((tempNickname != viewModel.nickname || tempMotto != viewModel.motto) && 
+                               (!isNicknameChecked || !isNicknameAvailable)))
                 }
             }
         }
@@ -139,60 +153,6 @@ struct EditProfileView: View {
             .foregroundColor(Color.keyColor)
             .background(Circle().fill(Color.white))
             .offset(x: 40, y: 40)
-    }
-    
-    private var nicknameField: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            ClearableTextField(
-                text: $viewModel.nickname,
-                placeholder: "닉네임",
-                isError: !viewModel.profileErrorMessage.isEmpty
-            )
-            .focused($nicknameFieldIsFocused)
-            .onChange(of: viewModel.nickname) { _ in
-                viewModel.isNicknameChecked = false
-                viewModel.isNicknameAvailable = false
-                viewModel.profileErrorMessage = ""
-            }
-            
-            if !viewModel.profileErrorMessage.isEmpty {
-                Text(viewModel.profileErrorMessage)
-                    .foregroundColor(.red)
-                    .font(.caption)
-                    .padding(.leading, 4)
-            } else if viewModel.isNicknameChecked && viewModel.isNicknameAvailable {
-                Text("사용 가능한 닉네임입니다.")
-                    .foregroundColor(Color(UIColor.systemGreen))
-                    .font(.caption)
-                    .padding(.leading, 4)
-            }
-        }
-    }
-    
-    private var mottoField: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            ClearableTextField(
-                text: $viewModel.motto,
-                placeholder: "소비좌우명",
-                isError: viewModel.isMottoExceeded
-            )
-            .offset(x: viewModel.mottoShakeOffset)
-            .onChange(of: viewModel.motto) { newValue in
-                if newValue.count > 30 {
-                    viewModel.motto = String(newValue.prefix(31))
-                    viewModel.isMottoExceeded = true
-                } else {
-                    viewModel.isMottoExceeded = false
-                }
-            }
-            
-            HStack {
-                Spacer()
-                Text("\(viewModel.motto.count)/30")
-                    .font(.caption)
-                    .foregroundColor(viewModel.isMottoExceeded ? .red : .gray)
-            }
-        }
     }
 }
 

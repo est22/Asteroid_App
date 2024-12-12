@@ -165,14 +165,23 @@ func fetchProfile() async throws {
                     .serializingDecodable(NicknameCheckResponse.self)
                     .value
                 
-                isNicknameChecked = true
-                isNicknameAvailable = true
-                profileErrorMessage = ""
+                await MainActor.run {
+                    self.isNicknameChecked = true
+                    if response.message == "사용 가능한 닉네임입니다." {
+                        self.isNicknameAvailable = true
+                        self.profileErrorMessage = response.message
+                    } else {
+                        self.isNicknameAvailable = false
+                        self.profileErrorMessage = response.message
+                    }
+                }
                 
             } catch {
-                isNicknameChecked = true
-                isNicknameAvailable = false
-                profileErrorMessage = "이미 사용 중인 닉네임입니다."
+                await MainActor.run {
+                    self.isNicknameChecked = true
+                    self.isNicknameAvailable = false
+                    self.profileErrorMessage = "닉네임 중복 확인 중 오류가 발생했습니다."
+                }
             }
         }
         
