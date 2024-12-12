@@ -8,7 +8,6 @@
 import SwiftUI
 
 struct MainTabView: View {
-    
     // Tab Bar
     private enum Tabs {
         case home, community, balanceVote, challenge, myPage
@@ -24,8 +23,8 @@ struct MainTabView: View {
                 balanceVote
                 challenge
                 myPage
-            }.accentColor(.keyColor)
-
+            }
+            .accentColor(.keyColor)
         }
         .tint(.keyColor)
         .edgesIgnoringSafeArea(.top)
@@ -44,7 +43,7 @@ private extension MainTabView {
     }
     
     var community: some View {
-        Community()
+        PostListView()
             .tabItem {
                 Image(systemName: "ellipsis.message.fill")
                 Text("커뮤니티")
@@ -53,7 +52,7 @@ private extension MainTabView {
     }
     
     var balanceVote: some View {
-        BalanceVote()
+        VoteChoiceView()
             .tabItem {
                 Image(systemName: "square.stack.3d.up")
                 Text("밸런스")
@@ -82,4 +81,5 @@ private extension MainTabView {
 
 #Preview {
     MainTabView()
+        .environmentObject(PostViewModel()).environmentObject(BalanceVoteViewModel())
 }
