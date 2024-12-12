@@ -127,9 +127,13 @@ class ChallengeViewModel: ObservableObject {
                 print("Participate API Response Status: \(httpResponse.statusCode)")
                 if httpResponse.statusCode == 200 {
                     print("Successfully participated in challenge")
-                    DispatchQueue.main.async {
+                    await MainActor.run {
                         self.isParticipating = true
                         self.participantCount += 1
+                        // 참여 목록에 추가
+                        Task {
+                            await self.fetchParticipatingChallenges()
+                        }
                     }
                 } else {
                     print("Failed to participate: \(httpResponse.statusCode)")

@@ -128,23 +128,25 @@ struct ChallengeImagesGrid: View {
                                     insertion: .opacity.combined(with: .scale(scale: 0.3)),
                                     removal: .opacity.combined(with: .scale(scale: 0.3))
                                 ))
-                                .contextMenu {
-                                    Button(role: .destructive, action: {
-                                        print("=== 신고하기 버튼 클릭 ===")
-                                        print("선택된 이미지 ID:", challengeImages[index].id)
-                                        print("이미지 업로더 ID:", challengeImages[index].userId)
-                                        selectedImageId = challengeImages[index].id
-                                        showReportView.toggle()
-                                        
-                                        // .sensoryFeedback은 iOS 17 이상에서만 사용 가능해서 대체
-                                        // 3D 터치 햅틱 (Haptic Feedback) - UIKit의 것을 사용
-                                        let impactGenerator = UIImpactFeedbackGenerator(style: .medium)
-                                        impactGenerator.impactOccurred()
-                                        showReportView = true
-                                    }) {
-                                        Label("신고하기", systemImage: "exclamationmark.bubble.fill")
-                            }
-                        }
+                                .contextMenu(menuItems: {
+                                    if showPhotoUpload {  // 참여중일 때만 신고하기 버튼 표시
+                                        Button(role: .destructive, action: {
+                                            print("=== 신고하기 버튼 클릭 ===")
+                                            print("선택된 이미지 ID:", challengeImages[index].id)
+                                            print("이미지 업로더 ID:", challengeImages[index].userId)
+                                            selectedImageId = challengeImages[index].id
+                                            showReportView.toggle()
+                                            
+                                            // .sensoryFeedback은 iOS 17 이상에서만 사용 가능해서 대체
+                                            // 3D 터치 햅틱 (Haptic Feedback) - UIKit의 것을 사용
+                                            let impactGenerator = UIImpactFeedbackGenerator(style: .medium)
+                                            impactGenerator.impactOccurred()
+                                            showReportView = true
+                                        }) {
+                                            Label("신고하기", systemImage: "exclamationmark.bubble.fill")
+                                        }
+                                    }
+                                })
 
                         case .failure(_):
                             Rectangle()
