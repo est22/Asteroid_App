@@ -81,5 +81,4 @@ private extension MainTabView {
 
 #Preview {
     MainTabView()
-        .environmentObject(PostViewModel()).environmentObject(BalanceVoteViewModel())
 }
