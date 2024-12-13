@@ -1,6 +1,6 @@
 const { Challenge, ChallengeParticipation, ChallengeImage, User, Reward } = require("../models");
 const { uploadPhotos, saveFilesToDB } = require("../services/fileUploadService");
-const { checkDailyUpload } = require('../services/challengeService');
+const challengeService  = require('../services/challengeService');
 const { Op } = require('sequelize');
 
 // 1. 챌린지 목록 반환
@@ -64,7 +64,7 @@ const getChallengeImages = async (req, res) => {
   try {
     const images = await ChallengeImage.findAndCountAll({
       where: { challenge_id: challengeId },
-      attributes: ["id", "image_url", "user_id"], // id와 user_id 추가
+      attributes: ["id", "image_url", "user_id", "createdAt"], // createdAt 추가
       order: [["createdAt", "DESC"]],
       limit: parseInt(limit),
       offset: (page - 1) * limit
@@ -74,7 +74,8 @@ const getChallengeImages = async (req, res) => {
       images: images.rows.map(img => ({
         id: img.id,
         imageUrl: img.image_url,
-        userId: img.user_id
+        userId: img.user_id,
+        createdAt: img.createdAt
       })),
       total: images.count,
       currentPage: parseInt(page),
@@ -354,6 +355,24 @@ const getChallengeProgress = async (req, res) => {
   }
 };
 
+const checkTodayUpload = async (req, res) => {
+    const userId = req.user.id;
+    const challengeId = req.params.challengeId;
+    
+    try {
+        const hasUploaded = await challengeService.checkTodayUpload(userId, challengeId);
+        // 명시적으로 JSON 객체로 응답
+        res.json({
+            hasUploaded: hasUploaded
+        });
+    } catch (error) {
+        console.error("오늘 업로드 확인 실패:", error);
+        res.status(500).json({ 
+            message: "서버 오류가 발생했습니다." 
+        });
+    }
+};
+
 module.exports = {
   getChallengeList,
   getChallengeDetails,
@@ -361,5 +380,6 @@ module.exports = {
   uploadChallengeImage,
   getTopUsersByChallenge,
   getChallengeImages,
-  getChallengeProgress
+  getChallengeProgress,
+  checkTodayUpload
 };

@@ -15,39 +15,28 @@ struct ChallengeImagesGrid: View {
     @State private var errorMessage = ""
     @State private var showUploadConfirmation = false
     @State private var uploadedImages: [ChallengeImage] = []  // 유저가 방금 업로드한 챌린지 이미지(유저 피드백을 위한 프론트에서의 처리)
+    @State private var hasUploadedToday: Bool = false
 
     // 챌린지 사진 업로드 관련(구조체의 프로퍼티로 정의해야 ChallengeDetailView에서 해당 값들을 전달 가능)
     let challengeId: Int
     let viewModel: ChallengeViewModel
-    var onRefresh: () -> Void  // 새로고침 시 호출될 콜백 추가
-
-    // 챌린지별 마지막 업로드 날짜를 저장
-    @AppStorage private var lastUploadDate: Double
     
-    init(challengeImages: [ChallengeImage], showPhotoUpload: Bool, showingImagePicker: Binding<Bool>, showReportView: Binding<Bool>, selectedImage: Binding<UIImage?>, challengeId: Int, viewModel: ChallengeViewModel, onRefresh: @escaping () -> Void) {
-        self.challengeImages = challengeImages
-        self.showPhotoUpload = showPhotoUpload
-        self._showingImagePicker = showingImagePicker
-        self._showReportView = showReportView
-        self._selectedImage = selectedImage
-        self.challengeId = challengeId
-        self.viewModel = viewModel
-        self.onRefresh = onRefresh
-        // 챌린지별 키 생성
-        self._lastUploadDate = AppStorage(wrappedValue: 0, "lastUploadDate_\(challengeId)")
-    }
+    var onRefresh: () -> Void
     
-    private var hasUploadedToday: Bool {
-        // lastUploadDate가 0이면 아직 업로드하지 않은 것
-        if lastUploadDate == 0 {
-            return false
+    private let dateFormatter: ISO8601DateFormatter = {
+    let formatter = ISO8601DateFormatter()
+    formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+    return formatter
+}()
+    
+    private func checkTodayUpload() {
+        Task {
+            do {
+                hasUploadedToday = try await viewModel.checkTodayUpload(challengeId: challengeId)
+            } catch {
+                print("오늘 업로드 확인 실패:", error)
+            }
         }
-        
-        let calendar = Calendar.current
-        let uploadDate = Date(timeIntervalSince1970: lastUploadDate)
-        let today = Date()
-        
-        return calendar.isDate(uploadDate, inSameDayAs: today)
     }
     
     var body: some View {
@@ -127,15 +116,16 @@ struct ChallengeImagesGrid: View {
                             if let image = selectedImage {
                                 Task {
                                     do {
+                                        print("=== 이미지 업로드 시작 ===")
                                         let responseString = try await viewModel.uploadChallengeImage(challengeId: challengeId, image: image)
                                         if responseString.contains("챌린지 인증 이미지가 업로드되었습니다") {
-                                            
-                                            // 해당 챌린지에 대한 업로드 날짜 저장
-                                            lastUploadDate = Date().timeIntervalSince1970
-                                            print("=== 챌린지 \(challengeId) 이미지 업로드 성공 및 검증 통과 ===")
+                                            print("=== 챌린지 \(challengeId) 이미지 업로드 성공 ===")
                                             await viewModel.fetchChallengeProgress(challengeId: challengeId)
+                                            print("=== 챌린지 진행상황 업데이트 완료 ===")
+                                            onRefresh()
+                                            print("=== 이미지 목록 새로고침 완료 ===")
+                                            showUploadConfirmation = false
                                         }
-                                        
                                     } catch {
                                         print("이미지 업로드 실패:", error)
                                         errorMessage = "이미지 업로드에 실패했습니다. 다시 시도해주세요."
@@ -233,10 +223,6 @@ struct ChallengeImagesGrid: View {
             print("챌린지 상세 정보 업데이트됨, selectedImage 초기화")
             selectedImage = nil
         }
-        .onAppear {
-            // 뷰가 나타날 때 초기화
-            selectedImage = nil
-        }
         .onDisappear {
             // 뷰가 사라질 때 초기화
             selectedImage = nil
@@ -250,7 +236,16 @@ struct ChallengeImagesGrid: View {
                     print("- Target ID:", selectedImageId ?? 0)
                 }
         }
+        .onChange(of: selectedImage) { _ in
+            checkTodayUpload()  // 이미지 업로드 후 상태 갱신
+        }
+        .onAppear {
+            checkTodayUpload()
+            // 뷰가 나타날 때 초기화
+            selectedImage = nil
+        }
     }
+
 }
 
 // ChallengeImage 모델 확장
@@ -267,5 +262,21 @@ extension View {
     func debug(_ message: String) -> some View {
         print(message)
         return self
+    }
+}
+
+// UIImage Extension 추가
+extension UIImage {
+    func preparingForUpload() -> UIImage {
+        let maxSize: CGFloat = 1024
+        let scale = min(maxSize/size.width, maxSize/size.height, 1)
+        let newSize = CGSize(width: size.width * scale, height: size.height * scale)
+        
+        let renderer = UIGraphicsImageRenderer(size: newSize)
+        let resized = renderer.image { _ in
+            self.draw(in: CGRect(origin: .zero, size: newSize))
+        }
+        
+        return resized
     }
 }

@@ -72,6 +72,35 @@ const checkDailyUpload = async (userId, challengeId) => {
   }
 };
 
+// 단순히 오늘 업로드 여부만 확인하는 새로운 함수
+const checkTodayUpload = async (userId, challengeId) => {
+  try {
+    console.log("\n=== checkTodayUpload 서비스 시작 ===");
+    console.log("userId:", userId);
+    console.log("challengeId:", challengeId);
+    
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    console.log("today:", today);
+    
+    const uploadCount = await ChallengeImage.count({
+      where: {
+        user_id: userId,
+        challenge_id: challengeId,
+        createdAt: {
+          [Op.gte]: today
+        }
+      }
+    });
+    
+    console.log("uploadCount:", uploadCount);
+    return uploadCount > 0;
+  } catch (error) {
+    console.error('오늘 업로드 확인 에러:', error);
+    throw error;
+  }
+};
+
 // 신고 처리 함수
 const handleReportedUser = async (userId, challengeId, reportType) => {
   try {
@@ -111,7 +140,7 @@ const handleReportedUser = async (userId, challengeId, reportType) => {
   }
 };
 
-// 챌린지 완료 체크 및 보상 지급
+// 챌린지 완료 체크 및 보�� 지급
 const checkChallengeCompletion = async (challenge) => {
   try {
     // challenge 객체가 존재하는지 먼저 확인
@@ -247,6 +276,7 @@ const updateChallengeStatusAndReward = async () => {
 
 module.exports = {
   checkDailyUpload,
+  checkTodayUpload,
   checkChallengeCompletion,
   scheduleChallengeCheck,
   giveRewardForCompletion,

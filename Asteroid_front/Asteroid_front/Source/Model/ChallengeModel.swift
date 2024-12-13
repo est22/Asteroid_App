@@ -70,6 +70,7 @@ struct ChallengeImage: Codable, Identifiable {
     let id: Int
     let imageUrl: String
     let userId: Int
+    let createdAt: String
 }
 
 struct ChallengeImagesResponse: Codable {
@@ -77,6 +78,11 @@ struct ChallengeImagesResponse: Codable {
     let total: Int
     let currentPage: Int
     let totalPages: Int
+}
+
+// 오늘 챌린지 인증 여부 확인 모델
+struct CheckTodayUploadResponse: Codable {
+    let hasUploaded: Bool
 }
 
 // 챌린지 진행률 조회 모델

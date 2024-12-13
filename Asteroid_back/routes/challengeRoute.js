@@ -1,5 +1,5 @@
 const express = require("express");
-const { getChallengeList, getChallengeDetails, participateInChallenge, uploadChallengeImage, getTopUsersByChallenge, getChallengeImages, getChallengeProgress } = require("../controllers/challengeController");
+const { getChallengeList, getChallengeDetails, participateInChallenge, uploadChallengeImage, getTopUsersByChallenge, getChallengeImages, getChallengeProgress, checkTodayUpload } = require("../controllers/challengeController");
 const { authenticateToken } = require("../middleware/auth_middleware");
 const router = express.Router();
 
@@ -10,5 +10,6 @@ router.post("/:challengeId/participate", authenticateToken, participateInChallen
 router.post("/:challengeId/upload", authenticateToken, uploadChallengeImage);
 router.get("/:challengeId/images", authenticateToken, getChallengeImages);
 router.get('/:challengeId/progress', authenticateToken, getChallengeProgress);
+router.get('/:challengeId/check-today-upload', authenticateToken, checkTodayUpload);
 
 module.exports = router;

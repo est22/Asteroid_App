@@ -268,5 +268,46 @@ class ChallengeViewModel: ObservableObject {
             print("진행률 조회 실패:", error)
         }
     }
+
+    // 챌린지 이미지 일일 인증 여부 확인
+    func checkTodayUpload(challengeId: Int) async throws -> Bool {
+        let url = "\(APIConstants.baseURL)/challenge/\(challengeId)/check-today-upload"
+        
+        // UserDefaults에서 토큰 가져오기
+        if let token = UserDefaults.standard.string(forKey: "accessToken") {
+            print("토큰 존재:", String(token.prefix(10)) + "...")  // 토큰의 앞부분만 출력
+            
+            return try await withCheckedThrowingContinuation { continuation in
+                AF.request(url,
+                    method: .get,
+                    headers: [
+                        "Authorization": "Bearer \(token)",
+                        "Content-Type": "application/json"
+                    ]
+                )
+                .responseData { response in
+                    print("HTTP 상태 코드:", response.response?.statusCode ?? 0)
+                    if let data = response.data, let str = String(data: data, encoding: .utf8) {
+                        print("서버 응답:", str)
+                    }
+                }
+                .responseDecodable(of: CheckTodayUploadResponse.self) { response in
+                    switch response.result {
+                    case .success(let data):
+                        print("업로드 확인 성공:", data.hasUploaded)
+                        continuation.resume(returning: data.hasUploaded)
+                    case .failure(let error):
+                        print("업로드 확인 실패:", error)
+                        continuation.resume(throwing: error)
+                    }
+                }
+            }
+        } else {
+            print("⚠️ 토큰이 없습니다. AuthViewModel에서 토큰 상태를 확인해주세요.")
+            // 토큰이 없는 경우 재로그인 필요
+            NotificationCenter.default.post(name: Notification.Name("LogoutNotification"), object: nil)
+            throw AFError.explicitlyCancelled
+        }
+    }
 }
 

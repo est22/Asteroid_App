@@ -24,37 +24,37 @@ struct MyRewardView: View {
                 
 //                Text("내가 모은 소행성").font(.system(size: 12))
                 
-                #if DEBUG
-                // 디버그 모드에서만 보이는 샘플 데이터
-                if viewModel.completedChallenges.isEmpty {
-                    HStack(spacing: 16) {
-                        AsyncImage(url: URL(string: "https://t4.ftcdn.net/jpg/06/24/71/67/240_F_624716702_E4DEc0nj3IEQo7BhvVuDbAXVAldvHWNf.jpg")) { image in
-                            image
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width: 60, height: 60)
-                                .clipShape(Circle())
-                        } placeholder: {
-                            Circle()
-                                .fill(Color.gray.opacity(0.2))
-                                .frame(width: 60, height: 60)
-                        }
-                        
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text("<디버그모드 목업 미리보기용>")
-                                .font(.system(size: 18, weight: .bold))
-                            Text("월 500만원 이내 소비하기 챌린지 달성")
-                                .font(.system(size: 14))
-                                .foregroundColor(.gray)
-                        }
-                        Spacer()
-                    }
-                    .padding()
-                    .background(Color(UIColor.systemGray6))
-                    .cornerRadius(12)
-                    .padding(.horizontal)
-                }
-                #endif
+//                #if DEBUG
+//                // 디버그 모드에서만 보이는 샘플 데이터
+//                if viewModel.completedChallenges.isEmpty {
+//                    HStack(spacing: 16) {
+//                        AsyncImage(url: URL(string: "https://t4.ftcdn.net/jpg/06/24/71/67/240_F_624716702_E4DEc0nj3IEQo7BhvVuDbAXVAldvHWNf.jpg")) { image in
+//                            image
+//                                .resizable()
+//                                .scaledToFit()
+//                                .frame(width: 60, height: 60)
+//                                .clipShape(Circle())
+//                        } placeholder: {
+//                            Circle()
+//                                .fill(Color.gray.opacity(0.2))
+//                                .frame(width: 60, height: 60)
+//                        }
+//                        
+//                        VStack(alignment: .leading, spacing: 4) {
+//                            Text("<디버그모드 목업 미리보기용>")
+//                                .font(.system(size: 18, weight: .bold))
+//                            Text("월 500만원 이내 소비하기 챌린지 달성")
+//                                .font(.system(size: 14))
+//                                .foregroundColor(.gray)
+//                        }
+//                        Spacer()
+//                    }
+//                    .padding()
+//                    .background(Color(UIColor.systemGray6))
+//                    .cornerRadius(12)
+//                    .padding(.horizontal)
+//                }
+//                #endif
                 
                 
                 if let message = viewModel.message {
