@@ -22,7 +22,11 @@ struct BalanceVote: Codable, Identifiable, Equatable {
 }
 
 struct BalanceVoteRoot: Codable {
-    let data: [BalanceVote]
-    let success: Bool
-    let message: String
+    let data: BalanceVoteData
+    let message: String?
+}
+
+struct BalanceVoteData: Codable {
+    var count: Int
+    var rows: [BalanceVote]
 }

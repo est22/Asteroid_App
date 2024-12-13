@@ -9,9 +9,9 @@ struct CommentListView: View {
                 CommentRowView(comment: comment)
 
                 // 대댓글
-                if !comment.replies.isEmpty {
+                if !comment.replies!.isEmpty {
                     VStack(alignment: .leading, spacing: 8) {
-                        ForEach(comment.replies) { reply in
+                        ForEach(comment.replies!) { reply in
                             CommentRowView(comment: reply)
                                 .padding(.leading, 30)  // 대댓글 들여쓰기
                         }
@@ -30,13 +30,13 @@ struct CommentListView: View {
     // 샘플 댓글 데이터
     let sampleComments = [
         Comment(
-            id: UUID(),
+            id: 1,
             content: "This is a sample comment.",
             likeTotal: 10,
             createdAt: Date(),
             replies: [
                 Comment(
-                    id: UUID(),
+                    id: 2,
                     content: "This is a reply.",
                     likeTotal: 2,
                     createdAt: Date(),
@@ -48,7 +48,7 @@ struct CommentListView: View {
             isShow: true, user: sampleUser
         ),
         Comment(
-            id: UUID(),
+            id: 3,
             content: "Another top-level comment.",
             likeTotal: 5,
             createdAt: Date().addingTimeInterval(-3600),

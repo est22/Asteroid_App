@@ -7,7 +7,7 @@ struct CommentRowView: View {
         VStack(alignment: .leading, spacing: 8) {
             HStack(alignment: .top, spacing: 12) {
                 // 프로필 이미지
-                if let profilePicture = comment.user.profilePhoto {
+                if let profilePicture = comment.user?.profilePhoto {
                     AsyncImage(url: URL(string: profilePicture)) { image in
                         image
                             .resizable()
@@ -29,12 +29,12 @@ struct CommentRowView: View {
                 // 댓글 내용
                 VStack(alignment: .leading, spacing: 6) {
                     HStack {
-                        Text(comment.user.nickname!)
+                        Text((comment.user?.nickname!)!)
                             .font(.headline)
                             .foregroundColor(.primary)
                         
                         Spacer()
-                        CommentButtonView()
+                        CommentButtonView() // 버튼 뷰
                     }
 
                     Text(comment.content)
@@ -54,31 +54,15 @@ struct CommentRowView: View {
     }
 }
 
-
 #Preview {
-    // 샘플 유저 데이터
-    let sampleUser = User(id: 1, email: "user@example.com", nickname: "JohnDoe", motto: "Live life!", profilePhoto: "https://via.placeholder.com/100")
-    
-    // 샘플 댓글 데이터
-    let sampleComments =
-                Comment(
-                    id: UUID(),
-                    content: "This is a sample comment.",
-                    likeTotal: 0,
-                    createdAt: Date(),
-                    replies: [
-                        Comment(
-                            id: UUID(),
-                            content: "This is a reply.",
-                            likeTotal: 1,
-                            createdAt: Date(),
-                            replies: [],
-                            isShow: true,
-                            user: sampleUser
-                        )
-                    ],
-                    isShow: true,
-                    user: sampleUser
-                )
-    CommentRowView(comment: sampleComments)
+    let sample = Comment(
+        id: 1,
+        content: "예시 댓글입니다.",
+        likeTotal: 5,
+        createdAt: Date(),
+        replies: [],
+        isShow: true,
+        user: User(id: 1, email: "user@example.com", nickname: "사용자", motto: "행복은 나누는 것", profilePhoto: "https://example.com/profile.jpg")
+    )
+    CommentRowView(comment: sample)
 }
