@@ -100,6 +100,7 @@ struct ChallengeRankingView: View {
             }
             .transition(.move(edge: .top))
         }
+        .frame(height: UIScreen.main.bounds.height * 0.45)
         .task {
             await viewModel.fetchRankings()
         }
