@@ -1,5 +1,20 @@
 import Foundation
 
+struct PostRoot: Codable{
+    let data: PostList
+    let message: String?
+}
+
+struct PostList: Codable {
+    var count: Int
+    var rows: [Post]
+}
+
+struct PostDetail: Codable {
+    let data: Post
+    let commentCount: Int
+}
+
 struct Post: Codable, Identifiable, Equatable {
     let id: Int
     let title: String
@@ -30,14 +45,11 @@ struct PostImage: Codable, Identifiable, Equatable {
     let postID: Int?
 }
 
-struct PostRoot: Codable{
-    let data: PostData
-    let message: String?
-}
-
-struct PostData: Codable {
-    var count: Int
-    var rows: [Post]
+struct PostRanking: Codable, Identifiable {
+  let id: Int
+  let title: String
+  let likeTotal: Int
+  let createdAt: String
 }
 
 struct Like: Decodable {
