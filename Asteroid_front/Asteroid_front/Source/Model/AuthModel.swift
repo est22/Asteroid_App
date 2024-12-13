@@ -36,8 +36,3 @@ struct User: Codable {
     let motto: String?
    let profilePhoto: String?
 }
-
-struct UpdateProfileResponse: Codable {
-    let message: String
-    let data: [Int]
-}

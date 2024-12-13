@@ -3,7 +3,7 @@ const {
   User,
   Post,
   Comment,
-  ChallengeParticipation,
+  ChallengeImage,
 } = require("../models");
 
 // 공통 함수: 신고 대상의 user_id와 challenge_id를 가져오는 로직
@@ -25,12 +25,12 @@ const getReportedUserId = async (target_type, target_id) => {
       return user.id; // 직접 유저 ID
     }
     case "L": {
-      const challenge = await ChallengeParticipation.findByPk(target_id);
-      if (!challenge) throw new Error("챌린지 내역을 찾을 수 없습니다.");
+      const challengeImage = await ChallengeImage.findByPk(target_id);
+      if (!challengeImage) throw new Error("챌린지 이미지를 찾을 수 없습니다.");
       return {
-        user_id: challenge.user_id,
-        challenge_id: challenge.challenge_id,
-      }; // user_id와 challenge_id 반환
+        user_id: challengeImage.user_id,
+        challenge_id: challengeImage.challenge_id
+      };
     }
     default:
       throw new Error("올바르지 않은 신고 대상입니다.");
@@ -55,8 +55,8 @@ const report = async (req, res) => {
       reportedUserId = result;
     }
 
-    console.log("Reporting User ID:", reportingUserId); // 디버그: 신고한 유저
-    console.log("Reported User ID:", reportedUserId); // 디버그: 신고 당한 유저
+    // console.log("Reporting User ID:", reportingUserId); // 디버그: 신고한 유저
+    // console.log("Reported User ID:", reportedUserId); // 디버그: 신고 당한 유저
 
     // 중복 신고 방지
     const existingReport = await Report.findOne({

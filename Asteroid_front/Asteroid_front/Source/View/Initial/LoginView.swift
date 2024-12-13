@@ -7,7 +7,9 @@
 import SwiftUI
 
 struct LoginView: View {
-    @EnvironmentObject private var viewModel: AuthViewModel
+    @EnvironmentObject private var authViewModel: AuthViewModel
+    @EnvironmentObject private var socialAuthManager: SocialAuthManager
+    @StateObject private var kakaoAuthVM = KakaoAuthViewModel(authViewModel: AuthViewModel.shared)
     @State private var showPassword = false
     @State private var buttonOffset: CGFloat = 0
     
@@ -25,7 +27,7 @@ struct LoginView: View {
             
             // 입력 필드들
             VStack(spacing: 15) {
-                TextField("이메일", text: $viewModel.email)
+                TextField("이메일", text: $authViewModel.email)
                     .modifier(CustomTextFieldStyle())
                     .autocapitalization(.none)
                     .keyboardType(.emailAddress)
@@ -33,9 +35,9 @@ struct LoginView: View {
                 // 비밀번호 입력 필드
                 HStack {
                     if showPassword {
-                        TextField("비밀번호", text: $viewModel.password)
+                        TextField("비밀번호", text: $authViewModel.password)
                     } else {
-                        SecureField("비밀번호", text: $viewModel.password)
+                        SecureField("비밀번호", text: $authViewModel.password)
                     }
                     
                     Button(action: { showPassword.toggle() }) {
@@ -64,17 +66,17 @@ struct LoginView: View {
             .padding(.horizontal, 20)
             
             // 로그인 버튼 위에 에러 메시지 표시
-            if !viewModel.loginErrorMessage.isEmpty {
-                Text(viewModel.loginErrorMessage)
+            if !authViewModel.loginErrorMessage.isEmpty {
+                Text(authViewModel.loginErrorMessage)
                     .foregroundColor(.red)
                     .font(.caption)
             }
             
             // 로그인 버튼
             Button(action: {
-                viewModel.login()
+                authViewModel.login()
             }) {
-                if viewModel.isLoading {
+                if authViewModel.isLoading {
                     ProgressView()
                         .progressViewStyle(CircularProgressViewStyle(tint: .white))
                 } else {
@@ -83,19 +85,19 @@ struct LoginView: View {
                         .fontWeight(.heavy)
                         .frame(maxWidth: .infinity)
                         .frame(height: 50)
-                        .background(viewModel.canLogin ? Color.keyColor : Color.gray)
+                        .background(authViewModel.canLogin ? Color.keyColor : Color.gray)
                         .cornerRadius(10)
                 }
             }
             .padding(.horizontal, 20)
-            .disabled(!viewModel.canLogin || viewModel.isLoading)
+            .disabled(!authViewModel.canLogin || authViewModel.isLoading)
             
             // 회원가입 전환 버튼
             Button(action: {
                 withAnimation(.easeInOut(duration: 0.3)) {
                     buttonOffset = 50
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                        viewModel.isRegistering = true
+                        authViewModel.isRegistering = true
                         buttonOffset = 0
                     }
                 }
@@ -108,6 +110,7 @@ struct LoginView: View {
             
             // 소셜 로그인 섹션
             VStack(spacing: 20) {
+                // 구분선
                 HStack {
                     Rectangle()
                         .fill(Color.gray.opacity(0.3))
@@ -119,41 +122,30 @@ struct LoginView: View {
                     .foregroundColor(.gray)
                     .font(.footnote)
                 
+                // 소셜 로그인 버튼들을 일렬로 배치
                 HStack(spacing: 30) {
-                    SocialLoginButton(image: "google", action: {})
-                    SocialLoginButton(image: "apple", action: {
-                        viewModel.handleSignInWithApple()
-                    })
-                    SocialLoginButton(image: "naver", action: {})
-                    SocialLoginButton(image: "kakao", action: {})
+                    SocialLoginButton(type: .google)
+                    SocialLoginButton(type: .apple)
+                    SocialLoginButton(type: .naver)
+                    SocialLoginButton(type: .kakao)
                 }
+                .padding(.horizontal, 20)
+                .padding(.bottom, 60) // 말풍선을 위한 여백
             }
             .padding(.top, 30)
             
             Spacer()
         }
         .padding(.top, 20)
-    }
-}
-// 커스텀 텍스트필드 스타일
-
-
-// 소셜 로그인 버튼
-struct SocialLoginButton: View {
-    let image: String
-    let action: () -> Void
-    
-    var body: some View {
-        Button(action: action) {
-            Image(image)
-                .resizable()
-                .scaledToFit()
-                .frame(width: 40, height: 40)
+        .onAppear {
+            authViewModel.loginErrorMessage = ""  // 에러 메시지만 초기화
         }
     }
 }
+// 커스텀 텍스트필드 스타일
 
 #Preview {
     LoginView()
         .environmentObject(AuthViewModel())
 }
+

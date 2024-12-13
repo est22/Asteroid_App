@@ -17,7 +17,7 @@ extension String {
 }
 
 struct InitialProfileView: View {
-    @EnvironmentObject private var viewModel: AuthViewModel
+    @EnvironmentObject private var authViewModel: AuthViewModel
     @State private var nickname = ""
     @State private var motto = ""
     @State private var isLoading = false
@@ -43,64 +43,16 @@ struct InitialProfileView: View {
                 .padding(.top, 20)
                 .padding(.bottom, 10)
             
-            VStack(spacing: 15) {
-    VStack(alignment: .leading, spacing: 4) {
-        ClearableTextField(text: $nickname, placeholder: "닉네임", isError: !viewModel.profileErrorMessage.isEmpty)
-            .focused($nicknameFieldIsFocused)
-            .onChange(of: nickname) { _ in
-                isNicknameChecked = false
-                isNicknameAvailable = false
-                viewModel.profileErrorMessage = ""
-            }
-        
-        if !viewModel.profileErrorMessage.isEmpty {
-            Text(viewModel.profileErrorMessage)
-                .foregroundColor(.red)
-                .font(.caption)
-                .padding(.leading, 4)
-        } else if isNicknameChecked && isNicknameAvailable {
-            Text("사용 가능한 닉네임입니다.")
-                .foregroundColor(Color(UIColor.systemGreen))
-                .font(.caption)
-                .padding(.leading, 4)
-        }
-    }
-    
-    VStack(alignment: .leading, spacing: 4) {
-        ClearableTextField(text: $motto, placeholder: "내 소비 좌우명", isError: isMottoExceeded)
-            .offset(x: mottoShakeOffset)
-            .onChange(of: motto) { newValue in
-                if newValue.count > 30 {
-                    isMottoExceeded = true
-                    motto = String(newValue.prefix(31))
-                    
-                    withAnimation(.default) {
-                        mottoShakeOffset = 10
-                    }
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                        withAnimation(.default) {
-                            mottoShakeOffset = -10
-                        }
-                    }
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-                        withAnimation(.default) {
-                            mottoShakeOffset = 0
-                        }
-                    }
-                } else {
-                    isMottoExceeded = false
-                }
-            }
-        
-        HStack {
-            Spacer()
-            Text("\(motto.count)/30")
-                .font(.caption)
-                .foregroundColor(isMottoExceeded ? .red : .gray)
-                .padding(.trailing, 4)
-        }
-    }
-}
+            ProfileFieldsView(
+                nickname: $nickname,
+                motto: $motto,
+                isNicknameChecked: $isNicknameChecked,
+                isNicknameAvailable: $isNicknameAvailable,
+                isMottoExceeded: $isMottoExceeded,
+                profileErrorMessage: authViewModel.profileErrorMessage,
+                onNicknameCheck: { await checkNicknameAvailability() }, 
+                currentNickname: "" // 초기 설정이므로 빈 문자열
+            )
             .padding(.horizontal, 40)
             
             // 시작하기 버튼
@@ -129,24 +81,56 @@ struct InitialProfileView: View {
     }
     
     private var canProceed: Bool {
-        !nickname.isEmpty && !motto.isEmpty
+        let result = nickname.isEmpty == false &&  // 닉네임이 있음
+                     motto.isEmpty == false &&     // 좌우명이 있음
+                     isNicknameChecked && 
+                     isNicknameAvailable && 
+                     !isMottoExceeded
+        
+//        // 디버깅용 출력
+//        print("canProceed 상태:")
+//        print("- nickname not empty: \(!nickname.isEmpty)")
+//        print("- motto not empty: \(!motto.isEmpty)")
+//        print("- nickname checked: \(isNicknameChecked)")
+//        print("- nickname available: \(isNicknameAvailable)")
+//        print("- motto not exceeded: \(!isMottoExceeded)")
+//        print("Final result: \(result)")
+        
+        return result
     }
     
     private func updateProfile() {
+        if !isNicknameChecked {
+            checkNicknameAvailability()
+            return
+        }
+        
         isLoading = true
-        viewModel.updateInitialProfile(nickname: nickname, motto: motto) { success in
+        authViewModel.updateInitialProfile(nickname: nickname, motto: motto) { success in
             isLoading = false
+            if !success {
+                authViewModel.profileErrorMessage = "프로필 설정에 실패했습니다. 다시 시도해주세요."
+            }
         }
     }
     
     private func checkNicknameAvailability() {
         guard !nickname.isEmpty else { return }
         
-        print("닉네임 체크 시작: \(nickname)")
-        viewModel.checkNicknameAvailability(nickname) { success in
-            print("닉네임 체크 결과: \(success)")
-            isNicknameChecked = true
-            isNicknameAvailable = success
+        print("닉네임 체크 시작: \(nickname)")  // 디버깅용
+        
+        authViewModel.checkNicknameAvailability(nickname) { success in
+            print("닉네임 체크 결과: \(success)")  // 디버깅용
+            
+            DispatchQueue.main.async {
+                isNicknameChecked = true
+                isNicknameAvailable = success
+                
+                // 디버깅용
+                print("상태 업데이트 완료:")
+                print("- isNicknameChecked: \(isNicknameChecked)")
+                print("- isNicknameAvailable: \(isNicknameAvailable)")
+            }
         }
     }
 }

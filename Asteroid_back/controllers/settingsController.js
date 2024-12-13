@@ -6,7 +6,17 @@ const getMyRewards = async (req, res) => {
   try {
     const userId = req.user.id;
     
-    const rewards = await Reward.findAll({
+    // 먼저 모든 리워드의 총합을 구합니다 (상태와 관계없이)
+    const totalPoints = await Reward.sum('credit', {
+      where: { user_id: userId }
+    }) || 0;
+
+    console.log("\n=== 리워드 조회 ===");
+    console.log("User ID:", userId);
+    console.log("Total Points:", totalPoints);
+
+    // 달성한 챌린지 정보 조회 (completed rewards만)
+    const completedRewards = await Reward.findAll({
       where: { user_id: userId },
       include: [{
         model: Challenge,
@@ -24,13 +34,14 @@ const getMyRewards = async (req, res) => {
       order: [['updatedAt', 'DESC']]
     });
 
-    if (!rewards || rewards.length === 0) {
+    if (!completedRewards || completedRewards.length === 0) {
       return res.status(200).json({
-        message: "아직 챌린지를 통해 얻은 보상이 없습니다."
+        message: "챌린지를 달성하고 행성을 모아보세요!",
+        totalPoints  // 보상이 없어도 총 포인트는 반환
       });
     }
 
-    const formattedRewards = rewards.map(reward => ({
+    const formattedRewards = completedRewards.map(reward => ({
       challengeName: reward.Challenge.name,
       rewardName: reward.ChallengeParticipation.status === "챌린지 달성" ? 
         reward.Challenge.reward_name : null,
@@ -41,7 +52,10 @@ const getMyRewards = async (req, res) => {
       status: reward.ChallengeParticipation.status
     }));
 
-    res.status(200).json(formattedRewards);
+    res.status(200).json({
+      data: formattedRewards,
+      totalPoints
+    });
   } catch (error) {
     console.error("보상 조회 실패:", error);
     res.status(500).json({ message: "서버 오류가 발생했습니다." });
@@ -52,11 +66,15 @@ const getMyRewards = async (req, res) => {
 const getMyOngoingChallenges = async (req, res) => {
   try {
     const userId = req.user.id;
+    const currentDate = new Date();
 
     const ongoingChallenges = await ChallengeParticipation.findAll({
       where: {
         user_id: userId,
-        status: "참여중"
+        status: "참여중",
+        end_date: {
+          [Op.gte]: currentDate  // end_date가 현재 날짜보다 크거나 같은 경우만 조회
+        }
       },
       include: [{
         model: Challenge,

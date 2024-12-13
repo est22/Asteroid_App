@@ -8,20 +8,22 @@
 import SwiftUI
 // Text("소행성").font(.starFontB(size: 24))
 struct ContentView: View {
-    @EnvironmentObject private var viewModel: AuthViewModel
+     @EnvironmentObject private var authViewModel: AuthViewModel
     
     var body: some View {
-        if viewModel.isLoggedIn {
-            if viewModel.isInitialProfileSet {
-                MainTabView()
+        Group {
+            if authViewModel.isLoggedIn {
+                if !authViewModel.isInitialProfileSet {
+                    InitialProfileView()
+                } else {
+                    MainTabView()
+                }
             } else {
-                InitialProfileView()
-            }
-        } else {
-            if viewModel.isRegistering {
-                RegisterView(isRegistering: $viewModel.isRegistering)
-            } else {
-                LoginView()
+                if authViewModel.isRegistering {
+                    RegisterView(isRegistering: $authViewModel.isRegistering)
+                } else {
+                    LoginView()
+                }
             }
         }
     }
@@ -31,3 +33,4 @@ struct ContentView: View {
     ContentView()
         .environmentObject(AuthViewModel())
 }
+

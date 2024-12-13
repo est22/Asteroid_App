@@ -84,10 +84,10 @@ module.exports = {
           updatedAt: new Date(),
         },
         {
-          name: "1주일 편의점 안 가기",
+          name: "주중에 대중교통 이용하기",
           period: 7,
-          status: "O",
-          description: "대형마트나 시장 이용으로 소비 줄이기.",
+          status: "5",
+          description: "택시나 자동차 타지 않기",
           reward_name: "편리한 소행성",
           reward_image_url:
             "https://t4.ftcdn.net/jpg/05/31/85/69/240_F_531856941_IhciHWfkotFgdbeFtrOW3czc6WA5p0om.jpg",

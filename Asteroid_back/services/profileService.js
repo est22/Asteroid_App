@@ -17,7 +17,23 @@ const updateUserProfile = async (id, data) => {
   });
 };
 
+const getUserProfile = async (userId) => {
+  return await models.User.findOne({
+    where: { id: userId },
+    attributes: ['nickname', 'motto', 'profile_picture'],
+  });
+};
+
+const deleteProfilePhoto = async (userId) => {
+  return await models.User.update(
+    { profile_picture: null },
+    { where: { id: userId } }
+  );
+};
+
 module.exports = {
   findUserByNickname,
   updateUserProfile,
+  getUserProfile,
+  deleteProfilePhoto,
 };

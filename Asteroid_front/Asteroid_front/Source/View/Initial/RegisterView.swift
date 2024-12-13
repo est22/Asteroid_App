@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct RegisterView: View {
-    @EnvironmentObject private var viewModel: AuthViewModel
+    @EnvironmentObject private var authViewModel: AuthViewModel
     @Binding var isRegistering: Bool
     @State private var showPassword = false
     @State private var showConfirmPassword = false
@@ -19,9 +19,6 @@ struct RegisterView: View {
         VStack(spacing: 30) {
             // 로고
             HStack {
-//                Image("asteroid_logo")
-//                    .resizable()
-//                    .frame(width: 30, height: 30)
                 Text("소행성")
                     .font(.starFontB(size: 30))
             }
@@ -29,34 +26,32 @@ struct RegisterView: View {
             
             // 입력 필드들
             VStack(spacing: 15) {
-                TextField("이메일", text: $viewModel.email)
+                TextField("이메일", text: $authViewModel.email)
                     .modifier(CustomTextFieldStyle())
                     .autocapitalization(.none)
                     .keyboardType(.emailAddress)
-                    .onChange(of: viewModel.email) { _ in
-                        viewModel.validateEmail()
+                    .onChange(of: authViewModel.email) { _ in
+                        authViewModel.validateEmail()
                     }
                 
-                // 이메일 유효성 검사 메시지
-                if !viewModel.email.isEmpty {
-                    Text(viewModel.emailErrorMessage)
+                if !authViewModel.email.isEmpty {
+                    Text(authViewModel.emailErrorMessage)
                         .font(.caption)
-                        .foregroundColor(viewModel.isEmailValid ? .green : .red)
+                        .foregroundColor(authViewModel.isEmailValid ? .green : .red)
                 }
                 
-                // 비밀번호 입력
                 HStack {
                     if showPassword {
-                        TextField("비밀번호", text: $viewModel.password)
+                        TextField("비밀번호", text: $authViewModel.password)
                             .focused($isPasswordFieldActive)
-                            .onChange(of: viewModel.password) { _ in
-                                viewModel.validatePassword()
+                            .onChange(of: authViewModel.password) { _ in
+                                authViewModel.validatePassword()
                             }
                     } else {
-                        SecureField("비밀번호", text: $viewModel.password)
+                        SecureField("비밀번호", text: $authViewModel.password)
                             .focused($isPasswordFieldActive)
-                            .onChange(of: viewModel.password) { _ in
-                                viewModel.validatePassword()
+                            .onChange(of: authViewModel.password) { _ in
+                                authViewModel.validatePassword()
                             }
                     }
                     
@@ -67,17 +62,48 @@ struct RegisterView: View {
                 }
                 .modifier(CustomTextFieldStyle())
                 
-                // 비밀번호 확인 (수정된 부분)
+                if isPasswordFieldActive {
+                    VStack(alignment: .leading, spacing: 5) {
+                        Text("비밀번호는 다음 조건을 만족해야 합니다:")
+                            .font(.caption)
+                            .foregroundColor(.gray)
+                            .padding(.top, 5)
+                        
+                        HStack {
+                            Image(systemName: authViewModel.isPasswordLengthValid ? "checkmark.circle.fill" : "xmark.circle.fill")
+                            Text("8자 이상")
+                        }
+                        .font(.caption)
+                        .foregroundColor(authViewModel.isPasswordLengthValid ? .green : .red)
+                        
+                        HStack {
+                            Image(systemName: authViewModel.hasNumber ? "checkmark.circle.fill" : "xmark.circle.fill")
+                            Text("숫자 포함")
+                        }
+                        .font(.caption)
+                        .foregroundColor(authViewModel.hasNumber ? .green : .red)
+                        
+                        HStack {
+                            Image(systemName: authViewModel.hasSpecialCharacter ? "checkmark.circle.fill" : "xmark.circle.fill")
+                            Text("특수문자 포함")
+                        }
+                        .font(.caption)
+                        .foregroundColor(authViewModel.hasSpecialCharacter ? .green : .red)
+                    }
+                    .padding(.leading, 40)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                }
+                
                 HStack {
                     if showConfirmPassword {
-                        TextField("비밀번호 확인", text: $viewModel.confirmPassword)
-                            .onChange(of: viewModel.confirmPassword) { _ in
-                                viewModel.validatePassword()
+                        TextField("비밀번호 확인", text: $authViewModel.confirmPassword)
+                            .onChange(of: authViewModel.confirmPassword) { _ in
+                                authViewModel.validatePassword()
                             }
                     } else {
-                        SecureField("비밀번호 확인", text: $viewModel.confirmPassword)
-                            .onChange(of: viewModel.confirmPassword) { _ in
-                                viewModel.validatePassword()
+                        SecureField("비밀번호 확인", text: $authViewModel.confirmPassword)
+                            .onChange(of: authViewModel.confirmPassword) { _ in
+                                authViewModel.validatePassword()
                             }
                     }
                     
@@ -88,68 +114,33 @@ struct RegisterView: View {
                 }
                 .modifier(CustomTextFieldStyle())
                 
-                // 비밀번호 유효성 검사 메시지
-                if !viewModel.isPasswordMatching && !viewModel.confirmPassword.isEmpty {
+                if !authViewModel.isPasswordMatching && !authViewModel.confirmPassword.isEmpty {
                     Text("비밀번호가 일치하지 않습니다")
                         .font(.caption)
                         .foregroundColor(.red)
                 }
-                
-                // 비밀번호 조건 표시
-                if isPasswordFieldActive {
-                    VStack(alignment: .leading, spacing: 5) {
-                        Text("비밀번호는 다음 조건을 만족해야 합니다:")
-                            .font(.caption)
-                            .foregroundColor(.gray)
-                            .padding(.top, 5)
-                        
-                        HStack {
-                            Image(systemName: viewModel.isPasswordLengthValid ? "checkmark.circle.fill" : "xmark.circle.fill")
-                            Text("8자 이상")
-                        }
-                        .font(.caption)
-                        .foregroundColor(viewModel.isPasswordLengthValid ? .green : .red)
-                        
-                        HStack {
-                            Image(systemName: viewModel.hasNumber ? "checkmark.circle.fill" : "xmark.circle.fill")
-                            Text("숫자 포함")
-                        }
-                        .font(.caption)
-                        .foregroundColor(viewModel.hasNumber ? .green : .red)
-                        
-                        HStack {
-                            Image(systemName: viewModel.hasSpecialCharacter ? "checkmark.circle.fill" : "xmark.circle.fill")
-                            Text("특수문자 포함")
-                        }
-                        .font(.caption)
-                        .foregroundColor(viewModel.hasSpecialCharacter ? .green : .red)
-                    }
-                    .padding(.horizontal, 10)
-                }
             }
             .padding(.horizontal, 20)
             
-            // 회원가입 버튼
             Button(action: {
-                viewModel.register()
+                authViewModel.register()
             }) {
                 Text("회원가입")
                     .foregroundColor(.white)
                     .fontWeight(.bold)
                     .frame(maxWidth: .infinity)
                     .frame(height: 50)
-                    .background(viewModel.canRegister ? Color.keyColor : Color.gray)
+                    .background(authViewModel.canRegister ? Color.keyColor : Color.gray)
                     .cornerRadius(10)
             }
-            .disabled(!viewModel.canRegister)
+            .disabled(!authViewModel.canRegister)
             .padding(.horizontal, 20)
             .offset(y: buttonOffset)
             .animation(.easeInOut, value: buttonOffset)
             
-            // 로그인으로 돌아가기
             Button(action: {
                 withAnimation(.easeInOut(duration: 0.3)) {
-                    buttonOffset = -50  // 위로 올라가는 효과
+                    buttonOffset = -50
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
                         isRegistering = false
                         buttonOffset = 0
@@ -165,6 +156,15 @@ struct RegisterView: View {
             Spacer()
         }
         .padding(.top, 20)
+        .onAppear {
+            authViewModel.emailErrorMessage = ""
+            authViewModel.registerErrorMessage = ""
+            authViewModel.isEmailValid = true
+            authViewModel.isPasswordMatching = true
+            authViewModel.isPasswordLengthValid = false
+            authViewModel.hasNumber = false
+            authViewModel.hasSpecialCharacter = false
+        }
     }
 }
 
