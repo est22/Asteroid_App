@@ -10,17 +10,20 @@ struct PostRowView: View {
                 Text(post.title)
                     .font(.headline)
                     .foregroundStyle(.primary)
+                    .foregroundColor(.black)
                     .lineLimit(1)
 
                 Text(post.content)
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
+                    .foregroundColor(.black)
                     .lineLimit(2)
             }
+            
             Spacer()
             
             // 이미지
-            if let firstImageURL = post.images.first?.imageURL, !firstImageURL.isEmpty {
+            if let firstImageURL = post.PostImages?.first?.imageURL, !firstImageURL.isEmpty {
                 AsyncImage(url: URL(string: firstImageURL)) { phase in
                     switch phase {
                     case .empty:
@@ -49,10 +52,6 @@ struct PostRowView: View {
 }
 
 #Preview {
-    // 샘플 유저 데이터
-    let sampleUser = User(id: 1, email: "user@example.com", nickname: "JohnDoe", motto: "Live life!", profilePhoto: "https://via.placeholder.com/100")
-
-    // 샘플 포스트 데이터
     let samplePost = Post(
         id: 1,
         title: "Sample Post Title",
@@ -61,8 +60,11 @@ struct PostRowView: View {
         userID: 1,
         isShow: true,
         likeTotal: 15,
-        images: [PostImage(id: 1, imageURL: "https://via.placeholder.com/150", postID: 1)],
-        commentTotal: 5, user: sampleUser
+        PostImages: [PostImage(id: 1, imageURL: "https://via.placeholder.com/150", postID: 1)],
+        commentTotal: 5,
+        createdAt: "20241111",
+        updatedAt: "20241111",
+        user: User(id: 1, email: "user@example.com", nickname: "JohnDoe", motto: "Live life!", profilePhoto: "https://via.placeholder.com/100")
     )
     PostRowView(post: samplePost)
 }
