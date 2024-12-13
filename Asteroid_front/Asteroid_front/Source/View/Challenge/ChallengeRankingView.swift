@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct ChallengeRankingView: View {
-    @StateObject private var viewModel = ChallengeRankingViewModel()
+    @StateObject private var viewModel = RankingViewModel()
     @State private var selectedFilter = 0
     @State private var selectedChallengeId: Int? = nil
     
@@ -100,7 +100,6 @@ struct ChallengeRankingView: View {
             }
             .transition(.move(edge: .top))
         }
-        .frame(height: UIScreen.main.bounds.height * 0.45)
         .task {
             await viewModel.fetchRankings()
         }
