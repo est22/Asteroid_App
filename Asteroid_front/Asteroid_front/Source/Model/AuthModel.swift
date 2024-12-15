@@ -29,10 +29,10 @@ struct RegisterResponse: Codable {
     let data: User
 }
 
-struct User: Codable {
+struct User: Codable, Equatable {
     let id: Int
     let email: String
     let nickname: String?
     let motto: String?
-   let profilePhoto: String?
+    let profilePhoto: String?
 }

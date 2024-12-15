@@ -21,6 +21,10 @@ const findAllPost = async (data) => {
     offset,
     order: [["id", "DESC"]],
     where: { category_id: category_id, isShow: true, ...whereCondition },
+    include: {
+      model: PostImage,
+      attributes: ["image_url"],
+    },
   });
 };
 
@@ -188,25 +192,31 @@ const likePost = async (data) => {
 };
 
 // 인기게시글
-const hotPost = async () => {
-  const period = moment().subtract(3, "days").toDate();
+const hotPost = async (categoryId) => {
+  const period = moment().subtract(10, "days").toDate();
 
-  return await Post.findAll({
+  const result = await Post.findAll({
     where: {
       isShow: true,
+      category_id: categoryId,
+      likeTotal: {
+        [Op.gt]: 0,
+      },
       createdAt: {
         [Op.gte]: period, // period 이후 날짜 조회
       },
     },
-    include: [
-      {
-        model: Category,
-        attributes: ["category_name"],
-      },
-    ],
+    attributes: ["id", "title", "likeTotal", "createdAt"],
     order: [["likeTotal", "DESC"]],
-    limit: 3,
+    limit: 5,
   });
+
+  return result.map((post) => ({
+    id: post.id,
+    title: post.title,
+    likeTotal: post.likeTotal,
+    createdAt: post.createdAt,
+  }));
 };
 
 module.exports = {

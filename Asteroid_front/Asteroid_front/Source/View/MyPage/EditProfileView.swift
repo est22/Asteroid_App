@@ -4,6 +4,7 @@ import PhotosUI
 struct EditProfileView: View {
     @Environment(\.dismiss) private var dismiss
     @ObservedObject var viewModel: ProfileViewModel
+    @ObservedObject var viewModel: ProfileViewModel
     @State private var selectedItem: PhotosPickerItem?
     @State private var showImagePicker = false
     @State private var selectedImage: UIImage?
@@ -120,6 +121,7 @@ struct EditProfileView: View {
                         dismiss()
                     }
                 }
+                
                 
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button("완료") {

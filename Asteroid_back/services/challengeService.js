@@ -1,6 +1,12 @@
-const schedule = require('node-schedule');
-const { ChallengeParticipation, Challenge, ChallengeImage, Reward, User } = require('../models');
-const { Op } = require('sequelize');
+const schedule = require("node-schedule");
+const {
+  ChallengeParticipation,
+  Challenge,
+  ChallengeImage,
+  Reward,
+  User,
+} = require("../models");
+const { Op } = require("sequelize");
 // const { sendPushNotification } = require('./pushNotificationService');
 
 // 일일 업로드 체크
@@ -10,12 +16,14 @@ const checkDailyUpload = async (userId, challengeId) => {
       where: {
         user_id: userId,
         challenge_id: challengeId,
-        status: "참여중"
+        status: "참여중",
       },
-      include: [{
-        model: Challenge,
-        attributes: ['period']
-      }]
+      include: [
+        {
+          model: Challenge,
+          attributes: ["period"],
+        },
+      ],
     });
 
     if (!participation) return false;
@@ -23,15 +31,15 @@ const checkDailyUpload = async (userId, challengeId) => {
     // 오늘 업로드한 이미지 수 확인
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    
+
     const uploadCount = await ChallengeImage.count({
       where: {
         user_id: userId,
         challenge_id: challengeId,
         createdAt: {
-          [Op.gte]: today
-        }
-      }
+          [Op.gte]: today,
+        },
+      },
     });
 
     // 신고 횟수 체크 추가
@@ -49,16 +57,16 @@ const checkDailyUpload = async (userId, challengeId) => {
       const [reward, created] = await Reward.findOrCreate({
         where: {
           user_id: userId,
-          challenge_id: challengeId
+          challenge_id: challengeId,
         },
         defaults: {
-          credit: participation.Challenge.period * 10
-        }
+          credit: participation.Challenge.period * 10,
+        },
       });
 
       if (!created) {
-        await reward.increment('credit', {
-          by: participation.Challenge.period * 10
+        await reward.increment("credit", {
+          by: participation.Challenge.period * 10,
         });
       }
 
@@ -67,7 +75,7 @@ const checkDailyUpload = async (userId, challengeId) => {
 
     return false;
   } catch (error) {
-    console.error('챌린지 달성 체크 에러:', error);
+    console.error("챌린지 달성 체크 에러:", error);
     throw error;
   }
 };
@@ -78,25 +86,25 @@ const checkTodayUpload = async (userId, challengeId) => {
     console.log("\n=== checkTodayUpload 서비스 시작 ===");
     console.log("userId:", userId);
     console.log("challengeId:", challengeId);
-    
+
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     console.log("today:", today);
-    
+
     const uploadCount = await ChallengeImage.count({
       where: {
         user_id: userId,
         challenge_id: challengeId,
         createdAt: {
-          [Op.gte]: today
-        }
-      }
+          [Op.gte]: today,
+        },
+      },
     });
-    
+
     console.log("uploadCount:", uploadCount);
     return uploadCount > 0;
   } catch (error) {
-    console.error('오늘 업로드 확인 에러:', error);
+    console.error("오늘 업로드 확인 에러:", error);
     throw error;
   }
 };
@@ -108,25 +116,26 @@ const handleReportedUser = async (userId, challengeId, reportType) => {
       where: {
         user_id: userId,
         challenge_id: challengeId,
-        status: "참여중"
-      }
+        status: "참여중",
+      },
     });
 
     if (participation) {
-      if (reportType === "severe") {  // 심각한 위반
+      if (reportType === "severe") {
+        // 심각한 위반
         participation.status = "신고 대상";
-        
+
         // 참여 제한 기간 설정 (3일)
         const restrictionEndDate = new Date();
         restrictionEndDate.setDate(restrictionEndDate.getDate() + 3);
-        
+
         // User 모델에 참여 제한 정보 저장
         await User.update(
           {
-            challenge_restriction_until: restrictionEndDate
+            challenge_restriction_until: restrictionEndDate,
           },
           {
-            where: { id: userId }
+            where: { id: userId },
           }
         );
       } else {
@@ -145,22 +154,22 @@ const checkChallengeCompletion = async (challenge) => {
   try {
     // challenge 객체가 존재하는지 먼저 확인
     if (!challenge) {
-      console.log('Challenge object is undefined');
+      console.log("Challenge object is undefined");
       return;
     }
 
     // user_id가 존재하는지 확인
     if (!challenge.user_id) {
-      console.log('User ID is missing from challenge:', challenge);
+      console.log("User ID is missing from challenge:", challenge);
       return;
     }
 
     // 나머지 로직
     const result = await Challenge.findOne({
-      where: { 
+      where: {
         user_id: challenge.user_id,
         // 다른 조건들...
-      }
+      },
     });
 
     // 결과 처리
@@ -168,8 +177,33 @@ const checkChallengeCompletion = async (challenge) => {
       // 로직 처리
     }
 
+    // challenge 객체가 존재하는지 먼저 확인
+    if (!challenge) {
+      console.log("Challenge object is undefined");
+      return;
+    }
+
+    // user_id가 존재하는지 확인
+    if (!challenge.user_id) {
+      console.log("User ID is missing from challenge:", challenge);
+      return;
+    }
+
+    // 나머지 로직
+    const result = await Challenge.findOne({
+      where: {
+        user_id: challenge.user_id,
+        // 다른 조건들...
+      },
+    });
+
+    // 결과 처리
+    if (result) {
+      // 로직 처리
+    }
   } catch (error) {
-    console.error('챌린지 상태 체크 중 에러 발생:', error);
+    console.error("챌린지 상태 체크 중 에러 발생:", error);
+    console.error("챌린지 상태 체크 중 에러 발생:", error);
     throw error;
   }
 };
@@ -179,7 +213,9 @@ const giveRewardForCompletion = async (participation) => {
   try {
     // 신고 횟수 체크
     if (participation.challenge_reported_count > 0) {
-      console.log(`사용자 ${participation.user_id}의 챌린지가 신고되어 보상이 지급되지 않습니다.`);
+      console.log(
+        `사용자 ${participation.user_id}의 챌린지가 신고되어 보상이 지급되지 않습니다.`
+      );
       return false;
     }
 
@@ -189,9 +225,9 @@ const giveRewardForCompletion = async (participation) => {
         user_id: participation.user_id,
         challenge_id: participation.challenge_id,
         createdAt: {
-          [Op.between]: [participation.start_date, participation.end_date]
-        }
-      }
+          [Op.between]: [participation.start_date, participation.end_date],
+        },
+      },
     });
 
     // 수료 보상 지급
@@ -199,16 +235,16 @@ const giveRewardForCompletion = async (participation) => {
       const [reward, created] = await Reward.findOrCreate({
         where: {
           user_id: participation.user_id,
-          challenge_id: participation.challenge_id
+          challenge_id: participation.challenge_id,
         },
         defaults: {
-          credit: imageCount * 10
-        }
+          credit: imageCount * 10,
+        },
       });
 
       if (!created) {
-        await reward.increment('credit', {
-          by: imageCount * 10
+        await reward.increment("credit", {
+          by: imageCount * 10,
         });
       }
 
@@ -216,19 +252,19 @@ const giveRewardForCompletion = async (participation) => {
     }
     return false;
   } catch (error) {
-    console.error('수료 보상 지급 중 오류:', error);
+    console.error("수료 보상 지급 중 오류:", error);
     throw error;
   }
 };
 
 // 스케줄러 설정 (매일 자정에 실행)
 const scheduleChallengeCheck = () => {
-  schedule.scheduleJob('0 0 * * *', async () => {
+  schedule.scheduleJob("0 0 * * *", async () => {
     try {
       await checkChallengeCompletion();
-      console.log('챌린지 상태 체크 완료');
+      console.log("챌린지 상태 체크 완료");
     } catch (error) {
-      console.error('챌린지 상태 체크 실패:', error);
+      console.error("챌린지 상태 체크 실패:", error);
     }
   });
 };
@@ -242,13 +278,15 @@ const updateChallengeStatusAndReward = async () => {
       where: {
         status: "참여중",
         end_date: {
-          [Op.lte]: now
-        }
+          [Op.lte]: now,
+        },
       },
-      include: [{
-        model: Challenge,
-        attributes: ['period']
-      }]
+      include: [
+        {
+          model: Challenge,
+          attributes: ["period"],
+        },
+      ],
     });
 
     for (const participation of participations) {
@@ -265,7 +303,7 @@ const updateChallengeStatusAndReward = async () => {
         await Reward.create({
           user_id: participation.user_id,
           challenge_id: participation.challenge_id,
-          credit: totalCredit
+          credit: totalCredit,
         });
       }
     }
@@ -280,5 +318,5 @@ module.exports = {
   checkChallengeCompletion,
   scheduleChallengeCheck,
   giveRewardForCompletion,
-  updateChallengeStatusAndReward
-}; 
+  updateChallengeStatusAndReward,
+};

@@ -26,6 +26,8 @@ const createVote = async (req, res) => {
       images: req.files,
     };
 
+    console.log("######   ", data);
+
     // 유효성 검사
     if (!data.title) {
       return res.status(403).json({ error: "제목을 입력하세요" });
@@ -38,46 +40,8 @@ const createVote = async (req, res) => {
     }
 
     const result = await voteService.createVote(data);
+
     res.status(201).json({ message: "밸런스 투표 생성 성공", data: result });
-  } catch (e) {
-    res.status(500).json({ error: e.message });
-  }
-};
-
-// 밸런스 투표 수정
-const updateVote = async (req, res) => {
-  try {
-    const body = req.body;
-    const images = req.files;
-
-    const data = {
-      title: body.title.trim(),
-      description: body.description.trim(),
-      userId: req.user.id,
-      voteId: req.params.id,
-    };
-
-    // 유효성 검사
-    if (!data.title) {
-      return res.status(403).json({ error: "제목을 입력하세요" });
-    } else if (!data.description) {
-      return res.status(403).json({ error: "내용을 입력하세요" });
-    } else if (images.length !== 2) {
-      return res
-        .status(403)
-        .json({ error: "투표용 이미지는 2개만 업로드 가능합니다" });
-    }
-
-    data.image1 = images[0]?.buffer;
-    data.image2 = images[1]?.buffer;
-
-    const result = await voteService.updateVote(data);
-    console.log("#$#$#    result  ", result);
-    if (result) {
-      res.status(200).json({ message: "밸런스 투표 수정 성공", data: result });
-    } else {
-      res.status(404).json({ error: "수정할 투표글 찾을 수 없음" });
-    }
   } catch (e) {
     res.status(500).json({ error: e.message });
   }
@@ -123,7 +87,6 @@ const submitVote = async (req, res) => {
 module.exports = {
   findAllVote,
   createVote,
-  updateVote,
   deleteVote,
   submitVote,
 };

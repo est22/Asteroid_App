@@ -1,5 +1,14 @@
 const express = require("express");
-const { register, login, refresh, updateUser, checkEmail, appleLogin, checkNickname, kakaoLogin } = require("../controllers/authController");
+const {
+  register,
+  login,
+  refresh,
+  updateUser,
+  checkEmail,
+  appleLogin,
+  checkNickname,
+  kakaoLogin,
+} = require("../controllers/authController");
 const { authenticateToken } = require("../middleware/auth_middleware");
 
 const router = express.Router();

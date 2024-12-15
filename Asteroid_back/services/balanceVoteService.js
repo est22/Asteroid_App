@@ -1,4 +1,7 @@
+const { Op, Sequelize } = require("sequelize");
+const moment = require("moment");
 const models = require("../models");
+const fileUploadService = require("../services/fileUploadService");
 
 // 밸런스 투표화면 및 결과 목록
 const findAllVote = async (limit, offset) => {
@@ -15,32 +18,33 @@ const findAllVote = async (limit, offset) => {
 
 // 밸런스 투표 생성
 const createVote = async (data) => {
+  const transaction = await models.sequelize.transaction();
   const { title, description, user_id, images } = data;
 
-  // 투표 글 업로드
-  return (newData = await models.BalanceVote.create({
-    title,
-    description,
-    user_id,
-    image1: images[0]?.buffer,
-    image2: images[1]?.buffer,
-  }));
-};
+  try {
+    // 이미지 제외하고 데이터 생성
+    const newData = await models.BalanceVote.create(
+      {
+        title,
+        description,
+        user_id,
+      },
+      { transaction }
+    );
 
-// 밸런스 투표 수정
-const updateVote = async (data) => {
-  const { voteId, userId } = data;
+    // 이미지 업로드
+    if (images && images.length > 0) {
+      await fileUploadService.saveVoteImagesToDB(images, newData.id, {
+        transaction,
+      });
+    }
 
-  // 밸런스 투표 존재 여부 확인
-  const voteCheck = await models.BalanceVote.findOne({
-    where: { id: voteId, user_id: userId, isShow: true },
-  });
-
-  // 업데이트
-  const newData = await voteCheck.update(data);
-  console.log("$%$%   newData", newData);
-
-  return newData;
+    await transaction.commit();
+    return newData;
+  } catch (error) {
+    await transaction.rollback();
+    throw error;
+  }
 };
 
 // 밸런스 투표 삭제
@@ -68,7 +72,6 @@ const submitVote = async (id, voteResult) => {
 module.exports = {
   findAllVote,
   createVote,
-  updateVote,
   deleteVote,
   submitVote,
 };

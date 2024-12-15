@@ -29,8 +29,11 @@ class AuthViewModel: NSObject, ObservableObject {
     @Published var profilePhoto: String?  // 추가
     @Published var isAuthenticated = false  
     
+    @Published var isAuthenticated = false  
+    
     
     private var emailCheckCancellable: AnyCancellable? // combine 구독 저장 및 관리하기 위한 프로퍼티
+    private let appleAuthViewModel = AppleAuthViewModel()
     
     override init() {  
         let isLoggedInValue = UserDefaults.standard.bool(forKey: "isLoggedIn")
@@ -61,7 +64,11 @@ class AuthViewModel: NSObject, ObservableObject {
     private func checkAuthStatus() {
         let (accessToken, _) = getTokens()
         if let accessToken = accessToken, !accessToken.isEmpty {
+        if let accessToken = accessToken, !accessToken.isEmpty {
             self.isLoggedIn = true
+            self.isInitialProfileSet = UserDefaults.standard.bool(forKey: "hasCompletedInitialProfile")
+        } else {
+            self.isLoggedIn = false
             self.isInitialProfileSet = UserDefaults.standard.bool(forKey: "hasCompletedInitialProfile")
         } else {
             self.isLoggedIn = false
@@ -91,6 +98,7 @@ class AuthViewModel: NSObject, ObservableObject {
         
         print("Checking email: \(email)")
         
+        emailCheckCancellable = AF.request("\(APIConstants.baseURL)/auth/check-email",
         emailCheckCancellable = AF.request("\(APIConstants.baseURL)/auth/check-email",
                                          method: .post,
                                          parameters: parameters,
@@ -164,12 +172,14 @@ class AuthViewModel: NSObject, ObservableObject {
         ]
         
         AF.request("\(APIConstants.baseURL)/auth/login",
+        AF.request("\(APIConstants.baseURL)/auth/login",
                   method: .post,
                   parameters: parameters,
                   encoding: JSONEncoding.default)
         .responseDecodable(of: LoginResponse.self) { [weak self] response in
             guard let self = self else { return }
             self.isLoading = false
+            // 디버깅용
             // 디버깅용
             print("Request URL: \(String(describing: response.request?.url))")
             print("Request Body: \(parameters)")
@@ -184,6 +194,10 @@ class AuthViewModel: NSObject, ObservableObject {
                 print("isProfileSet 값: \(loginResponse.isProfileSet)")
                 
                 // 1. UserDefaults에 토큰들 저장
+                print("로그인 응답: \(loginResponse)") 
+                print("isProfileSet 값: \(loginResponse.isProfileSet)")
+                
+                // 1. UserDefaults에 토큰들 저장
                 UserDefaults.standard.set(loginResponse.accessToken, forKey: "accessToken")
                 UserDefaults.standard.set(loginResponse.refreshToken, forKey: "refreshToken")
                 
@@ -191,7 +205,15 @@ class AuthViewModel: NSObject, ObservableObject {
                 self.isInitialProfileSet = loginResponse.isProfileSet
                 
                 // 3. 나머지 상태 업데이트
+                
+                // 2. 로그인 후 프로필 설정 필요 여부 확인
+                self.isInitialProfileSet = loginResponse.isProfileSet
+                
+                // 3. 나머지 상태 업데이트
                 self.isLoggedIn = true
+                self.isAuthenticated = true
+                
+                print("최종 isInitialProfileSet 값: \(self.isInitialProfileSet)")
                 self.isAuthenticated = true
                 
                 print("최종 isInitialProfileSet 값: \(self.isInitialProfileSet)")
@@ -218,6 +240,7 @@ class AuthViewModel: NSObject, ObservableObject {
         )
         
         AF.request("\(APIConstants.baseURL)/auth/register",
+        AF.request("\(APIConstants.baseURL)/auth/register",
                   method: .post,
                   parameters: parameters,
                   encoder: JSONParameterEncoder.default)
@@ -239,6 +262,7 @@ class AuthViewModel: NSObject, ObservableObject {
                 DispatchQueue.main.async {
                     self.isRegistering = false
                     // 회원가입 후 로그인 뷰로 이동
+                    // 회원가입 후 로그인 뷰로 이동
                 }
                 
             case .failure(let error):
@@ -255,6 +279,9 @@ class AuthViewModel: NSObject, ObservableObject {
     
     func logout() {
         isLoggedIn = false
+        UserDefaults.standard.removeObject(forKey: "accessToken")
+        UserDefaults.standard.removeObject(forKey: "refreshToken")
+        UserDefaults.standard.removeObject(forKey: "isInitialProfileSet")
         UserDefaults.standard.removeObject(forKey: "accessToken")
         UserDefaults.standard.removeObject(forKey: "refreshToken")
         UserDefaults.standard.removeObject(forKey: "isInitialProfileSet")
@@ -285,6 +312,7 @@ class AuthViewModel: NSObject, ObservableObject {
         ]
         
         AF.request("\(APIConstants.baseURL)/auth/init",
+        AF.request("\(APIConstants.baseURL)/auth/init",
                   method: .post,
                   parameters: parameters,
                   encoding: JSONEncoding.default,
@@ -301,6 +329,7 @@ class AuthViewModel: NSObject, ObservableObject {
             
             if response.response?.statusCode == 200 {
                 self?.isInitialProfileSet = true
+                UserDefaults.standard.set(true, forKey: "hasCompletedInitialProfile")
                 UserDefaults.standard.set(true, forKey: "hasCompletedInitialProfile")
                 self?.profileErrorMessage = ""
                 self?.nickname = nickname  // 추가: 프로필 저장 성공시 뷰모델에도 저장
@@ -320,7 +349,16 @@ class AuthViewModel: NSObject, ObservableObject {
         }
         
         let url = "\(APIConstants.baseURL)/auth/check-nickname"
+        guard let accessToken = getTokens().accessToken else {
+            completion(false)
+            return
+        }
+        
+        let url = "\(APIConstants.baseURL)/auth/check-nickname"
         let parameters = ["nickname": nickname]
+        let headers: HTTPHeaders = ["Authorization": "Bearer \(accessToken)"]
+        
+        print("닉네임 체크 요청: \(nickname)")
         let headers: HTTPHeaders = ["Authorization": "Bearer \(accessToken)"]
         
         print("닉네임 체크 요청: \(nickname)")
@@ -330,7 +368,15 @@ class AuthViewModel: NSObject, ObservableObject {
                   parameters: parameters,
                   encoding: JSONEncoding.default,
                   headers: headers)
+                  encoding: JSONEncoding.default,
+                  headers: headers)
             .validate()
+            .responseDecodable(of: NicknameCheckResponse.self) { [weak self] response in
+                print("응답 상태 코드: \(String(describing: response.response?.statusCode))")
+                if let data = response.data, let responseString = String(data: data, encoding: .utf8) {
+                    print("응답 데이터: \(responseString)")
+                }
+                
             .responseDecodable(of: NicknameCheckResponse.self) { [weak self] response in
                 print("응답 상태 코드: \(String(describing: response.response?.statusCode))")
                 if let data = response.data, let responseString = String(data: data, encoding: .utf8) {
@@ -343,6 +389,11 @@ class AuthViewModel: NSObject, ObservableObject {
                     let isAvailable = response.message.contains("사용 가능한 닉네임입니다")
                     print("닉네임 사용 가능 여부: \(isAvailable)")  // 디버깅용
                     completion(isAvailable)
+                case .success(let response):
+                    self?.profileErrorMessage = response.message
+                    let isAvailable = response.message.contains("사용 가능한 닉네임입니다")
+                    print("닉네임 사용 가능 여부: \(isAvailable)")  // 디버깅용
+                    completion(isAvailable)
                 case .failure(let error):
                     print("닉네임 체크 에러: \(error)")
                     if let data = response.data,
@@ -350,7 +401,14 @@ class AuthViewModel: NSObject, ObservableObject {
                         self?.profileErrorMessage = errorResponse.message
                     } else {
                         self?.profileErrorMessage = "닉네임 중복 확인에 실패했습니다."
+                    print("닉네임 체크 에러: \(error)")
+                    if let data = response.data,
+                       let errorResponse = try? JSONDecoder().decode(ErrorResponse.self, from: data) {
+                        self?.profileErrorMessage = errorResponse.message
+                    } else {
+                        self?.profileErrorMessage = "닉네임 중복 확인에 실패했습니다."
                     }
+                    completion(false)
                     completion(false)
                 }
             }
@@ -389,7 +447,35 @@ class AuthViewModel: NSObject, ObservableObject {
                         continuation.resume(throwing: error)
                     }
                 }
+        print("업로드 시작")  // 디버깅용
+        
+        do {
+            let response = try await withCheckedThrowingContinuation { continuation in
+                AF.upload(
+                    multipartFormData: { multipartFormData in
+                        multipartFormData.append(
+                            imageData,
+                            withName: "photo",
+                            fileName: "profile.jpg",
+                            mimeType: "image/jpeg"
+                        )
+                    },
+                    to: "\(APIConstants.baseURL)/profile/upload-photo",
+                    headers: headers
+                )
+                .responseDecodable(of: UpdateProfileResponse.self) { response in
+                    switch response.result {
+                    case .success(let value):
+                        continuation.resume(returning: value)
+                    case .failure(let error):
+                        continuation.resume(throwing: error)
+                    }
+                }
             }
+            
+            print("프로필 사진 업데이트 성공: \(response.message)")
+        } catch {
+            print("프로필 사진 업데이트 실패: \(error)")
             
             print("프로필 사진 업데이트 성공: \(response.message)")
         } catch {
@@ -410,6 +496,7 @@ class AuthViewModel: NSObject, ObservableObject {
             "motto": motto
         ]
         
+        AF.request("\(APIConstants.baseURL)/profile/update-profile",
         AF.request("\(APIConstants.baseURL)/profile/update-profile",
                   method: .post,
                   parameters: parameters,
