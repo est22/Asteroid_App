@@ -1,5 +1,5 @@
 {
-  "originHash" : "48d44fe9560aaa48bc97ae34cdb596f62fa2d739be3dafd4261b95db8f8c86ab",
+  "originHash" : "4543cd337e25af482c7bfade5b4e32a185d42bb910762e1b6ae4d4d89eff3880",
   "pins" : [
     {
       "identity" : "alamofire",
@@ -11,12 +11,39 @@
       }
     },
     {
+      "identity" : "deckkit",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/danielsaidi/DeckKit",
+      "state" : {
+        "revision" : "c4ccd3ccc78b119a8976e603806e008260148c8b",
+        "version" : "1.4.0"
+      }
+    },
+    {
+      "identity" : "floatingbutton",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/exyte/FloatingButton",
+      "state" : {
+        "revision" : "cf77c2f124df1423d90a9a1985e9b9ccfa4b9b3e",
+        "version" : "1.3.0"
+      }
+    },
+    {
       "identity" : "kakao-ios-sdk",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/kakao/kakao-ios-sdk",
       "state" : {
         "revision" : "ab4309c1950550add307046ad1e08024c7514603",
         "version" : "2.23.0"
+      }
+    },
+    {
+      "identity" : "slidingtabview",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/QuynhNguyen/SlidingTabView",
+      "state" : {
+        "revision" : "b0f0662977418824d50546b2850a523dcd793bb0",
+        "version" : "1.0.2"
       }
     }
   ],
