@@ -11,15 +11,15 @@ struct ContentView: View {
     @EnvironmentObject private var viewModel: AuthViewModel
     
     var body: some View {
-        if viewModel.isLoggedIn {
-            if !viewModel.isInitialProfileSet {
+        if authViewModel.isLoggedIn {
+            if !authViewModel.isInitialProfileSet {
                 InitialProfileView()
             } else {
                 MainTabView()
             }
         } else {
-            if viewModel.isRegistering {
-                RegisterView(isRegistering: $viewModel.isRegistering)
+            if authViewModel.isRegistering {
+                RegisterView(isRegistering: $authViewModel.isRegistering)
             } else {
                 LoginView()
             }
