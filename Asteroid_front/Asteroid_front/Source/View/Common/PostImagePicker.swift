@@ -3,10 +3,11 @@ import PhotosUI
 
 struct PostImagePicker: UIViewControllerRepresentable {
     @Binding var images: [UIImage]
+    var imageLimit: Int = 0
     
     func makeUIViewController(context: Context) -> PHPickerViewController {
         var configuration = PHPickerConfiguration()
-        configuration.selectionLimit = 0
+        configuration.selectionLimit = imageLimit
         configuration.filter = .images
         
         let picker = PHPickerViewController(configuration: configuration)

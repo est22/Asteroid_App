@@ -13,6 +13,7 @@ struct PostList: Codable {
 struct PostDetail: Codable {
     let data: Post
     let commentCount: Int
+    let message: String?
 }
 
 struct Post: Codable, Identifiable, Equatable {
