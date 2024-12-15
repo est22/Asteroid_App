@@ -5,7 +5,6 @@ class BalanceVoteViewModel: ObservableObject {
     @Published var votes: [BalanceVote] = []
     @Published var message = ""
     @Published var isFetchError = false
-    @AppStorage("token") var token: String?
 
     private var isLoading = false
     private let endPoint = APIConstants.baseURL
@@ -55,17 +54,22 @@ class BalanceVoteViewModel: ObservableObject {
         if let description = description {
             formData.append(description.data(using: .utf8)!, withName: "description")
         }
-        formData.append(image1.jpegData(compressionQuality: 0.8)!, withName: "image1", fileName: "image1.jpg", mimeType: "image/jpeg")
-        formData.append(image2.jpegData(compressionQuality: 0.8)!, withName: "image2", fileName: "image2.jpg", mimeType: "image/jpeg")
+        
+      // 이미지
+      let images: [UIImage] = [image1, image2]
+      for image in images {
+          formData.append(image.jpegData(compressionQuality: 0.8)!, withName: "images", fileName: "image.jpg", mimeType: "image/jpeg")
+      }
 
+      
         guard let token = UserDefaults.standard.string(forKey: "accessToken") else { return }
         let headers: HTTPHeaders = [
             "Authorization": "Bearer \(token)",
             "Content-Type": "multipart/form-data"
         ]
-        let url = "\(endPoint)/votes"
+        let url = "\(endPoint)/balance"
 
-        AF.upload(multipartFormData: formData, to: url, headers: headers).response { response in
+      AF.upload(multipartFormData: formData, to: url, method: .post, headers: headers).response { response in
             if let statusCode = response.response?.statusCode {
                 self.message = statusCode == 200 ? "Vote added successfully!" : "Error: \(statusCode)"
             }
@@ -74,7 +78,7 @@ class BalanceVoteViewModel: ObservableObject {
 
     // 투표 삭제
     func deleteVote(voteId: Int) {
-        let url = "\(endPoint)/votes/\(voteId)"
+        let url = "\(endPoint)/balance/\(voteId)"
         guard let token = UserDefaults.standard.string(forKey: "accessToken") else { return }
         let headers: HTTPHeaders = ["Authorization": "Bearer \(token)"]
 
@@ -88,7 +92,7 @@ class BalanceVoteViewModel: ObservableObject {
 
     // 투표 결과 제출
     func submitVote(voteId: Int, option: String) {
-        let url = "\(endPoint)/votes/\(voteId)/submit"
+        let url = "\(endPoint)/balance/\(voteId)/submit"
         guard let token = UserDefaults.standard.string(forKey: "accessToken") else { return }
         let headers: HTTPHeaders = ["Authorization": "Bearer \(token)"]
         let params: Parameters = ["option": option]
@@ -99,29 +103,5 @@ class BalanceVoteViewModel: ObservableObject {
                     self.message = statusCode == 200 ? "Vote submitted successfully!" : "Error: \(statusCode)"
                 }
             }
-    }
-}
-
-extension BalanceVoteViewModel {
-    func loadSampleData() {
-        // 샘플 유저 데이터
-        let sampleUser = User(id: 1, email: "user@example.com", nickname: "JohnDoe", motto: "Live life!", profilePhoto: "https://via.placeholder.com/100")
-     
-        // 샘플 데이터
-        let balanceVote = [BalanceVote(
-            id: 1,
-            title: "Which image do you prefer?",
-            description: "Vote for the best image.",
-            image1: "https://img1.daumcdn.net/thumb/R1280x0.fjpg/?fname=http://t1.daumcdn.net/brunch/service/user/cnoC/image/kQMuuagu-nSEu5MvmcSPrOI0nAk",
-            image2: "https://img1.daumcdn.net/thumb/R1280x0.fjpg/?fname=http://t1.daumcdn.net/brunch/service/user/cnoC/image/kQMuuagu-nSEu5MvmcSPrOI0nAk",
-            vote1Count: 150,
-            vote2Count: 100,
-            isShow: true,
-            createdAt: "20241111",
-            updatedAt: "20241111",
-            user: sampleUser
-        )]
- 
-        self.votes = balanceVote
     }
 }
