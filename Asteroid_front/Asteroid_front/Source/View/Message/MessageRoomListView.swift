@@ -1,23 +1,44 @@
 import SwiftUI
 
 struct MessageRoomListView: View {
-    // 샘플 데이터
-    let messageRooms: [MessageRoom] = [
-        MessageRoom(id: 1, user1Id: 101, user2Id: 102, user1LeftAt: nil, user2LeftAt: nil, createdAt: Date(), updatedAt: Date()),
-        MessageRoom(id: 2, user1Id: 201, user2Id: 202, user1LeftAt: nil, user2LeftAt: nil, createdAt: Date(), updatedAt: Date()),
-        MessageRoom(id: 3, user1Id: 301, user2Id: 302, user1LeftAt: nil, user2LeftAt: nil, createdAt: Date(), updatedAt: Date())
-    ]
-    
-    var body: some View {
-        NavigationView {
-            List(messageRooms) { room in
+  @StateObject private var viewModel = MessageViewModel()
+  
+  var body: some View {
+    NavigationStack{
+      ScrollView{
+        LazyVStack{
+          ForEach(viewModel.messageRooms) { room in
+            HStack {
+              NavigationLink(destination: MessageListView(chatUser:room.chatUser)) {
                 MessageRoomRowView(room: room)
+              }
             }
-            .navigationTitle("쪽지방 목록")
+            // 나가기
+//            .swipeActions(edge: .trailing, content: {
+//              Button {
+//                viewModel.leaveMessageRoom(chatUserId: room.chatUser.id!)
+//              } label: {
+//                Label("나가기", systemImage: "person.fill.badge.minus")
+//              }
+//              .tint(Color.color1)
+//            })
+          }
         }
+      }
+      .task {
+        await viewModel.fetchMessageRooms()
+      }
     }
+  }
+  
+  private func deleteMessageRoom(at offsets: IndexSet) {
+    for index in offsets {
+      let room = viewModel.messageRooms[index]
+      viewModel.leaveMessageRoom(chatUserId: room.chatUser.id!)
+    }
+  }
 }
 
 #Preview {
-    MessageRoomListView()
+  MessageRoomListView()
 }
