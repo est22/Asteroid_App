@@ -8,7 +8,7 @@
 import SwiftUI
 // Text("소행성").font(.starFontB(size: 24))
 struct ContentView: View {
-    @EnvironmentObject private var viewModel: AuthViewModel
+    @EnvironmentObject private var authViewModel: AuthViewModel
     
     var body: some View {
         if authViewModel.isLoggedIn {
