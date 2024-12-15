@@ -8,11 +8,13 @@
 import SwiftUI
 
 struct MyPage: View {
+    @StateObject private var myPageViewModel = MyPageViewModel()
     @StateObject private var profileViewModel = ProfileViewModel()
     @State private var showingEditProfile = false
     
+    
     var body: some View {
-        NavigationView {
+      NavigationStack {
             VStack(spacing: 20) {
                 // 프로필 이미지와 수정 버튼
                 ZStack(alignment: .bottomTrailing) {
@@ -76,7 +78,7 @@ struct MyPage: View {
                 
                 // 네비게이션 링크 버튼들
                 VStack(spacing: 12) {
-                    NavigationLink(destination: MessageView()) {
+                    NavigationLink(destination: MessageRoomListView()) {
                         MyPageButton(title: "내 쪽지함", emoji: "✉️")
                     }
                     
@@ -111,11 +113,11 @@ struct MyPage: View {
                     try await profileViewModel.fetchProfile()
                 } catch {
                     print("프로필 불러오기 실패: \(error.localizedDescription)")
-                    // 필요한 경우 에러 처리 로직 추가
-                    // 예: 알림 표시, 에러 상태 업데이트 등
                 }
             }
+            .environmentObject(myPageViewModel)
         }
+        .environmentObject(myPageViewModel)
     }
 }
 
