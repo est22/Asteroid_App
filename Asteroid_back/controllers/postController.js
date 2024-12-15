@@ -3,8 +3,8 @@ const { Like, Post, User } = require("../models");
 
 // 게시글 목록
 const findAllPost = async (req, res) => {
-  const page = parseInt(req.query.page) || 1;
-  const pageSize = parseInt(req.query.size) || 10;
+  const page = 1;
+  const pageSize = 20;
 
   const limit = pageSize;
   const offset = (page - 1) * pageSize;
@@ -12,8 +12,8 @@ const findAllPost = async (req, res) => {
   const data = {
     limit,
     offset,
-    category_id: req.body.category_id,
-    search: req.body.search,
+    category_id: req.query.category_id,
+    search: req.query.search,
   };
 
   try {
@@ -47,7 +47,6 @@ const createPost = async (req, res) => {
   try {
     const data = {
       postData: { ...req.body, user_id: req.user.id },
-      postId: req.params.id,
       image: req.files || [],
     };
 
@@ -111,12 +110,12 @@ const likePost = async (req, res) => {
     const userId = req.user.id;
 
     const existingLike = await Like.findOne({
-      attributes: ['id', 'user_id', 'target_type', 'target_id'],
+      attributes: ["id", "user_id", "target_type", "target_id"],
       where: {
         user_id: userId,
         target_id: postId,
-        target_type: 'P'
-      }
+        target_type: "P",
+      },
     });
 
     if (existingLike) {
@@ -127,7 +126,7 @@ const likePost = async (req, res) => {
     await Like.create({
       user_id: userId,
       target_id: postId,
-      target_type: 'P'
+      target_type: "P",
     });
 
     res.status(201).json({ message: "좋아요가 추가되었습니다." });
@@ -139,9 +138,11 @@ const likePost = async (req, res) => {
 
 // 인기게시글
 const hotPost = async (req, res) => {
+  const categoryId = req.query.category;
+
   try {
-    const posts = await postService.hotPost();
-    res.status(200).json({ data: posts });
+    const posts = await postService.hotPost(categoryId);
+    res.status(200).json(posts);
   } catch (e) {
     res.status(500).json({ error: e.message });
   }

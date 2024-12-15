@@ -3,7 +3,8 @@ import SwiftUI
 struct PostDetailView: View {
   @StateObject var postViewModel = PostViewModel()
   @StateObject var commentViewModel = CommentViewModel()
-  
+  @State private var userID: Int? = UserDefaults.standard.integer(forKey: "UserID")
+  @State private var commentText: String = ""
   let postID: Int
   
   var body: some View {
@@ -11,15 +12,49 @@ struct PostDetailView: View {
       VStack(alignment: .leading, spacing: 16) {
         // 게시글 섹션
         if postViewModel.isLoading {
-          ProgressView("Loading post...")
+          ProgressView("Loading post")
         } else if let post = postViewModel.posts.first(where: { $0.id == postID }) {
           VStack(alignment: .leading, spacing: 16) {
-            // 유저 정보 및 타이틀
-            UserInfoView(
-              profileImageURL: post.user?.profilePhoto,
-              nickname: post.user?.nickname ?? "닉네임",
-              title: post.title
-            )
+            HStack {
+              // 유저 정보 및 타이틀
+              UserInfoView(
+                profileImageURL: post.user?.profilePhoto,
+                nickname: post.user?.nickname ?? "닉네임",
+                title: post.title
+              )
+              
+              // 오른쪽 ... 버튼
+              if let postUser = post.user, let userID = userID, postUser.id == userID {
+                Menu {
+                  Button("수정") {
+                    NavigationLink {
+                      PostWriteView(post: post)
+                    } label: {
+                        Text("수정")
+                    }
+                  }
+                  Button("삭제", role: .destructive) {
+                    postViewModel.deletePost(postId: post.id)
+//                    presentationMode.wrappedValue.dismiss()
+                  }
+                } label: {
+                  Image(systemName: "ellipsis")
+                    .font(.title2)
+                    .foregroundColor(.primary)
+                }
+              } else {
+                Menu {
+                  Button("신고") {
+                    ReportView(targetType: "P", targetId: post.id)
+                  }
+                } label: {
+                  Image(systemName: "ellipsis")
+                    .font(.title2)
+                    .foregroundColor(.primary)
+                }
+              }
+              
+            }
             
             // 내용
             Text(post.content)
@@ -70,6 +105,23 @@ struct PostDetailView: View {
         
         Divider()
           .padding(.vertical)
+        
+        // 댓글 입력
+        HStack {
+          TextField("내용을 입력하세요", text: $commentText)
+            .padding(12)
+            .background(Color(.systemGray6))
+            .cornerRadius(8)
+          
+          // 전송
+          Button(action: {
+            commentText = ""
+          }, label: {
+            Image(systemName: "paperplane.fill")
+              .foregroundStyle(Color.keyColor)
+          })
+          .padding(.horizontal, 8)
+        }
         
         // 댓글 섹션
         if commentViewModel.isLoading {
