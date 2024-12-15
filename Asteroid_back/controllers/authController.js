@@ -63,8 +63,7 @@ const register = async (req, res) => {
 const updateUser = async (req, res) => {
   const { nickname, motto } = req.body;
   const userId = req.user.id;
-  const { nickname, motto } = req.body;
-  const userId = req.user.id;
+
 
   try {
     // motto 길이 검사

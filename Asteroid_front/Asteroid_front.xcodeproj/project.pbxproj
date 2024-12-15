@@ -49,7 +49,6 @@
 				97F07CD52D0764E2006DB5DD /* FloatingButton in Frameworks */,
 				97532B002D07DDE20090BD92 /* DeckKit in Frameworks */,
 				0AB977A52D0073AA00BC10AD /* Alamofire in Frameworks */,
-				0AB978782D01592100BC10AD /* KakaoSDK in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

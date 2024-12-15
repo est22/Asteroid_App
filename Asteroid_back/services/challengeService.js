@@ -149,7 +149,7 @@ const handleReportedUser = async (userId, challengeId, reportType) => {
   }
 };
 
-// 챌린지 완료 체크 및 보�� 지급
+// 챌린지 완료 체크 및 보상 지급
 const checkChallengeCompletion = async (challenge) => {
   try {
     // challenge 객체가 존재하는지 먼저 확인
@@ -189,20 +189,13 @@ const checkChallengeCompletion = async (challenge) => {
       return;
     }
 
-    // 나머지 로직
-    const result = await Challenge.findOne({
-      where: {
-        user_id: challenge.user_id,
-        // 다른 조건들...
-      },
-    });
+   
 
     // 결과 처리
     if (result) {
       // 로직 처리
     }
   } catch (error) {
-    console.error("챌린지 상태 체크 중 에러 발생:", error);
     console.error("챌린지 상태 체크 중 에러 발생:", error);
     throw error;
   }
