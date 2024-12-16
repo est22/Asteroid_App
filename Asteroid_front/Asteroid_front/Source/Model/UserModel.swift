@@ -7,12 +7,11 @@ struct User: Codable, Equatable {
 }
 
 struct UserProfile: Codable, Equatable{
-  let id: Int?
   let nickname: String
   let profilePhoto: String?
   
   enum CodingKeys: String, CodingKey {
-      case id, nickname
+      case nickname
       case profilePhoto = "profile_picture"
   }
 }
