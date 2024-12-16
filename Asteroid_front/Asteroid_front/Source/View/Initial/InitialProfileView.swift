@@ -105,6 +105,11 @@ struct InitialProfileView: View {
             return
         }
         
+        if !isNicknameChecked {
+            checkNicknameAvailability()
+            return
+        }
+        
         isLoading = true
         authViewModel.updateInitialProfile(nickname: nickname, motto: motto) { success in
             isLoading = false

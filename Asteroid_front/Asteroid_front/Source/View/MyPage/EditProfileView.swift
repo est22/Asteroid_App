@@ -121,6 +121,7 @@ struct EditProfileView: View {
                     }
                 }
                 
+                
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button("완료") {
                         Task {

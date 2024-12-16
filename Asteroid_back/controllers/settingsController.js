@@ -1,4 +1,14 @@
-const { Post, Comment, BalanceVote, Message, Like, User, Challenge, ChallengeParticipation, Reward } = require("../models");
+const {
+  Post,
+  Comment,
+  BalanceVote,
+  Message,
+  Like,
+  User,
+  Challenge,
+  ChallengeParticipation,
+  Reward,
+} = require("../models");
 const { Op } = require("sequelize");
 
 // 1. 내 보상 조회 (기존 rewardController에서 가져옴)
@@ -18,22 +28,26 @@ const getMyRewards = async (req, res) => {
     // 달성한 챌린지 정보 조회 (completed rewards만)
     const completedRewards = await Reward.findAll({
       where: { user_id: userId },
-      include: [{
-        model: Challenge,
-        attributes: ['name', 'reward_name', 'reward_image_url']
-      }, {
-        model: ChallengeParticipation,
-        attributes: ['status'],
-        where: {
-          [Op.or]: [
-            { status: "챌린지 달성", challenge_reported_count: 0 },
-            { status: "챌린지 수료", challenge_reported_count: 0 }
-          ]
-        }
-      }],
-      order: [['updatedAt', 'DESC']]
+      include: [
+        {
+          model: Challenge,
+          attributes: ["name", "reward_name", "reward_image_url"],
+        },
+        {
+          model: ChallengeParticipation,
+          attributes: ["status"],
+          where: {
+            [Op.or]: [
+              { status: "챌린지 달성", challenge_reported_count: 0 },
+              { status: "챌린지 수료", challenge_reported_count: 0 },
+            ],
+          },
+        },
+      ],
+      order: [["updatedAt", "DESC"]],
     });
 
+    if (!completedRewards || completedRewards.length === 0) {
     if (!completedRewards || completedRewards.length === 0) {
       return res.status(200).json({
         message: "챌린지를 달성하고 행성을 모아보세요!",
@@ -43,13 +57,17 @@ const getMyRewards = async (req, res) => {
 
     const formattedRewards = completedRewards.map(reward => ({
       challengeName: reward.Challenge.name,
-      rewardName: reward.ChallengeParticipation.status === "챌린지 달성" ? 
-        reward.Challenge.reward_name : null,
-      rewardImageUrl: reward.ChallengeParticipation.status === "챌린지 달성" ? 
-        reward.Challenge.reward_image_url : null,
+      rewardName:
+        reward.ChallengeParticipation.status === "챌린지 달성"
+          ? reward.Challenge.reward_name
+          : null,
+      rewardImageUrl:
+        reward.ChallengeParticipation.status === "챌린지 달성"
+          ? reward.Challenge.reward_image_url
+          : null,
       credit: reward.credit,
       achievedAt: reward.updatedAt,
-      status: reward.ChallengeParticipation.status
+      status: reward.ChallengeParticipation.status,
     }));
 
     res.status(200).json({
@@ -67,6 +85,7 @@ const getMyOngoingChallenges = async (req, res) => {
   try {
     const userId = req.user.id;
     const currentDate = new Date();
+    const currentDate = new Date();
 
     const ongoingChallenges = await ChallengeParticipation.findAll({
       where: {
@@ -76,13 +95,22 @@ const getMyOngoingChallenges = async (req, res) => {
           [Op.gte]: currentDate  // end_date가 현재 날짜보다 크거나 같은 경우만 조회
         }
       },
-      include: [{
-        model: Challenge,
-        attributes: ['id', 'name', 'period', 'description', 'reward_name', 'reward_image_url']
-      }]
+      include: [
+        {
+          model: Challenge,
+          attributes: [
+            "id",
+            "name",
+            "period",
+            "description",
+            "reward_name",
+            "reward_image_url",
+          ],
+        },
+      ],
     });
 
-    const formattedChallenges = ongoingChallenges.map(participation => ({
+    const formattedChallenges = ongoingChallenges.map((participation) => ({
       challengeId: participation.Challenge.id,
       challengeName: participation.Challenge.name,
       period: participation.Challenge.period,
@@ -91,7 +119,7 @@ const getMyOngoingChallenges = async (req, res) => {
       rewardImageUrl: participation.Challenge.reward_image_url,
       startDate: participation.start_date,
       endDate: participation.end_date,
-      reportCount: participation.challenge_reported_count
+      reportCount: participation.challenge_reported_count,
     }));
 
     res.status(200).json(formattedChallenges);
@@ -106,23 +134,22 @@ const getMyPosts = async (req, res) => {
   try {
     const userId = req.user.id;
 
-    // 일반 게시글 조회
+    // 커뮤니티 게시글 조회
     const posts = await Post.findAll({
-      where: { user_id: userId },
-      order: [['createdAt', 'DESC']]
+      where: { user_id: userId, isShow: true },
+      order: [["createdAt", "DESC"]],
     });
 
     // 밸런스 투표 조회
     const balanceVotes = await BalanceVote.findAll({
-      where: { user_id: userId },
-      order: [['createdAt', 'DESC']]
+      where: { user_id: userId, isShow: true },
+      order: [["createdAt", "DESC"]],
     });
 
-    // 두 결과를 합치고 날짜순으로 정렬
-    const allPosts = [...posts, ...balanceVotes]
-      .sort((a, b) => b.createdAt - a.createdAt);
-
-    res.status(200).json(allPosts);
+    res.status(200).json({
+      posts: posts,
+      balanceVotes: balanceVotes,
+    });
   } catch (error) {
     console.error("내 게시글 조회 실패:", error);
     res.status(500).json({ message: "서버 오류가 발생했습니다." });
@@ -135,25 +162,28 @@ const getMyComments = async (req, res) => {
     const userId = req.user.id;
 
     const comments = await Comment.findAll({
-      where: { user_id: userId },
-      include: [{
-        model: Post,
-        attributes: ['title']
-      }],
-      order: [['createdAt', 'DESC']]
+      where: { user_id: userId, isShow: true },
+      include: [
+        {
+          model: Post,
+          where: { isShow: true },
+          attributes: ["title"],
+        },
+      ],
+      order: [["createdAt", "DESC"]],
     });
 
     if (!comments || comments.length === 0) {
       return res.status(200).json({
-        message: "댓글이 없습니다."
+        message: "댓글이 없습니다.",
       });
     }
 
-    const formattedComments = comments.map(comment => ({
-      commentId: comment.id,
+    const formattedComments = comments.map((comment) => ({
+      id: comment.id,
       postTitle: comment.Post.title,
       content: comment.content,
-      createdAt: comment.createdAt
+      createdAt: comment.createdAt,
     }));
 
     res.status(200).json(formattedComments);
@@ -170,29 +200,29 @@ const getMyMessages = async (req, res) => {
 
     const messages = await Message.findAll({
       where: {
-        [Op.or]: [
-          { sender_user_id: userId },
-          { receiver_user_id: userId }
-        ]
+        [Op.or]: [{ sender_user_id: userId }, { receiver_user_id: userId }],
       },
-      include: [{
-        model: User,
-        as: 'Sender',
-        attributes: ['nickname']
-      }, {
-        model: User,
-        as: 'Receiver',
-        attributes: ['nickname']
-      }],
-      order: [['createdAt', 'DESC']]
+      include: [
+        {
+          model: User,
+          as: "Sender",
+          attributes: ["nickname"],
+        },
+        {
+          model: User,
+          as: "Receiver",
+          attributes: ["nickname"],
+        },
+      ],
+      order: [["createdAt", "DESC"]],
     });
 
-    const formattedMessages = messages.map(message => ({
+    const formattedMessages = messages.map((message) => ({
       messageId: message.id,
       content: message.content,
       senderNickname: message.Sender.nickname,
       receiverNickname: message.Receiver.nickname,
-      createdAt: message.createdAt
+      createdAt: message.createdAt,
     }));
 
     res.status(200).json(formattedMessages);
@@ -208,33 +238,35 @@ const getMyLikedPosts = async (req, res) => {
     const userId = req.user.id;
 
     const likedPosts = await Like.findAll({
-      attributes: ['id', 'user_id', 'target_type', 'target_id', 'createdAt'],
-      where: { 
+      attributes: ["id", "user_id", "target_type", "target_id", "createdAt"],
+      where: {
         user_id: userId,
-        target_type: 'P'
+        target_type: "P",
       },
-      include: [{
-        model: Post,
-        as: 'Post',
-        attributes: ['id', 'title', 'content', 'createdAt'],
-        required: false
-      }],
-      order: [[{ model: Post, as: 'Post' }, 'createdAt', 'DESC']]
+      include: [
+        {
+          model: Post,
+          as: "Post",
+          attributes: ["id", "title", "content", "createdAt"],
+          required: false,
+        },
+      ],
+      order: [[{ model: Post, as: "Post" }, "createdAt", "DESC"]],
     });
 
     if (!likedPosts || likedPosts.length === 0) {
       return res.status(200).json({
-        message: "좋아요한 게시물이 없습니다."
+        message: "좋아요한 게시물이 없습니다.",
       });
     }
 
     const formattedLikedPosts = likedPosts
-      .filter(like => like.Post)  // null인 Post 제외
-      .map(like => ({
+      .filter((like) => like.Post) // null인 Post 제외
+      .map((like) => ({
         postId: like.Post.id,
         title: like.Post.title,
         content: like.Post.content,
-        likedAt: like.createdAt
+        likedAt: like.createdAt,
       }));
 
     res.status(200).json(formattedLikedPosts);
@@ -250,5 +282,5 @@ module.exports = {
   getMyPosts,
   getMyComments,
   getMyMessages,
-  getMyLikedPosts
-}; 
+  getMyLikedPosts,
+};

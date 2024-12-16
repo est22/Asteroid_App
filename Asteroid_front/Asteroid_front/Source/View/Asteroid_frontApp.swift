@@ -8,6 +8,8 @@
 import SwiftUI
 import KakaoSDKCommon
 import KakaoSDKAuth
+import KakaoSDKCommon
+import KakaoSDKAuth
 
 @main
 struct Asteroid_frontApp: App {
@@ -19,6 +21,7 @@ struct Asteroid_frontApp: App {
         WindowGroup {
             ContentView()
                 .environmentObject(authViewModel)
+                .environmentObject(socialAuthManager)
                 .environmentObject(socialAuthManager)
         }
     }
@@ -41,3 +44,5 @@ class AppDelegate: NSObject, UIApplicationDelegate {
         }
     
 }
+
+

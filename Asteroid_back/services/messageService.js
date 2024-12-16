@@ -3,7 +3,7 @@ const models = require("../models");
 
 // 쪽지방 목록 조회
 const messageRoom = async (data) => {
-  const { limit, offset, userId } = data;
+  const { userId } = data;
 
   // 나가지 않은 채팅방 조회
   const activeRooms = await models.MessageRoom.findAll({
@@ -58,8 +58,6 @@ const messageRoom = async (data) => {
     },
     group: ["message_user_id"],
     order: [[Sequelize.fn("MAX", Sequelize.col("Message.id")), "DESC"]],
-    limit,
-    offset,
     raw: true,
   });
 
@@ -118,7 +116,7 @@ const messageRoom = async (data) => {
 
 // 쪽지 상세보기
 const findMessageDetail = async (data) => {
-  const { limit, offset, sender_user_id, receiver_user_id } = data;
+  const { sender_user_id, receiver_user_id } = data;
 
   // user1인지 user2인지 확인
   const room = await userCheck(data);
@@ -130,9 +128,7 @@ const findMessageDetail = async (data) => {
   // 방을 나갔으면 leftDate 이후의 메시지, 안 나갔으면 전체 메시지 조회
   const whereCondition = leftDate ? { createdAt: { [Op.gt]: leftDate } } : {};
 
-  return await models.Message.findAll({
-    limit,
-    offset,
+  const messages = await models.Message.findAll({
     where: {
       [Op.or]: [
         {
@@ -153,6 +149,20 @@ const findMessageDetail = async (data) => {
     },
     order: [["id", "ASC"]],
   });
+
+  // 읽음 처리
+  await models.Message.update(
+    { is_read: true },
+    {
+      where: {
+        id: {
+          [Op.in]: messages.map((message) => message.id),
+        },
+      },
+    }
+  );
+
+  return messages;
 };
 
 // 쪽지 보내기
@@ -179,10 +189,10 @@ const createMessage = async (data) => {
     });
 
     // 쪽지 전송
-    const message = await models.Message.create(data, transaction);
+    await models.Message.create(data, transaction);
 
     await transaction.commit();
-    return { room, message };
+    return { message: "보내기 성공" };
   } catch (error) {
     await transaction.rollback();
     throw new Error("쪽지 생성 실패: " + error.message);

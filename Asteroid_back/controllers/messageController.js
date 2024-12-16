@@ -2,16 +2,7 @@ const service = require("../services/messageService");
 
 // 쪽지방 목록 조회
 const messageRoom = async (req, res) => {
-  // 무한 스크롤
-  const page = parseInt(req.query.page) || 1;
-  const pageSize = parseInt(req.query.size) || 10;
-
-  const limit = pageSize;
-  const offset = (page - 1) * pageSize;
-
   const data = {
-    limit,
-    offset,
     userId: req.user.id,
   };
 
@@ -25,18 +16,9 @@ const messageRoom = async (req, res) => {
 
 // 쪽지 상세보기
 const findMessageDetail = async (req, res) => {
-  // 무한 스크롤
-  const page = parseInt(req.query.page) || 1;
-  const pageSize = parseInt(req.query.size) || 20;
-
-  const limit = pageSize;
-  const offset = (page - 1) * pageSize;
-
   const data = {
-    limit,
-    offset,
     sender_user_id: req.user.id,
-    receiver_user_id: req.body.receiver_user_id,
+    receiver_user_id: req.query.chatUserId,
   };
 
   try {
@@ -71,9 +53,7 @@ const createMessage = async (req, res) => {
 
   try {
     const result = await service.createMessage(data);
-    res
-      .status(201)
-      .json({ message: "쪽지가 성공적으로 전송되었습니다.", data: result });
+    res.status(201).json({ message: "쪽지가 성공적으로 전송되었습니다." });
   } catch (e) {
     res.status(500).json({ error: e.message });
   }
@@ -88,7 +68,7 @@ const leftMessage = async (req, res) => {
 
   try {
     const result = await service.leftMessage(data);
-    res.status(201).json({ data: result });
+    res.status(201).json({ message: "나가기 성공" });
   } catch (e) {
     res.status(500).json({ error: e.message });
   }
