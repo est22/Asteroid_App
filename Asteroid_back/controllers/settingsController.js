@@ -15,11 +15,12 @@ const { Op } = require("sequelize");
 const getMyRewards = async (req, res) => {
   try {
     const userId = req.user.id;
-    
+
     // 먼저 모든 리워드의 총합을 구합니다 (상태와 관계없이)
-    const totalPoints = await Reward.sum('credit', {
-      where: { user_id: userId }
-    }) || 0;
+    const totalPoints =
+      (await Reward.sum("credit", {
+        where: { user_id: userId },
+      })) || 0;
 
     console.log("\n=== 리워드 조회 ===");
     console.log("User ID:", userId);
@@ -48,14 +49,13 @@ const getMyRewards = async (req, res) => {
     });
 
     if (!completedRewards || completedRewards.length === 0) {
-    if (!completedRewards || completedRewards.length === 0) {
       return res.status(200).json({
         message: "챌린지를 달성하고 행성을 모아보세요!",
-        totalPoints  // 보상이 없어도 총 포인트는 반환
+        totalPoints, // 보상이 없어도 총 포인트는 반환
       });
     }
 
-    const formattedRewards = completedRewards.map(reward => ({
+    const formattedRewards = completedRewards.map((reward) => ({
       challengeName: reward.Challenge.name,
       rewardName:
         reward.ChallengeParticipation.status === "챌린지 달성"
@@ -72,7 +72,7 @@ const getMyRewards = async (req, res) => {
 
     res.status(200).json({
       data: formattedRewards,
-      totalPoints
+      totalPoints,
     });
   } catch (error) {
     console.error("보상 조회 실패:", error);
@@ -85,15 +85,14 @@ const getMyOngoingChallenges = async (req, res) => {
   try {
     const userId = req.user.id;
     const currentDate = new Date();
-    const currentDate = new Date();
 
     const ongoingChallenges = await ChallengeParticipation.findAll({
       where: {
         user_id: userId,
         status: "참여중",
         end_date: {
-          [Op.gte]: currentDate  // end_date가 현재 날짜보다 크거나 같은 경우만 조회
-        }
+          [Op.gte]: currentDate, // end_date가 현재 날짜보다 크거나 같은 경우만 조회
+        },
       },
       include: [
         {
