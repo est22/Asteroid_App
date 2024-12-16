@@ -29,7 +29,7 @@ class MessageViewModel: ObservableObject {
                   if self.messageRooms.isEmpty {
                     self.message = "등록된 쪽지방이 없습니다"
                   } else {
-                    self.messageRooms.append(contentsOf: root.data)
+                    self.messageRooms = root.data
                   }
                 } catch let error {
                   self.message = error.localizedDescription
@@ -111,7 +111,17 @@ class MessageViewModel: ObservableObject {
       }
   }
   
-  // 쪽지방 나가기
+  // 쪽지방 나가기 (로컬)
+  func leaveMessageRoomLocal(chatUserId: Int) {
+      if let index = messageRooms.firstIndex(where: { $0.chatUser.id == chatUserId }) {
+          messageRooms.remove(at: index)
+      }
+
+      // 서버와 동기화
+      leaveMessageRoom(chatUserId: chatUserId)
+  }
+  
+  // 쪽지방 나가기 (서버)
   func leaveMessageRoom(chatUserId: Int) {
     guard let token = UserDefaults.standard.string(forKey: "accessToken") else { return }
     
