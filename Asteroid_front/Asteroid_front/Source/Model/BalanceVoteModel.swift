@@ -21,7 +21,7 @@ struct BalanceVote: Codable, Identifiable, Equatable {
     let isShow: Bool
     let createdAt: String
     let updatedAt: String
-    let user:BalanceUser
+    let user:UserProfile
     
     enum CodingKeys: String, CodingKey {
         case id, title, description, image1, image2, createdAt, updatedAt
@@ -44,14 +44,4 @@ struct BalanceVote: Codable, Identifiable, Equatable {
             lhs.updatedAt == rhs.updatedAt &&
             lhs.user == rhs.user
       }
-}
-
-struct BalanceUser: Codable, Equatable {
-  let nickname:String
-  let profilePhoto:String
-  
-  enum CodingKeys: String, CodingKey {
-      case nickname
-      case profilePhoto = "profile_picture"
-  }
 }
