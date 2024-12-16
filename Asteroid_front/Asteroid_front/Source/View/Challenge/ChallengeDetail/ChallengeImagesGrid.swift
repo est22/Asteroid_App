@@ -16,6 +16,7 @@ struct ChallengeImagesGrid: View {
     @State private var showUploadConfirmation = false
     @State private var uploadedImages: [ChallengeImage] = []  // 유저가 방금 업로드한 챌린지 이미지(유저 피드백을 위한 프론트에서의 처리)
     @State private var hasUploadedToday: Bool = false
+    @State private var hasJustUploaded: Bool = false  // 새로운 상태 변수 추가
 
     // 챌린지 사진 업로드 관련(구조체의 프로퍼티로 정의해야 ChallengeDetailView에서 해당 값들을 전달 가능)
     let challengeId: Int
@@ -104,8 +105,11 @@ struct ChallengeImagesGrid: View {
                         ImagePicker(image: $selectedImage, isPresented: $showingImagePicker, sourceType: .photoLibrary)
                     }
                     .onChange(of: selectedImage) { newImage in
-                        if newImage != nil {
+                        print("🔍 onChange triggered - selectedImage changed")
+                        if newImage != nil && !showUploadConfirmation && !isUploading && !hasUploadedToday && !hasJustUploaded {
+                            print("📱 Setting showUploadConfirmation to true")
                             showUploadConfirmation = true
+                            checkTodayUpload()
                         }
                     }
                     .alert("사진 업로드", isPresented: $showUploadConfirmation) {
@@ -116,20 +120,31 @@ struct ChallengeImagesGrid: View {
                             if let image = selectedImage {
                                 Task {
                                     do {
-                                        print("=== 이미지 업로드 시작 ===")
+                                        print("🚀 Upload started")
+                                        isUploading = true
+                                        hasJustUploaded = true
+                                        showUploadConfirmation = false
+                                        
                                         let responseString = try await viewModel.uploadChallengeImage(challengeId: challengeId, image: image)
                                         if responseString.contains("챌린지 인증 이미지가 업로드되었습니다") {
-                                            print("=== 챌린지 \(challengeId) 이미지 업로드 성공 ===")
+                                            print("✅ Upload successful")
+                                            
+                                            // 진행 상황만 업데이트
                                             await viewModel.fetchChallengeProgress(challengeId: challengeId)
-                                            print("=== 챌린지 진행상황 업데이트 완료 ===")
-                                            onRefresh()
-                                            print("=== 이미지 목록 새로고침 완료 ===")
-                                            showUploadConfirmation = false
+                                            
+                                            // 이미지는 그대로 유지
+                                            await MainActor.run {
+                                                withAnimation {
+                                                    hasUploadedToday = true  // 오늘 업로드 완료 상태로 변경
+                                                }
+                                            }
+                                            
+                                            isUploading = false
                                         }
                                     } catch {
-                                        print("이미지 업로드 실패:", error)
-                                        errorMessage = "이미지 업로드에 실패했습니다. 다시 시도해주세요."
-                                        showError = true
+                                        print("❌ Upload failed: \(error)")
+                                        isUploading = false
+                                        hasJustUploaded = false
                                     }
                                 }
                             }
@@ -220,8 +235,10 @@ struct ChallengeImagesGrid: View {
             Text(errorMessage)
         }
         .onReceive(viewModel.$selectedChallenge) { _ in
-            print("챌린지 상세 정보 업데이트됨, selectedImage 초기화")
-            selectedImage = nil
+            if !showUploadConfirmation {  // 조건 추가
+                print("🔄 Challenge detail updated, resetting selectedImage")
+                selectedImage = nil
+            }
         }
         .onDisappear {
             // 뷰가 사라질 때 초기화
@@ -235,9 +252,6 @@ struct ChallengeImagesGrid: View {
                     print("- Target Type: L")
                     print("- Target ID:", selectedImageId ?? 0)
                 }
-        }
-        .onChange(of: selectedImage) { _ in
-            checkTodayUpload()  // 이미지 업로드 후 상태 갱신
         }
         .onAppear {
             checkTodayUpload()
