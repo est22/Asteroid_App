@@ -14,10 +14,9 @@ struct FloatingButtonView: View {
             Image(systemName: "plus")
               .font(.title)
               .foregroundColor(.white)
-              .frame(width: 60, height: 60)
+              .frame(width: 50, height: 50)
               .background(Color.keyColor)
               .cornerRadius(30)
-              .shadow(radius: 10)
           },
         buttons: [AnyView(EmptyView())]
       )

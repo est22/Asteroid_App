@@ -24,7 +24,6 @@ struct MainTabView: View {
                 challenge
                 myPage
             }
-            .accentColor(.keyColor)
         }
         .tint(.keyColor)
         .edgesIgnoringSafeArea(.top)

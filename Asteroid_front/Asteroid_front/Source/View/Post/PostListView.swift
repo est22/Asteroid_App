@@ -10,15 +10,25 @@ struct PostListView: View {
   
   var body: some View {
     NavigationStack {
-      VStack {
+      VStack(spacing: 0) {
         // 검색창
         SearchBar(searchText: $searchData) {
           listLoad()
         }
+        .padding(.vertical, 4)
         
         // 커뮤니티 카테고리 탭
-        SlidingTabView(selection: $selectedTabIndex,
-                       tabs: ["당근과채찍", "칭찬합시다", "골라주세요", "자유게시판"])
+        VStack(spacing: 0) {
+            SlidingTabView(selection: $selectedTabIndex,
+                           tabs: ["당근과채찍", "칭찬합시다", "골라주세요", "자유게시판"],
+                           font: .system(size: 16, weight: .medium),
+                           activeAccentColor: .keyColor,
+                           inactiveAccentColor: .black,
+                           selectionBarColor: .keyColor,
+                           inactiveTabColor: .white)
+                .padding(.vertical, 4)
+        }
+        .tint(.black)
         
         // 카테고리별 게시물 목록
         if selectedTabIndex == 0 {
@@ -42,8 +52,8 @@ struct PostListView: View {
             FloatingButtonView {
               navigateToWriteView = true
             }
-            .padding(.trailing, 50)
-            .padding(.bottom, 70)
+            .padding(.trailing, 45)
+            .padding(.bottom, 100)
             .frame(width: 60, height: 60)
           }
         }
@@ -89,9 +99,15 @@ struct PostListView: View {
   
   private func postListContent(for categoryID: Int) -> some View {
     ForEach(postVM.posts.filter { $0.categoryID == categoryID }, id: \.id) { post in
-      NavigationLink(destination: PostDetailView(postID: post.id)) {
-        PostRowView(post: post)
-          .padding(.horizontal)
+      VStack(spacing: 0) {
+        NavigationLink(destination: PostDetailView(postID: post.id)) {
+          PostRowView(post: post)
+            .padding(.horizontal, 12)
+            .padding(.vertical, 8)
+        }
+        
+        Divider()
+          .background(Color.gray.opacity(0.3))
       }
       .onAppear {
         if post == postVM.posts.last {
@@ -104,23 +120,30 @@ struct PostListView: View {
   // 밸런스투표 결과 표시
   private func voteList() -> some View {
     ScrollView {
-      LazyVStack {
-        if voteVM.votes.isEmpty {
-          Text("투표가 없습니다.")
-            .foregroundStyle(Color.keyColor)
-        } else {
-          ForEach(voteVM.votes, id: \.id) { vote in
-            VoteRowView(balanceVote: vote)
-              .padding(.horizontal)
-              .onAppear {
-                if vote == voteVM.votes.last {
-                  voteVM.fetchVotes()
+        LazyVStack(spacing: 0) {
+            if voteVM.votes.isEmpty {
+                Text("투표가 없습니다.")
+                    .foregroundStyle(Color.keyColor)
+            } else {
+                ForEach(voteVM.votes, id: \.id) { vote in
+                    VStack(spacing: 0) {
+                        VoteRowView(balanceVote: vote)
+                            .padding(.horizontal)
+                            .padding(.top, 12)
+                            .onAppear {
+                                if vote == voteVM.votes.last {
+                                    voteVM.fetchVotes()
+                                }
+                            }
+                        
+                        Divider()
+                            .background(Color.gray.opacity(0.3))
+                    }
                 }
-              }
-          }
+            }
         }
-      }
     }
+    .padding(.top, 0)
   }
 }
 
