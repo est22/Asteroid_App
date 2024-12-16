@@ -6,7 +6,7 @@
 //
 
 import SwiftUI
-// Text("소행성").font(.starFontB(size: 24))
+
 struct ContentView: View {
      @EnvironmentObject private var authViewModel: AuthViewModel
     
@@ -30,6 +30,6 @@ struct ContentView: View {
 }
 
 #Preview {
-    ContentView()
+  ContentView().environmentObject(AuthViewModel())
 }
 
