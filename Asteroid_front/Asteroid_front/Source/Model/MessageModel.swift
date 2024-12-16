@@ -8,7 +8,7 @@ struct MessageRoomRoot: Codable {
 
 struct MessageRoom: Codable, Identifiable {
     var id: Int? { chatUser.id }
-    let chatUser: UserProfile
+    let chatUser: MessageUser
     let latestMessage: String
     let latestTime: String
     let unRead: String
