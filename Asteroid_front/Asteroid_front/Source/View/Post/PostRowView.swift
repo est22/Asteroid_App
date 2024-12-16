@@ -4,20 +4,43 @@ struct PostRowView: View {
     let post: Post
 
     var body: some View {
-        HStack(alignment: .top, spacing: 10) {
+        HStack(alignment: .top, spacing: 4) {
             // 제목, 내용
-            VStack(alignment: .leading, spacing: 5) {
-                Text(post.title)
-                    .font(.headline)
-                    .foregroundStyle(.primary)
-                    .foregroundColor(.black)
-                    .lineLimit(1)
+            VStack(alignment: .leading, spacing: 10) {
+                HStack {
+                    Text(post.title)
+                        .font(.headline)
+                        .foregroundStyle(.primary)
+                        .foregroundColor(.black)
+                        .lineLimit(1)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                    
+                    HStack(spacing: 8) {  // 좋아요, 댓글 수 표시
+                        HStack(spacing: 4) {
+                            Image(systemName: "heart")
+                                .foregroundColor(.red.opacity(0.6))
+                            Text("\(post.likeTotal)")
+                                .foregroundColor(.red.opacity(0.6))
+                                .font(.footnote)
+                        }
+                        
+                        HStack(spacing: 4) {
+                            Image(systemName: "message")
+                                .foregroundColor(.keyColor)
+                            Text("\(post.commentTotal ?? 0)")
+                                .foregroundColor(.keyColor)
+                                .font(.footnote)
+                        }
+                    }
+                }
 
                 Text(post.content)
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
                     .foregroundColor(.black)
                     .lineLimit(2)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .multilineTextAlignment(.leading)
             }
             
             Spacer()
@@ -47,7 +70,7 @@ struct PostRowView: View {
                 }
             }
         }
-        .padding()
+        .padding(3)
     }
 }
 
