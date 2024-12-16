@@ -17,14 +17,13 @@ struct UserInfoView: View {
             image
               .resizable()
               .scaledToFill()
-              .frame(width: 50, height: 50)
+              .frame(width: 40, height: 40)
               .clipShape(Circle())
-              .shadow(radius: 2)
           case .failure:
             Image(systemName: "person.crop.circle")
               .resizable()
               .scaledToFit()
-              .frame(width: 50, height: 50)
+              .frame(width: 40, height: 40)
               .foregroundColor(.gray)
           @unknown default:
             EmptyView()
@@ -34,19 +33,21 @@ struct UserInfoView: View {
         Image(systemName: "person.crop.circle")
           .resizable()
           .scaledToFit()
-          .frame(width: 50, height: 50)
+          .frame(width: 40, height: 40)
           .foregroundColor(.gray)
       }
       
       // 제목, 닉네임
-      VStack(alignment: .leading, spacing: 4) {
+      VStack(alignment: .leading, spacing: 1) {
         Text(title)
-          .font(.title3)
-          .bold()
+          .font(.headline)
+          .foregroundStyle(.primary)
+          .foregroundColor(.black)
+          .lineLimit(1)
         
         Text(nickname)
-          .font(.subheadline)
-          .foregroundColor(.secondary)
+          .font(.footnote)
+          .foregroundColor(.gray)
       }
       
       Spacer()

@@ -45,7 +45,7 @@ struct PostRowView: View {
             
             Spacer()
             
-            // 이미지
+            // 이미지 썸네일
             if let firstImageURL = post.PostImages?.first?.imageURL, !firstImageURL.isEmpty {
                 AsyncImage(url: URL(string: firstImageURL)) { phase in
                     switch phase {
