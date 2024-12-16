@@ -4,37 +4,29 @@ struct MessageRoomListView: View {
   @StateObject private var viewModel = MessageViewModel()
   
   var body: some View {
-    NavigationStack{
-      ScrollView{
-        LazyVStack{
-          ForEach(viewModel.messageRooms) { room in
-            HStack {
-              NavigationLink(destination: MessageListView(chatUser:room.chatUser)) {
-                MessageRoomRowView(room: room)
+    NavigationStack {
+      List {
+        ForEach(viewModel.messageRooms) { room in
+          NavigationLink(destination: MessageListView(chatUser: room.chatUser)) {
+            MessageRoomRowView(room: room)
+          }
+          // 채팅방 나가기
+          .swipeActions(edge: .trailing) {
+            Button(role: .destructive) {
+              withAnimation {
+                viewModel.leaveMessageRoomLocal(chatUserId: room.chatUser.id!)
               }
+            } label: {
+              Label("나가기", systemImage: "person.fill.badge.minus")
             }
-            // 나가기
-//            .swipeActions(edge: .trailing, content: {
-//              Button {
-//                viewModel.leaveMessageRoom(chatUserId: room.chatUser.id!)
-//              } label: {
-//                Label("나가기", systemImage: "person.fill.badge.minus")
-//              }
-//              .tint(Color.color1)
-//            })
+            .tint(Color.color1)
           }
         }
       }
+      .listStyle(.plain)
       .task {
         await viewModel.fetchMessageRooms()
       }
-    }
-  }
-  
-  private func deleteMessageRoom(at offsets: IndexSet) {
-    for index in offsets {
-      let room = viewModel.messageRooms[index]
-      viewModel.leaveMessageRoom(chatUserId: room.chatUser.id!)
     }
   }
 }
