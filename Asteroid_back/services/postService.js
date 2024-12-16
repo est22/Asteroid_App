@@ -193,7 +193,7 @@ const likePost = async (data) => {
 
 // 인기게시글
 const hotPost = async (categoryId) => {
-  const period = moment().subtract(10, "days").toDate();
+  const period = moment().subtract(20, "days").toDate();
 
   const result = await Post.findAll({
     where: {

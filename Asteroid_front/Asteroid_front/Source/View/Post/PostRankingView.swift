@@ -3,9 +3,9 @@ import SwiftUI
 struct PostRankingView: View {
   @StateObject private var viewModel = RankingViewModel()
   @State private var selectedFilter = 0
-  
+   
   var filteredRankings: [PostRanking] {
-    viewModel.postRankings
+    viewModel.postRankings 
   }
   
   var body: some View {
@@ -70,6 +70,7 @@ struct PostRankingView: View {
       }
       .transition(.move(edge: .top))
     }
+    .frame(height: UIScreen.main.bounds.height * 0.3)
     .task {
       await viewModel.fetchPostRankings(categoryId: 1)
     }
