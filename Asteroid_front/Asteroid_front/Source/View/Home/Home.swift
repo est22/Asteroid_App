@@ -47,8 +47,8 @@ struct Home: View {
           // 스크롤바 제거
           ScrollView(showsIndicators: false) {
             VStack(spacing: 24) {
-              ChallengeRankingView()
               PostRankingView()
+              ChallengeRankingView()
               MyOngoingChallengeView()
             }
           }
