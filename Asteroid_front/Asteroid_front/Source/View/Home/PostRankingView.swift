@@ -100,15 +100,18 @@ struct CommunityRankingRow: View {
           .foregroundColor(.gray)
           .frame(width: 24)
       }
-      // 게시글 제목
-      Text(ranking.title)
-        .font(.system(size: 15, weight: .medium))
-        .lineLimit(1)
+      // 게시글 제목을 NavigationLink로 감싸기
+      NavigationLink(destination: PostDetailView(postID: ranking.id)) {
+        Text(ranking.title)
+          .font(.system(size: 15, weight: .medium))
+          .lineLimit(1)
+          .foregroundColor(.black)  // 링크 색상을 검정으로 유지
+      }
       
       Spacer()
       
       // 좋아요 수
-      Text("❤️ \(ranking.likeTotal)")
+      Text("👍 \(ranking.likeTotal)")
         .font(.system(size: 14))
         .foregroundColor(.gray)
     }

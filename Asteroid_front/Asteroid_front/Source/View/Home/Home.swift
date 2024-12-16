@@ -46,11 +46,19 @@ struct Home: View {
           
           // 스크롤바 제거
           ScrollView(showsIndicators: false) {
-            VStack(spacing: 24) {
+            VStack(spacing: 0) {
               PostRankingView()
+                .frame(height: UIScreen.main.bounds.height * 0.25)
+                .padding(.bottom, 80)
+              
               ChallengeRankingView()
+                .frame(height: UIScreen.main.bounds.height * 0.25)
+                .padding(.bottom, 80)
+              
               MyOngoingChallengeView()
+                .padding(.bottom, 16)
             }
+            .padding(.top, 8)
           }
         }
         .navigationBarHidden(true)

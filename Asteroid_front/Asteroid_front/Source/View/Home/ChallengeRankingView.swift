@@ -20,7 +20,7 @@ struct ChallengeRankingView: View {
     }
     
     var body: some View {
-        VStack(spacing: 8) {
+        VStack(spacing: 4) {
             // 고정될 제목 부분
             HStack {
                 Text("🏆챌린지 랭킹")
