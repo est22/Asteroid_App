@@ -26,15 +26,26 @@ struct PostWriteView: View {
         NavigationView {
             VStack {
                 Form {
-                    Section(header: Text("제목")) {
+                    Section(header: Text("제목").padding(.horizontal, 5)) {
                         TextField("제목을 입력하세요", text: $title)
-                    }
-                    Section(header: Text("내용")) {
-                        TextEditor(text: $content)
-                            .frame(height: 300)
+                            .padding(.vertical, 10)
+                            .padding(.horizontal, 10)
+                            .background(Color(.systemGray6))
                             .cornerRadius(8)
                     }
-                    Section(header: Text("이미지")) {
+                    .listRowInsets(EdgeInsets(top: 0, leading: 3, bottom: 0, trailing: 3))
+                    
+                    Section(header: Text("내용").padding(.horizontal, 5)) {
+                        TextEditor(text: $content)
+                            .frame(height: 300)
+                            .padding(.vertical, 12)
+                            .padding(.horizontal, 8)
+                            .background(Color(.systemGray6))
+                            .cornerRadius(8)
+                    }
+                    .listRowInsets(EdgeInsets(top: 0, leading: 3, bottom: 0, trailing: 3))
+                    
+                    Section(header: Text("이미지").padding(.horizontal, 10)) {
                         ScrollView(.horizontal, showsIndicators: false) {
                             HStack {
                                 Button(action: {
@@ -49,6 +60,8 @@ struct PostWriteView: View {
                                     .background(Color(.systemGray6))
                                     .cornerRadius(8)
                                 }
+                                .padding(.leading, 8)
+                                
                                 ForEach(images, id: \.self) { image in
                                     Image(uiImage: image)
                                         .resizable()
@@ -59,43 +72,48 @@ struct PostWriteView: View {
                                 }
                             }
                         }
-                        .padding(.vertical, 4)
+                        .padding(.vertical, 2)
                     }
+                    .listRowInsets(EdgeInsets(top: 0, leading: -3, bottom: 0, trailing: 0))
+                    
                 }
-
-                Spacer()
+                .scrollContentBackground(.hidden)
+                .background(Color.white)
+                
+                
                 
                 // 작성 완료 버튼
                 Button {
                     if let post = post {
-                      updatePost(post)
+                        updatePost(post)
                     } else {
                         addPost()
                     }
                 } label: {
                     Text("완료")
-                        .font(.headline)
+                        .font(.system(size: 18, weight: .bold))
                         .foregroundColor(.white)
                         .frame(maxWidth: .infinity)
                         .frame(height: 50)
                         .background(Color.keyColor)
-                        .cornerRadius(8)
+                        .cornerRadius(12)
                         .padding(.horizontal)
-                        .padding(.bottom)
+                        .padding(.vertical, 16)
+                    
+                    NavigationLink(
+                        destination: Group {
+                            if let postId = newPostId {
+                                PostDetailView(postID: postId)
+                            }
+                        },
+                        isActive: $navigateToDetail
+                    ) { EmptyView() }
                 }
-
-                NavigationLink(
-                    destination: Group {
-                        if let postId = newPostId {
-                            PostDetailView(postID: postId)
-                        }
-                    },
-                    isActive: $navigateToDetail
-                ) { EmptyView() }
-            }
-            
-            .sheet(isPresented: $isImagePickerPresented) {
-                PostImagePicker(images: $images)
+                .background(Color.white)
+                .sheet(isPresented: $isImagePickerPresented) {
+                    PostImagePicker(images: $images)
+                }
+                .background(Color.white)
             }
         }
     }
@@ -107,7 +125,7 @@ struct PostWriteView: View {
             return
         }
         guard let categoryID else { return }
-
+        
         Task {
             if let postId = await postVM.addPost(
                 title: title,

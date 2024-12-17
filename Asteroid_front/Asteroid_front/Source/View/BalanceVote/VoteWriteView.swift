@@ -12,60 +12,77 @@ struct VoteWriteView: View {
   var body: some View {
     NavigationView {
       VStack {
-        Form {
-          Section(header: Text("제목")) {
-            TextField("제목을 입력하세요", text: $title)
-          }
-          Section(header: Text("내용")) {
-            TextEditor(text: $content)
-              .frame(height: 300)
-              .cornerRadius(8)
-          }
-          Section(header: Text("* 이미지 2개")) {
-            ScrollView(.horizontal, showsIndicators: false) {
-              HStack {
-                Button(action: {
-                  isImagePickerPresented = true
-                }) {
-                  VStack {
-                    Image(systemName: "plus")
-                      .font(.largeTitle)
-                      .foregroundColor(.gray)
-                  }
-                  .frame(width: 100, height: 100)
-                  .background(Color(.systemGray6))
-                  .cornerRadius(8)
-                }
-                ForEach(images, id: \.self) { image in
-                  Image(uiImage: image)
-                    .resizable()
-                    .scaledToFill()
-                    .frame(width: 100, height: 100)
-                    .cornerRadius(8)
-                    .clipped()
-                }
+          Form {
+              Section(header: Text("제목").padding(.horizontal, 5)) {
+                  TextField("제목을 입력하세요", text: $title)
+                      .padding(.vertical, 10)
+                      .padding(.horizontal, 10)
+                      .background(Color(.systemGray6))
+                      .cornerRadius(8)
               }
-            }
-            .padding(.vertical, 4)
+              .listRowInsets(EdgeInsets(top: 0, leading: 3, bottom: 0, trailing: 3))
+              
+              Section(header: Text("내용").padding(.horizontal, 5)) {
+                  TextEditor(text: $content)
+                      .frame(height: 300)
+                      .padding(.vertical, 12)
+                      .padding(.horizontal, 8)
+                      .background(Color(.systemGray6))
+                      .cornerRadius(8)
+              }
+              .listRowInsets(EdgeInsets(top: 0, leading: 3, bottom: 0, trailing: 3))
+              
+              Section(header: Text("이미지").padding(.horizontal, 10)) {
+                  ScrollView(.horizontal, showsIndicators: false) {
+                      HStack {
+                          Button(action: {
+                              isImagePickerPresented = true
+                          }) {
+                              VStack {
+                                  Image(systemName: "plus")
+                                      .font(.largeTitle)
+                                      .foregroundColor(.gray)
+                              }
+                              .frame(width: 100, height: 100)
+                              .background(Color(.systemGray6))
+                              .cornerRadius(8)
+                          }
+                          .padding(.leading, 8)
+                          
+                          ForEach(images, id: \.self) { image in
+                              Image(uiImage: image)
+                                  .resizable()
+                                  .scaledToFill()
+                                  .frame(width: 100, height: 100)
+                                  .cornerRadius(8)
+                                  .clipped()
+                          }
+                      }
+                  }
+                  .padding(.vertical, 2)
+              }
+              .listRowInsets(EdgeInsets(top: 0, leading: -3, bottom: 0, trailing: 0))
+              
           }
-        }
-        
-        Spacer()
-        
-        // 작성 완료 버튼
-        Button {
-          addVote()
-        } label: {
-          Text("작성 완료")
-            .font(.headline)
-            .foregroundColor(.white)
-            .frame(maxWidth: .infinity)
-            .frame(height: 50)
-            .background(Color.keyColor)
-            .cornerRadius(8)
-            .padding(.horizontal)
-            .padding(.bottom)
-        }
+          .scrollContentBackground(.hidden)
+          .background(Color.white)
+
+
+          
+          // 작성 완료 버튼
+          Button {
+              addVote()
+          } label: {
+              Text("완료")
+                  .font(.system(size: 18, weight: .bold))
+                  .foregroundColor(.white)
+                  .frame(maxWidth: .infinity)
+                  .frame(height: 50)
+                  .background(Color.keyColor)
+                  .cornerRadius(12)
+                  .padding(.horizontal)
+                  .padding(.vertical, 16)
+          }
         .disabled(images.count != 2)
       }
       .sheet(isPresented: $isImagePickerPresented) {
