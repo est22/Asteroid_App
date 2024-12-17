@@ -7,6 +7,7 @@ struct PostListView: View {
   @State private var searchData: String = ""
   @State private var selectedTabIndex = 0
   @State private var navigateToWriteView: Bool = false
+  @Environment(\.scenePhase) private var scenePhase
   
   var body: some View {
     NavigationStack {
@@ -72,6 +73,11 @@ struct PostListView: View {
     }
     .onChange(of: selectedTabIndex) { _ in
       listLoad()
+    }
+    .onChange(of: scenePhase) { newPhase in
+      if newPhase == .active {
+        listLoad()
+      }
     }
   }
   
