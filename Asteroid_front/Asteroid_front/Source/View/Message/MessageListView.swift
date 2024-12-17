@@ -9,22 +9,22 @@ struct MessageListView: View {
     VStack {
       // 대화 상대 정보
       if let profilePicture = chatUser.profilePhoto {
-          AsyncImage(url: URL(string: profilePicture)) { image in
-              image
-                  .resizable()
-                  .frame(width: 40, height: 40)
-                  .clipShape(Circle())
-          } placeholder: {
-              Image(systemName: "person.circle.fill")
-                  .resizable()
-                  .frame(width: 40, height: 40)
-                  .foregroundColor(.gray)
-          }
-      } else {
+        AsyncImage(url: URL(string: profilePicture)) { image in
+          image
+            .resizable()
+            .frame(width: 40, height: 40)
+            .clipShape(Circle())
+        } placeholder: {
           Image(systemName: "person.circle.fill")
-              .resizable()
-              .frame(width: 40, height: 40)
-              .foregroundColor(.gray)
+            .resizable()
+            .frame(width: 40, height: 40)
+            .foregroundColor(.gray)
+        }
+      } else {
+        Image(systemName: "person.circle.fill")
+          .resizable()
+          .frame(width: 40, height: 40)
+          .foregroundColor(.gray)
       }
       
       Text(chatUser.nickname)
@@ -35,19 +35,42 @@ struct MessageListView: View {
     Divider()
     
     // 쪽지 목록
-    ScrollView{
-      LazyVStack{
-        VStack(spacing: 0) {
+    //    ScrollView{
+    //      LazyVStack{
+    //        VStack(spacing: 0) {
+    //          ForEach(viewModel.messages, id: \.id) { message in
+    //            MessageRowView(message: message, chatId: chatUser.id!)
+    //              .padding(.bottom, 10)
+    //          }
+    //        }
+    //      }
+    //    }
+    //    .task {
+    //      viewModel.fetchMessages(chatUserId: chatUser.id!)
+    //    }
+    
+    ScrollViewReader { proxy in
+      ScrollView {
+        LazyVStack {
           ForEach(viewModel.messages, id: \.id) { message in
             MessageRowView(message: message, chatId: chatUser.id!)
               .padding(.bottom, 10)
+              .id(message.id)
           }
         }
       }
+      .onChange(of: viewModel.messages.count) { _ in
+        if let lastMessage = viewModel.messages.last {
+          withAnimation {
+            proxy.scrollTo(lastMessage.id, anchor: .bottom)
+          }
+        }
+      }
+      .task {
+        viewModel.fetchMessages(chatUserId: chatUser.id!)
+      }
     }
-    .task {
-      await viewModel.fetchMessages(chatUserId: chatUser.id!)
-    }
+    
     
     Divider()
     
@@ -61,8 +84,14 @@ struct MessageListView: View {
         
         // 전송
         Button(action: {
-          viewModel.sendMessage(chatUserId: chatUser.id!, content: messageText)
-          messageText = ""
+          viewModel.sendMessage(chatUserId: chatUser.id!, content: messageText) { success in
+            if success {
+              Task {
+                viewModel.fetchMessages(chatUserId: chatUser.id!)
+                messageText = ""
+              }
+            }
+          }
         }, label: {
           Image(systemName: "paperplane.fill")
             .foregroundStyle(Color.keyColor)
