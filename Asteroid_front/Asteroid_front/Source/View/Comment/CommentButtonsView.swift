@@ -26,7 +26,7 @@ struct CommentButtonView: View {
                     Image(systemName: isLiked ? "heart.fill" : "heart")
                     Text("\(likeCount)")
                 }
-                .foregroundStyle(Color.color1)
+                .foregroundStyle(Color.red.opacity(0.6))
             }
             
             // 수정, 삭제, 신고
