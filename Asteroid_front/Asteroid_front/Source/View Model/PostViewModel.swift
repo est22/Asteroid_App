@@ -1,6 +1,12 @@
 import SwiftUI
 import Alamofire
 
+// 응답 모델 추가
+struct NewPostResponse: Codable {
+    let message: String
+    let data: Post
+}
+
 class PostViewModel: ObservableObject {
   @Published var posts: [Post] = []
   @Published var message: String? = nil
@@ -67,7 +73,7 @@ class PostViewModel: ObservableObject {
       }
   }
   
-  // 게시글 상세보기
+  // 게시글 세보기
   func fetchPostDetail(postID: Int) {
     guard !isLoading else { return }
     isLoading = true
@@ -118,7 +124,7 @@ class PostViewModel: ObservableObject {
   }
   
   // 게시물 추가
-  func addPost(title: String, content: String, categoryID: Int, images: [UIImage]?) {
+  func addPost(title: String, content: String, categoryID: Int, images: [UIImage]?) async -> Int? {
     let formData = MultipartFormData()
     formData.append(title.data(using: .utf8)!, withName: "title")
     formData.append(content.data(using: .utf8)!, withName: "content")
@@ -126,50 +132,53 @@ class PostViewModel: ObservableObject {
     
     // 이미지 데이터 추가
     if let images = images {
-      for (index, image) in images.enumerated() {
-        if let imageData = image.jpegData(compressionQuality: 0.2) {
-          formData.append(
-            imageData,
-            withName: "images[\(index)]",
-            fileName: "photo\(index).jpg",
-            mimeType: "image/jpeg"
-          )
+        for (index, image) in images.enumerated() {
+            if let imageData = image.jpegData(compressionQuality: 0.2) {
+                formData.append(
+                    imageData,
+                    withName: "images[\(index)]",
+                    fileName: "photo\(index).jpg",
+                    mimeType: "image/jpeg"
+                )
+            }
         }
-      }
     }
     
-    guard let token = UserDefaults.standard.string(forKey: "accessToken") else { return }
+    guard let token = UserDefaults.standard.string(forKey: "accessToken") else { return nil }
     let headers: HTTPHeaders = [
-      "Authorization": "Bearer \(token)",
-      "Content-Type": "multipart/form-data"
+        "Authorization": "Bearer \(token)",
+        "Content-Type": "multipart/form-data"
     ]
     let url = "\(endPoint)/post"
     
-    AF.upload(multipartFormData: formData, to: url, method: .post, headers: headers).response { response in
-      if let statusCode = response.response?.statusCode {
-        switch statusCode {
-        case 200..<300:
-          if let data = response.data {
-            do {
-              let root = try JSONDecoder().decode(PostRoot.self, from: data)
-              self.message = root.message!
-            } catch let error {
-              self.message = error.localizedDescription
+    return await withCheckedContinuation { (continuation: CheckedContinuation<Int?, Never>) in
+        AF.upload(multipartFormData: formData, to: url, method: .post, headers: headers)
+            .response { [weak self] response in
+                if let statusCode = response.response?.statusCode {
+                    switch statusCode {
+                    case 200..<300:
+                        if let data = response.data {
+                            do {
+                                let newPostResponse = try JSONDecoder().decode(NewPostResponse.self, from: data)
+                                DispatchQueue.main.async {
+                                    if newPostResponse.data.categoryID == categoryID {
+                                        self?.posts.insert(newPostResponse.data, at: 0)
+                                        print("새 포스트 추가됨: \(newPostResponse.data)")
+                                    }
+                                }
+                                // 새 포스트의 ID 반환
+                                continuation.resume(returning: newPostResponse.data.id)
+                            } catch let error {
+                                print("Decoding error: \(error)")
+                                continuation.resume(returning: nil)
+                            }
+                        }
+                    default:
+                        self?.message = "게시글 작성에 실패했습니다."
+                        continuation.resume(returning: nil)
+                    }
+                }
             }
-          }
-        case 300..<600:
-          if let data = response.data {
-            do {
-              let apiError = try JSONDecoder().decode(PostRoot.self, from: data)
-              self.message = apiError.message!
-            } catch let error {
-              self.message = error.localizedDescription
-            }
-          }
-        default:
-          self.message = "알 수 없는 에러"
-        }
-      }
     }
   }
   

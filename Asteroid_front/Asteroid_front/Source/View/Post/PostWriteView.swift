@@ -9,6 +9,8 @@ struct PostWriteView: View {
     @State private var isImagePickerPresented = false
     let categoryID:Int?
     var post: Post?
+    @State private var navigateToDetail = false
+    @State private var newPostId: Int?
    
   init(categoryID: Int? = nil, post: Post? = nil) {
       self.categoryID = categoryID
@@ -81,6 +83,15 @@ struct PostWriteView: View {
                         .padding(.horizontal)
                         .padding(.bottom)
                 }
+
+                NavigationLink(
+                    destination: Group {
+                        if let postId = newPostId {
+                            PostDetailView(postID: postId)
+                        }
+                    },
+                    isActive: $navigateToDetail
+                ) { EmptyView() }
             }
             
             .sheet(isPresented: $isImagePickerPresented) {
@@ -95,17 +106,21 @@ struct PostWriteView: View {
             postVM.message = "제목과 내용을 입력해주세요."
             return
         }
-        guard let categoryID else {return}
+        guard let categoryID else { return }
 
-        // 필요한 데이터 전달
-        postVM.addPost(
-            title: title,
-            content: content,
-            categoryID: categoryID,
-            images: images
-        )
-        
-        dismiss()
+        Task {
+            if let postId = await postVM.addPost(
+                title: title,
+                content: content,
+                categoryID: categoryID,
+                images: images
+            ) {
+                await MainActor.run {
+                    self.newPostId = postId
+                    self.navigateToDetail = true
+                }
+            }
+        }
     }
   
     // 게시글 수정
