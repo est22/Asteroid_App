@@ -81,35 +81,26 @@ class MessageViewModel: ObservableObject {
   }
   
   // 쪽지 보내기
-  func sendMessage(chatUserId: Int, content: String) {
-    guard let token = UserDefaults.standard.string(forKey: "accessToken") else { return }
-    
-    let url = "\(endPoint)/message"
-    let params: Parameters = ["receiver_user_id": chatUserId, "content": content]
-    let headers: HTTPHeaders = ["Authorization": "Bearer \(token)", "Content-Type": "application/json"]
-    
-    AF.request(url, method: .post, parameters: params, encoding: JSONEncoding.default, headers: headers)
-      .response { response in
-        if let statusCode = response.response?.statusCode {
-          switch statusCode {
-            case 201:
-              if let data = response.data {
-                do {
-                  let successResponse = try JSONDecoder().decode([String: String].self, from: data)
-                  self.message = successResponse["message"] ?? "쪽지 전송 성공"
-                  
-                } catch let error {
-                  self.message = error.localizedDescription
-                  print("### 에러", error)
-                }
-              }
-            
-            default:
-              self.message = "알 수 없는 에러"
+  func sendMessage(chatUserId: Int, content: String, completion: @escaping (Bool) -> Void) {
+      guard let token = UserDefaults.standard.string(forKey: "accessToken") else { return }
+      
+      let url = "\(endPoint)/message"
+      let params: Parameters = ["receiver_user_id": chatUserId, "content": content]
+      let headers: HTTPHeaders = ["Authorization": "Bearer \(token)", "Content-Type": "application/json"]
+      
+      AF.request(url, method: .post, parameters: params, encoding: JSONEncoding.default, headers: headers)
+        .response { response in
+          if let statusCode = response.response?.statusCode {
+            switch statusCode {
+              case 201:
+                completion(true)
+              default:
+                completion(false)
+            }
           }
         }
-      }
   }
+
   
   // 쪽지방 나가기 (로컬)
   func leaveMessageRoomLocal(chatUserId: Int) {
