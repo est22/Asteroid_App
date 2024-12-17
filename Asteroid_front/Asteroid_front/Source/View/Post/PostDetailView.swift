@@ -3,9 +3,16 @@ import SwiftUI
 struct PostDetailView: View {
   @StateObject var postViewModel = PostViewModel()
   @StateObject var commentViewModel = CommentViewModel()
-  @State private var userID: Int? = UserDefaults.standard.integer(forKey: "UserID")
   @State private var commentText: String = ""
+  @State private var showingDeleteAlert = false
+  @State private var showingReportView = false
+  @State private var showingEditView = false
   let postID: Int
+
+
+
+
+  @Environment(\.dismiss) private var dismiss
   
   var body: some View {
     ScrollView {
@@ -16,43 +23,26 @@ struct PostDetailView: View {
         } else if let post = postViewModel.posts.first(where: { $0.id == postID }) {
           VStack(alignment: .leading, spacing: 16) {
             HStack {
-              // 유저 정보 및 타이틀
-              UserInfoView(
-                profileImageURL: post.user?.profilePhoto,
-                nickname: post.user?.nickname ?? "닉네임",
-                title: post.title
-              )
-              
-              // 오른쪽 ... 버튼
-              if let postUser = post.user, let userID = userID, postUser.id == userID {
-                Menu {
-                  Button("수정") {
-                    NavigationLink {
-                      PostWriteView(post: post)
-                    } label: {
-                        Text("수정")
-                    }
+
+             
+                // 유저 정보 및 타이틀
+                UserInfoView(
+                  profileImageURL: post.user?.profilePicture,
+                  nickname: post.user?.nickname ?? "닉네임",
+                  title: post.title,
+                  createdAt: post.createdAt,
+                  userID: post.userID,
+                  isCurrentUser: false,
+                  onEditTap: {
+                    showingEditView = true
+                  },
+                  onDeleteTap: {
+                    showingDeleteAlert = true
+                  },
+                  onReportTap: {
+                    showingReportView = true
                   }
-                  Button("삭제", role: .destructive) {
-                    postViewModel.deletePost(postId: post.id)
-//                    presentationMode.wrappedValue.dismiss()
-                  }
-                } label: {
-                  Image(systemName: "ellipsis")
-                    .font(.title2)
-                    .foregroundColor(.primary)
-                }
-              } else {
-                Menu {
-                  Button("신고") {
-                    ReportView(targetType: "P", targetId: post.id)
-                  }
-                } label: {
-                  Image(systemName: "ellipsis")
-                    .font(.title2)
-                    .foregroundColor(.primary)
-                }
-              }
+                )
               
             }
             
@@ -142,9 +132,29 @@ struct PostDetailView: View {
       }
       commentViewModel.fetchComments(forPost: postID)
     }
+    .sheet(isPresented: $showingEditView) {
+      PostWriteView()
+    }
+    .alert(isPresented: $showingDeleteAlert) {
+      Alert(title: Text("게시글을 삭제하시겠습니까?"),
+            message: Text("삭제된 게시글은 복구할 수 없습니다."),
+            primaryButton: .destructive(Text("삭제")) {
+          postViewModel.deletePost(postId: postID)
+            },
+            secondaryButton: .cancel())
+    }
+    .alert(isPresented: $showingReportView) {
+      Alert(title: Text("게시글을 신고하시겠습니까?"),
+            message: Text("신고된 게시글은 관리자 확인 후 처리됩니다."),
+            primaryButton: .destructive(Text("신고")) {
+              // 신고 로직
+            },
+            secondaryButton: .cancel())
+    }
   }
 }
 
 #Preview {
-  PostDetailView(postID: 1)
+    PostDetailView(postID: 1)
 }
+

@@ -93,37 +93,24 @@ class PostViewModel: ObservableObject {
     guard let token = UserDefaults.standard.string(forKey: "accessToken") else { return }
     
     let url = "\(endPoint)/post/\(postID)"
-    let headers: HTTPHeaders = ["Authorization": "Bearer \(token)", "Content-Type": "application/json"]
+    let headers: HTTPHeaders = ["Authorization": "Bearer \(token)"]
     
     return await withCheckedContinuation { continuation in
         AF.request(url, method: .get, headers: headers)
-            .response { [weak self] response in
-                print("상세 조회 응답: \(String(describing: response.data?.prettyPrintedJSONString))")
-                
-                if let statusCode = response.response?.statusCode {
-                    switch statusCode {
-                    case 200...201:  // 201도 허용
-                        if let data = response.data {
-                            do {
-                                let detailedPost = try JSONDecoder().decode(PostDetail.self, from: data)
-                                Task { @MainActor in
-                                    // posts 배열에서 해당 게시글 업데이트
-                                    if let index = self?.posts.firstIndex(where: { $0.id == postID }) {
-                                        self?.posts[index] = detailedPost.data
-                                    }
-                                    print("상세 게시글 데이터: \(detailedPost.data)")
-                                }
-                            } catch let error {
-                                print("디코딩 에러: \(error)")
+            .responseDecodable(of: PostDetail.self) { [weak self] response in
+                if let detail = response.value {
+                    Task { @MainActor in
+                        // posts 배열이 비어있을 수 있으므로, 없으면 추가
+                        if self?.posts.firstIndex(where: { $0.id == postID }) == nil {
+                            self?.posts.append(detail.data)
+                        } else {
+                            // 있으면 업데이트
+                            if let index = self?.posts.firstIndex(where: { $0.id == postID }) {
+                                self?.posts[index] = detail.data
                             }
                         }
-                    default:
-                        print("에러 상태코드: \(statusCode)")
+                        self?.isLoading = false
                     }
-                }
-                
-                Task { @MainActor in
-                    self?.isLoading = false
                 }
                 continuation.resume()
             }

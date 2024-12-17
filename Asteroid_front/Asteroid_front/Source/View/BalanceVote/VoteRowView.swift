@@ -22,7 +22,19 @@ struct VoteRowView: View {
             UserInfoView(
                 profileImageURL: balanceVote.user.profilePhoto,
                 nickname: balanceVote.user.nickname,
-                title: balanceVote.title
+                title: balanceVote.title,
+                createdAt: balanceVote.createdAt,
+                userID: balanceVote.userID,
+                isCurrentUser: balanceVote.userID == UserDefaults.standard.integer(forKey: "UserID"),
+                onEditTap: {
+                    // 수정 기능
+                },
+                onDeleteTap: {
+                    // 삭제 기능
+                },
+                onReportTap: {
+                    // 신고 기능
+                }
             )
             
             // 내용
@@ -109,7 +121,7 @@ struct VoteRowView: View {
         isShow: true,
         createdAt: "20241111",
         updatedAt: "20241111",
-        user: user
+        user: user, userID: 1 
     )
     
     VoteRowView(balanceVote: balanceVote)

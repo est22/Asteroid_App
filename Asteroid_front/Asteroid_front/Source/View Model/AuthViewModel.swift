@@ -38,6 +38,7 @@ class AuthViewModel: NSObject, ObservableObject {
     
     self.isLoggedIn = isLoggedInValue
     self.isInitialProfileSet = isProfileSetValue
+  
     
     super.init()
     

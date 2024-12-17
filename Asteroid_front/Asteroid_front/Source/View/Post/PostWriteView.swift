@@ -108,7 +108,9 @@ struct PostWriteView: View {
             }
             .navigationDestination(isPresented: $navigateToDetail) {
                 if let postId = newPostId {
-                    PostDetailView(postID: postId)
+                    PostDetailView(
+                        postID: postId
+                    )
                         .navigationBarBackButtonHidden(true)
                 }
             }

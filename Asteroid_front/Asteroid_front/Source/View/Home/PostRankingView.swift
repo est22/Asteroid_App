@@ -101,7 +101,11 @@ struct CommunityRankingRow: View {
           .frame(width: 24)
       }
       // 게시글 제목을 NavigationLink로 감싸기
-      NavigationLink(destination: PostDetailView(postID: ranking.id)) {
+      NavigationLink {
+        PostDetailView(
+          postID: ranking.id
+        )
+      } label: {
         Text(ranking.title)
           .font(.system(size: 15, weight: .medium))
           .lineLimit(1)

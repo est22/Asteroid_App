@@ -91,7 +91,10 @@ struct PostRowView: View {
         commentTotal: 5,
         createdAt: "20241111",
         updatedAt: "20241111",
-        user: User(id: 1, email: "user@example.com", nickname: "JohnDoe", motto: "Live life!", profilePhoto: "https://via.placeholder.com/100")
+        user: PostUser(
+            nickname: "JohnDoe",
+            profilePicture: "https://via.placeholder.com/100"
+        )
     )
     PostRowView(post: samplePost)
 }

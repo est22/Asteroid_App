@@ -13,10 +13,9 @@ struct PostList: Codable {
 struct PostDetail: Codable {
     let data: Post
     let commentCount: Int
-    let message: String?
 }
 
-struct Post: Codable, Identifiable, Equatable {
+struct Post: Identifiable, Codable, Equatable {
     let id: Int
     let title: String
     let content: String
@@ -25,18 +24,29 @@ struct Post: Codable, Identifiable, Equatable {
     let isShow: Bool
     let likeTotal: Int
     let PostImages: [PostImage]?
-    let commentTotal:Int?
+    let commentTotal: Int?
     let createdAt: String
     let updatedAt: String
-    let user:User?
+    let user: PostUser?
     
     enum CodingKeys: String, CodingKey {
-        case id, title, content, PostImages, createdAt, updatedAt, user
+        case id, title, content, PostImages, createdAt, updatedAt
         case categoryID = "category_id"
         case userID = "user_id"
-        case isShow = "isShow"
-        case likeTotal = "likeTotal"
-        case commentTotal = "commentTotal"
+        case isShow
+        case likeTotal
+        case commentTotal
+        case user = "User"
+    }
+}
+
+struct PostUser: Codable, Equatable {
+    let nickname: String
+    let profilePicture: String?
+    
+    enum CodingKeys: String, CodingKey {
+        case nickname
+        case profilePicture = "profile_picture"
     }
 }
 
@@ -65,3 +75,4 @@ struct Like: Decodable {
     var targetId: Int
     var targetType: String
 }
+
