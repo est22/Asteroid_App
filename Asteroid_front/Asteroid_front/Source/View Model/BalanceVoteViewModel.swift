@@ -55,11 +55,11 @@ class BalanceVoteViewModel: ObservableObject {
             formData.append(description.data(using: .utf8)!, withName: "description")
         }
         
-      // 이미지
-      let images: [UIImage] = [image1, image2]
-      for image in images {
-          formData.append(image.jpegData(compressionQuality: 0.8)!, withName: "images", fileName: "image.jpg", mimeType: "image/jpeg")
-      }
+        // 이미지
+        let images: [UIImage] = [image1, image2]
+        for image in images {
+            formData.append(image.jpegData(compressionQuality: 0.8)!, withName: "images", fileName: "image.jpg", mimeType: "image/jpeg")
+        }
 
       
         guard let token = UserDefaults.standard.string(forKey: "accessToken") else { return }
@@ -69,7 +69,7 @@ class BalanceVoteViewModel: ObservableObject {
         ]
         let url = "\(endPoint)/balance"
 
-      AF.upload(multipartFormData: formData, to: url, method: .post, headers: headers).response { response in
+        AF.upload(multipartFormData: formData, to: url, method: .post, headers: headers).response { response in
             if let statusCode = response.response?.statusCode {
                 self.message = statusCode == 200 ? "Vote added successfully!" : "Error: \(statusCode)"
             }
@@ -91,16 +91,18 @@ class BalanceVoteViewModel: ObservableObject {
     }
 
     // 투표 결과 제출
-    func submitVote(voteId: Int, option: String) {
-        let url = "\(endPoint)/balance/\(voteId)/submit"
+  func submitVote(voteId: Int, option: Int) {
+        let url = "\(endPoint)/balance/submit/\(voteId)"
         guard let token = UserDefaults.standard.string(forKey: "accessToken") else { return }
         let headers: HTTPHeaders = ["Authorization": "Bearer \(token)"]
-        let params: Parameters = ["option": option]
+    
+        let voteResult = (option == 1) ? "vote1_count" : "vote2_count"
+        let params: Parameters = ["voteResult": voteResult]
 
         AF.request(url, method: .post, parameters: params, encoding: JSONEncoding.default, headers: headers)
             .response { response in
                 if let statusCode = response.response?.statusCode {
-                    self.message = statusCode == 200 ? "Vote submitted successfully!" : "Error: \(statusCode)"
+                    self.message = statusCode == 200 ? "성공" : "Error: \(statusCode)"
                 }
             }
     }

@@ -8,11 +8,13 @@ const findCommentById = async (id) => {
       {
         // 대댓글 정보
         model: models.Comment,
+        as: "Comments",
         where: { isShow: true },
         required: false,
         include: [
           {
             model: models.User,
+            as: "User",
             attributes: ["nickname", "profile_picture"],
           },
         ],
@@ -20,6 +22,7 @@ const findCommentById = async (id) => {
       {
         // 댓글 작성자 정보
         model: models.User,
+        as: "User",
         attributes: ["nickname", "profile_picture"],
       },
     ],

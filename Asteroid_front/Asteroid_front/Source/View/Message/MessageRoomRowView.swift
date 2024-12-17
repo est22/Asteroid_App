@@ -6,25 +6,35 @@ struct MessageRoomRowView: View {
   var body: some View {
     HStack(spacing: 16) {
       // 대화상대 프로필 사진
-      AsyncImage(url: URL(string: room.chatUser.profilePhoto)) { image in
-        image.resizable()
-          .scaledToFill()
-          .clipShape(Circle())
-      } placeholder: {
-        // 로딩 중 이미지
-        Image(systemName: "person")
-          .clipShape(Circle())
+      if let profilePhoto = room.chatUser.profilePhoto, !profilePhoto.isEmpty,
+         let url = URL(string: profilePhoto) {
+          AsyncImage(url: url) { image in
+              image
+                  .resizable()
+                  .scaledToFill()
+                  .frame(width: 40, height: 40)
+                  .clipShape(Circle())
+          } placeholder: {
+              Image(systemName: "person.circle.fill")
+                  .resizable()
+                  .frame(width: 40, height: 40)
+                  .foregroundColor(.gray)
+          }
+      } else {
+          Image(systemName: "person.circle.fill")
+              .resizable()
+              .frame(width: 40, height: 40)
+              .foregroundColor(.gray)
       }
-      .frame(width: 50, height: 50)
       
       VStack(alignment: .leading, spacing: 4) {
         // 대화상대 닉네임
-        Text("\(room.chatUser.nickname)")
+        Text(room.chatUser.nickname)
           .font(.headline)
           .foregroundColor(.primary)
         
         // 최근 메시지
-        Text("\(room.latestMessage)")
+        Text(room.latestMessage)
           .font(.subheadline)
           .foregroundColor(.secondary)
           .lineLimit(1)

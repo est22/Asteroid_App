@@ -104,7 +104,7 @@ struct VoteRowView: View {
 }
 
 #Preview {
-  let user = BalanceUser(
+  let user = UserProfile(
         nickname: "John Doe",
         profilePhoto: "johnProfileImage"
     )
@@ -121,7 +121,8 @@ struct VoteRowView: View {
         isShow: true,
         createdAt: "20241111",
         updatedAt: "20241111",
-        user: user, userID: 1 
+        user: user,
+        userId: 1
     )
     
     VoteRowView(balanceVote: balanceVote)

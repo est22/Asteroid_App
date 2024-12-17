@@ -36,7 +36,7 @@ struct Message: Codable {
     let isRead: Bool
     let createdAt: String
     let updatedAt: String
-    let receiver:MessageUser
+    let receiver:UserProfile
   
     enum CodingKeys: String, CodingKey {
         case id, content, createdAt, updatedAt
@@ -44,16 +44,5 @@ struct Message: Codable {
         case receiverUserId = "receiver_user_id"
         case isRead = "is_read"
         case receiver = "Receiver"
-    }
-}
-
-struct MessageUser: Codable {
-    let id: Int?
-    let nickname: String
-    let profilePhoto: String
-  
-    enum CodingKeys: String, CodingKey {
-        case id, nickname
-        case profilePhoto = "profile_picture"
     }
 }

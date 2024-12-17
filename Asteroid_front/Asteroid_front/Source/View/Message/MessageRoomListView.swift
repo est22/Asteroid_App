@@ -19,7 +19,7 @@ struct MessageRoomListView: View {
             } label: {
               Label("나가기", systemImage: "person.fill.badge.minus")
             }
-            .tint(Color.color1)
+            .tint(Color.red.opacity(0.6))
           }
         }
       }

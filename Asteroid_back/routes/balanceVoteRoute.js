@@ -12,6 +12,6 @@ router.post(
   controller.createVote
 );
 router.delete("/:id", authenticateToken, controller.deleteVote);
-router.post("/:id/submit", authenticateToken, controller.submitVote);
+router.post("/submit/:id", authenticateToken, controller.submitVote);
 
 module.exports = router;
