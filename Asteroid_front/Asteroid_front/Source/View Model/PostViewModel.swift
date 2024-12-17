@@ -8,7 +8,7 @@ class PostViewModel: ObservableObject {
   @Published var isLoading = false
   private var page = 1
   private var morePosts = true
-  private let endPoint = APIConstants.baseURL
+  private let endPoint = APIConstants.baseURL 
   
   // 게시물 목록 조회
   func fetchPosts(categoryID: Int, search:String) {

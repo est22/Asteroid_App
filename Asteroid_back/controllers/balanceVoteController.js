@@ -26,8 +26,6 @@ const createVote = async (req, res) => {
       images: req.files,
     };
 
-    console.log("######   ", data);
-
     // 유효성 검사
     if (!data.title) {
       return res.status(403).json({ error: "제목을 입력하세요" });

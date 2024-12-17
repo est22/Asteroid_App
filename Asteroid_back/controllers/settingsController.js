@@ -147,7 +147,7 @@ const getMyComments = async (req, res) => {
         {
           model: Post,
           where: { isShow: true },
-          attributes: ["title"],
+          attributes: ["id", "title"],
         },
       ],
       order: [["createdAt", "DESC"]],
@@ -161,6 +161,7 @@ const getMyComments = async (req, res) => {
 
     const formattedComments = comments.map((comment) => ({
       id: comment.id,
+      postId: comment.Post.id,
       postTitle: comment.Post.title,
       content: comment.content,
       createdAt: comment.createdAt,

@@ -49,7 +49,6 @@ const createVote = async (data) => {
 
 // 밸런스 투표 삭제
 const deleteVote = async (data) => {
-  console.log("$$$$  ", data);
   const { voteId, userId } = data;
 
   const vote = await models.BalanceVote.findOne({

@@ -3,6 +3,7 @@ import Alamofire
 
 class CommentViewModel: ObservableObject {
     @Published var comments: [Comment] = []
+    @Published var message = ""
     @Published var errorMessage: String? = nil
     @Published var isLoading: Bool = false
     private let endPoint = APIConstants.baseURL
@@ -68,17 +69,14 @@ class CommentViewModel: ObservableObject {
     // 댓글 삭제
     func deleteComment(commentId: Int) {
         let url = "\(endPoint)/comment/\(commentId)"
-
-        AF.request(url, method: .delete)
-            .validate()
-            .response { response in
-                switch response.result {
-                    case .success:
-                        self.comments.removeAll { $0.id == commentId }
-                    case .failure(let error):
-                        self.errorMessage = error.localizedDescription
-                }
+        guard let token = UserDefaults.standard.string(forKey: "accessToken") else { return }
+        let headers: HTTPHeaders = ["Authorization": "Bearer \(token)"]
+        
+        AF.request(url, method: .delete, headers: headers).response { response in
+            if let statusCode = response.response?.statusCode {
+                self.message = statusCode == 200 ? "Vote deleted successfully!" : "Error: \(statusCode)"
             }
+        }
     }
 
     // 댓글 좋아요
@@ -86,7 +84,6 @@ class CommentViewModel: ObservableObject {
         let url = "\(endPoint)/comment/\(commentId)/like"
 
         AF.request(url, method: .post, encoding: JSONEncoding.default)
-            .validate()
             .responseDecodable(of: Comment.self) { response in
                 switch response.result {
                     case .success(let updatedComment):

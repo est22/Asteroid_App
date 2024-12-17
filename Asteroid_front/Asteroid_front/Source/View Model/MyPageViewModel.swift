@@ -4,7 +4,7 @@ import Alamofire
 class MyPageViewModel: ObservableObject {
     @Published var posts: [Post] = []
     @Published var votes: [BalanceVote] = []
-    @Published var comments: [Comment] = []
+    @Published var comments: [MyComment] = []
     @Published var errorMessage: String = ""
 
     private var isLoading = false
@@ -33,7 +33,7 @@ class MyPageViewModel: ObservableObject {
                                 self.votes = root.balanceVotes
                             } catch {
                                 self.errorMessage = "Error decoding data: \(error.localizedDescription)"
-                              print("@@@@$$$$    ", error)
+                                print("### error : \(error)")
                             }
                         }
                     default:
@@ -60,11 +60,11 @@ class MyPageViewModel: ObservableObject {
                     case 200..<300:
                         if let data = response.data {
                             do {
-                                let decoded = try JSONDecoder().decode([Comment].self, from: data)
-                                self.comments.append(contentsOf: decoded)
+                                let root = try JSONDecoder().decode([MyComment].self, from: data)
+                                self.comments = root
                             } catch {
                                 self.errorMessage = "Error decoding data: \(error.localizedDescription)"
-                                print("### detailed error : \(error)")
+                                print("### error : \(error)")
                             }
                         }
                     default:

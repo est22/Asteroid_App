@@ -71,29 +71,29 @@ struct MyPostView: View {
   
   // 게시글 삭제 액션
   private func deletePostAction(post: Post) -> some View {
-      Button(role: .destructive) {
-        withAnimation {
-          myVM.posts.removeAll { $0.id == post.id }
-          postVM.deletePost(postId: post.id)
-        }
-      } label: {
-        Label("삭제", systemImage: "trash")
+    Button(role: .destructive) {
+      withAnimation {
+        myVM.posts.removeAll { $0.id == post.id }
+        postVM.deletePost(postId: post.id)
       }
-      .tint(Color.red.opacity(0.8))
+    } label: {
+      Label("삭제", systemImage: "trash")
     }
+    .tint(Color.red.opacity(0.8))
+  }
   
   // 밸런스 투표 삭제 액션
   private func deleteVoteAction(vote: BalanceVote) -> some View {
-      Button(role: .destructive) {
-        withAnimation {
-          myVM.votes.removeAll { $0.id == vote.id }
-          voteVM.deleteVote(voteId: vote.id)
-        }
-      } label: {
-        Label("삭제", systemImage: "trash")
+    Button(role: .destructive) {
+      withAnimation {
+        myVM.votes.removeAll { $0.id == vote.id }
+        voteVM.deleteVote(voteId: vote.id)
       }
-      .tint(Color.red.opacity(0.8))
+    } label: {
+      Label("삭제", systemImage: "trash")
     }
+    .tint(Color.red.opacity(0.8))
+  }
 }
 
 #Preview {
