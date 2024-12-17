@@ -12,8 +12,8 @@ struct PostRankingView: View {
     VStack(spacing: 8) {
       // 고정될 제목 부분
       HStack {
-        Text("🏆 커뮤니티 랭킹")
-          .font(.system(size: 20, weight: .bold))
+        Text("💬 인기 게시글")
+          .font(.system(size: 18, weight: .bold))
         Spacer()
       }
       .padding(.horizontal)

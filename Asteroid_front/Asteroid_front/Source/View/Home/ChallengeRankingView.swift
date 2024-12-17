@@ -24,7 +24,7 @@ struct ChallengeRankingView: View {
             // 고정될 제목 부분
             HStack {
                 Text("🏆챌린지 랭킹")
-                    .font(.system(size: 20, weight: .bold))
+                    .font(.system(size: 18, weight: .bold))
                 Spacer()
             }
             .padding(.horizontal)

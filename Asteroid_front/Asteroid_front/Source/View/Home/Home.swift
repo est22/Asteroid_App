@@ -46,7 +46,7 @@ struct Home: View {
           
           // 스크롤바 제거
           ScrollView(showsIndicators: false) {
-            VStack(spacing: 0) {
+            VStack(spacing: 10) {
               PostRankingView()
                 .frame(height: UIScreen.main.bounds.height * 0.25)
                 .padding(.bottom, 80)
