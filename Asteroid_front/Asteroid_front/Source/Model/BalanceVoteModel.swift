@@ -16,8 +16,8 @@ struct BalanceVote: Codable, Identifiable, Equatable {
     let description: String
     let image1: String
     let image2: String
-    let vote1Count: Int
-    let vote2Count: Int
+    var vote1Count: Int
+    var vote2Count: Int
     let isShow: Bool
     let createdAt: String
     let updatedAt: String

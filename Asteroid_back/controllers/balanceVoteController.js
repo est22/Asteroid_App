@@ -72,9 +72,9 @@ const submitVote = async (req, res) => {
   const voteResult = req.body.voteResult; // 'vote1_count' 또는 'vote2_count'
 
   try {
-    const post = await voteService.updateVote(req.params.id, voteResult);
+    const result = await voteService.submitVote(req.params.id, voteResult);
 
-    if (post > 0) {
+    if (result[0][1] > 0) {
       res.status(200).json({ message: "밸런스 투표 성공" });
     } else {
       res.status(404).json({ error: "투표할 게시글 찾을 수 없음" });

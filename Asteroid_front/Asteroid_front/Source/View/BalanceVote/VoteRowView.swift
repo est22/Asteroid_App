@@ -92,7 +92,7 @@ struct VoteRowView: View {
 }
 
 #Preview {
-  let user = BalanceUser(
+  let user = UserProfile(
         nickname: "John Doe",
         profilePhoto: "johnProfileImage"
     )
