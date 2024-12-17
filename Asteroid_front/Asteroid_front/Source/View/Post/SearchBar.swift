@@ -27,9 +27,9 @@ struct SearchBar: View {
                     self.searchText = ""
                 } label: {
                     Text("취소")
-                        .foregroundColor(.primary)
+                        .foregroundColor(.red.opacity(0.7))
                 }
-                .padding(.trailing, 10)
+                .padding(.trailing, 20)
                 .transition(.identity)
             }
         }
