@@ -20,12 +20,12 @@ struct VoteRowView: View {
         VStack(alignment: .leading, spacing: 10) {
             // 프로필, 닉네임, 제목
             UserInfoView(
-                profileImageURL: balanceVote.user.profilePhoto,
-                nickname: balanceVote.user.nickname,
+                profileImageURL: balanceVote.user?.profilePhoto,
+                nickname: balanceVote.user!.nickname,
                 title: balanceVote.title,
                 createdAt: balanceVote.createdAt,
-                userID: balanceVote.userID,
-                isCurrentUser: balanceVote.userID == UserDefaults.standard.integer(forKey: "UserID"),
+                userID: balanceVote.userId!,
+                isCurrentUser: balanceVote.userId == UserDefaults.standard.integer(forKey: "UserID"),
                 onEditTap: {
                     // 수정 기능
                 },

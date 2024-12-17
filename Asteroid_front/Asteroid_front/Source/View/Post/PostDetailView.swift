@@ -130,7 +130,7 @@ struct PostDetailView: View {
       Task {
         await postViewModel.fetchPostDetail(postID: postID)
       }
-      commentViewModel.fetchComments(forPost: postID)
+        commentViewModel.fetchComments(postId: postID)
     }
     .sheet(isPresented: $showingEditView) {
       PostWriteView()

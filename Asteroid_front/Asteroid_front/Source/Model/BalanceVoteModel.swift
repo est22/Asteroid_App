@@ -45,6 +45,6 @@ struct BalanceVote: Codable, Identifiable, Equatable {
             lhs.createdAt == rhs.createdAt &&
             lhs.updatedAt == rhs.updatedAt &&
             lhs.user == rhs.user &&
-            lhs.userID == rhs.userID
+            lhs.userId == rhs.userId
       }
 }
