@@ -28,7 +28,7 @@ struct VoteInfoView: View {
                             .frame(width: 30, height: 30)
                             .clipShape(Circle())
                     case .failure:
-                        Image(systemName: "person.crop.circle.fill.badge.xmark")
+                        Image(systemName: "person.crop.circle.fill")
                             .resizable()
                             .frame(width: 30, height: 30)
                             .foregroundColor(.gray)

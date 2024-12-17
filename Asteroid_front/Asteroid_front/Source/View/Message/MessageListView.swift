@@ -8,19 +8,23 @@ struct MessageListView: View {
   var body: some View {
     VStack {
       // 대화 상대 정보
-      if let url = URL(string: chatUser.profilePhoto) {
-        AsyncImage(url: url) { image in
-          image
-            .resizable()
-            .scaledToFill()
-            .frame(width: 60, height: 60)
-            .clipShape(Circle())
-        } placeholder: {
-          Circle()
-            .fill(Color.gray)
-            .frame(width: 60, height: 60)
-        }
-        .padding(.bottom, 8)
+      if let profilePicture = chatUser.profilePhoto {
+          AsyncImage(url: URL(string: profilePicture)) { image in
+              image
+                  .resizable()
+                  .frame(width: 40, height: 40)
+                  .clipShape(Circle())
+          } placeholder: {
+              Image(systemName: "person.circle.fill")
+                  .resizable()
+                  .frame(width: 40, height: 40)
+                  .foregroundColor(.gray)
+          }
+      } else {
+          Image(systemName: "person.circle.fill")
+              .resizable()
+              .frame(width: 40, height: 40)
+              .foregroundColor(.gray)
       }
       
       Text(chatUser.nickname)

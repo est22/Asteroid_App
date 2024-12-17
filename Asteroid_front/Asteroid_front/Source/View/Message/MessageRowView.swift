@@ -45,5 +45,5 @@ struct MessageRowView: View {
 }
 
 #Preview {
-  MessageRowView(message: Message(id: 1, content: "안녕하세요, 잘 지내세요?", senderUserId: 1, receiverUserId: 2, isRead: false, createdAt: "2024-12-15 12:30", updatedAt: "2024-12-15 12:31", receiver: MessageUser(id: 2, nickname: "test", profilePhoto: "url")), chatId: 1)
+  MessageRowView(message: Message(id: 1, content: "안녕하세요, 잘 지내세요?", senderUserId: 1, receiverUserId: 2, isRead: false, createdAt: "2024-12-15 12:30", updatedAt: "2024-12-15 12:31", receiver: UserProfile(nickname: "test", profilePhoto: "url")), chatId: 1)
 }

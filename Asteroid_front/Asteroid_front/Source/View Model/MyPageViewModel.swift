@@ -4,39 +4,36 @@ import Alamofire
 class MyPageViewModel: ObservableObject {
     @Published var posts: [Post] = []
     @Published var votes: [BalanceVote] = []
-    @Published var comments: [Comment] = []
+    @Published var comments: [MyComment] = []
     @Published var errorMessage: String = ""
-    
-    @AppStorage("token") var token: String?
 
     private var isLoading = false
-    private var page = 1
     private let endPoint = APIConstants.baseURL
 
     // 게시물 목록 가져오기
-    func fetchMyPosts(size: Int = 10) {
+    func fetchMyPosts() {
         guard !isLoading else { return }
         isLoading = true
         let url = "\(endPoint)/settings/posts"
         guard let token = UserDefaults.standard.string(forKey: "accessToken") else { return }
-        let params: Parameters = ["page": self.page, "size": size]
         let headers: HTTPHeaders = ["Authorization": "Bearer \(token)"]
         
-        AF.request(url, method: .get, parameters: params, headers: headers)
+        AF.request(url, method: .get, headers: headers)
             .response { response in
                 self.isLoading = false
                 
                 if let statusCode = response.response?.statusCode {
+                  
                     switch statusCode {
                     case 200..<300:
                         if let data = response.data {
                             do {
-                                let decoded = try JSONDecoder().decode(MyPosts.self, from: data)
-                                self.posts = decoded.posts
-                                self.votes = decoded.balanceVotes
-                                self.page += 1
+                                let root = try JSONDecoder().decode(MyPosts.self, from: data)
+                                self.posts = root.posts
+                                self.votes = root.balanceVotes
                             } catch {
                                 self.errorMessage = "Error decoding data: \(error.localizedDescription)"
+                                print("### error : \(error)")
                             }
                         }
                     default:
@@ -47,15 +44,14 @@ class MyPageViewModel: ObservableObject {
     }
 
     // 댓글 목록 가져오기
-    func fetchMyComments(size: Int = 10) {
+    func fetchMyComments() {
         guard !isLoading else { return }
         isLoading = true
         let url = "\(endPoint)/settings/comments"
         guard let token = UserDefaults.standard.string(forKey: "accessToken") else { return }
-        let params: Parameters = ["page": self.page, "size": size]
         let headers: HTTPHeaders = ["Authorization": "Bearer \(token)"]
 
-        AF.request(url, method: .get, parameters: params, headers: headers)
+        AF.request(url, method: .get, headers: headers)
             .response { response in
                 self.isLoading = false
 
@@ -64,12 +60,11 @@ class MyPageViewModel: ObservableObject {
                     case 200..<300:
                         if let data = response.data {
                             do {
-                                let decoded = try JSONDecoder().decode([Comment].self, from: data)
-                                self.comments.append(contentsOf: decoded)
-                                self.page += 1
+                                let root = try JSONDecoder().decode([MyComment].self, from: data)
+                                self.comments = root
                             } catch {
                                 self.errorMessage = "Error decoding data: \(error.localizedDescription)"
-                                print("### detailed error : \(error)")
+                                print("### error : \(error)")
                             }
                         }
                     default:
