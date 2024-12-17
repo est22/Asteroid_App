@@ -27,7 +27,7 @@ struct VoteRowView: View {
             
             // 내용
             Text(balanceVote.description)
-                .font(.subheadline)
+                .font(.footnote)
                 .foregroundColor(.gray)
         }
         

@@ -40,7 +40,8 @@ struct UserInfoView: View {
       // 제목, 닉네임
       VStack(alignment: .leading, spacing: 1) {
         Text(title)
-          .font(.headline)
+           .font(.subheadline)
+           .fontWeight(.semibold)
           .foregroundStyle(.primary)
           .foregroundColor(.black)
           .lineLimit(1)

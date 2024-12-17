@@ -123,8 +123,8 @@ struct PostListView: View {
       VStack(spacing: 0) {
         NavigationLink(destination: PostDetailView(postID: post.id)) {
           PostRowView(post: post)
-            .padding(.horizontal, 12)
-            .padding(.vertical, 8)
+            .padding(.horizontal, 4)
+            .padding(.vertical, 4)
         }
         
         Divider()
@@ -152,7 +152,7 @@ struct PostListView: View {
                     VStack(spacing: 0) {
                         VoteRowView(balanceVote: vote)
                             .padding(.horizontal)
-                            .padding(.top, 12)
+                            .padding(.top, 10)
                             .onAppear {
                                 if vote == voteVM.votes.last {
                                     Task {

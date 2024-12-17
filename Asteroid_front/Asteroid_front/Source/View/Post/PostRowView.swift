@@ -4,43 +4,46 @@ struct PostRowView: View {
     let post: Post
 
     var body: some View {
-        HStack(alignment: .top, spacing: 4) {
-            // 제목, 내용
-            VStack(alignment: .leading, spacing: 10) {
-                HStack {
-                    Text(post.title)
-                        .font(.headline)
-                        .foregroundStyle(.primary)
-                        .foregroundColor(.black)
-                        .lineLimit(1)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                    
-                    HStack(spacing: 8) {  // 좋아요, 댓글 수 표시
-                        HStack(spacing: 4) {
-                            Image(systemName: "heart")
-                                .foregroundColor(.red.opacity(0.6))
-                            Text("\(post.likeTotal)")
-                                .foregroundColor(.red.opacity(0.6))
-                                .font(.footnote)
-                        }
-                        
-                        HStack(spacing: 4) {
-                            Image(systemName: "message")
-                                .foregroundColor(.keyColor)
-                            Text("\(post.commentTotal ?? 0)")
-                                .foregroundColor(.keyColor)
-                                .font(.footnote)
-                        }
-                    }
-                }
-
-                Text(post.content)
+        HStack(alignment: .top, spacing: 0) {
+            // 제목, 내용, 아이콘들
+            VStack(alignment: .leading, spacing: 2) {
+                // 제목
+                Text(post.title)
                     .font(.subheadline)
+                    .fontWeight(.semibold)
+                    .foregroundStyle(.primary)
+                    .foregroundColor(.black)
+                    .lineLimit(1)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+
+                // 내용
+                Text(post.content)
+                    .font(.footnote)
                     .foregroundStyle(.secondary)
                     .foregroundColor(.black)
-                    .lineLimit(2)
+                    .lineLimit(1)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .multilineTextAlignment(.leading)
+                
+                // 좋아요, 댓글 수 표시
+                HStack(spacing: 8) {
+                    HStack(spacing: 4) {
+                        Image(systemName: "heart")
+                            .foregroundColor(.red.opacity(0.6))
+                        Text("\(post.likeTotal)")
+                            .foregroundColor(.red.opacity(0.6))
+                            .font(.footnote)
+                    }
+                    
+                    HStack(spacing: 4) {
+                        Image(systemName: "message")
+                            .foregroundColor(.keyColor)
+                        Text("\(post.commentTotal ?? 0)")
+                            .foregroundColor(.keyColor)
+                            .font(.footnote)
+                    }
+                }
+                .padding(.top, 2)
             }
             
             Spacer()
@@ -70,7 +73,8 @@ struct PostRowView: View {
                 }
             }
         }
-        .padding(3)
+        .padding(.vertical, 2)
+        .padding(.horizontal, 3)
     }
 }
 
