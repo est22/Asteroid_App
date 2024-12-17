@@ -64,7 +64,6 @@ const updateUser = async (req, res) => {
   const { nickname, motto } = req.body;
   const userId = req.user.id;
 
-
   try {
     // motto 길이 검사
     if (motto.length > 30) {
@@ -72,35 +71,7 @@ const updateUser = async (req, res) => {
         message: "좌우명은 30글자 이하로 입력해주세요.",
       });
     }
-    try {
-      // motto 길이 검사
-      if (motto.length > 30) {
-        return res.status(400).json({
-          message: "좌우명은 30글자 이하로 입력해주세요.",
-        });
-      }
 
-      const data = { nickname, motto };
-      const updatedUser = await userService.updateUser(userId, data);
-
-      if (updatedUser[0] === 0) {
-        return res.status(404).json({
-          message: "사용자를 찾을 수 없습니다.",
-        });
-      }
-
-      res.status(200).json({
-        message: "프로필이 성공적으로 업데이트되었습니다.",
-        data: updatedUser,
-      });
-    } catch (e) {
-      if (e.name === "SequelizeUniqueConstraintError") {
-        return res.status(400).json({
-          message: "이미 사용 중인 닉네임입니다.",
-        });
-      }
-      res.status(500).json({ message: e.message });
-    }
     const data = { nickname, motto };
     const updatedUser = await userService.updateUser(userId, data);
 
