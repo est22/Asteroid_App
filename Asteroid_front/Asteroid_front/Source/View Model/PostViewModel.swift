@@ -17,110 +17,117 @@ class PostViewModel: ObservableObject {
   private let endPoint = APIConstants.baseURL
   
   // 게시물 목록 조회
-  func fetchPosts(categoryID: Int, search:String) {
+  func fetchPosts(categoryID: Int, search: String) async {
     guard !isLoading, morePosts else { return }
-    isLoading = true
+    
+    await MainActor.run {
+        isLoading = true
+    }
+    
     guard let token = UserDefaults.standard.string(forKey: "accessToken") else { return }
     
     let url = "\(endPoint)/post"
     let params: Parameters = ["category_id": categoryID, "search": search, "page": page]
     let headers: HTTPHeaders = ["Authorization": "Bearer \(token)", "Content-Type":"application/json"]
     
-    AF.request(url, method: .get, parameters: params, encoding: URLEncoding.default, headers: headers)
-      .response { response in
-        if let statusCode = response.response?.statusCode {
-          
-          switch statusCode {
-          case 200..<300:
-            if let data = response.data {
-              do {
-                let root = try JSONDecoder().decode(PostRoot.self, from: data)
-                
-                self.posts = root.data.rows
-                
-                if self.posts.isEmpty {
-                  self.isFetchError = true
-                  self.message = "등록된 게시물이 없습니다"
-                  self.morePosts = false
-                } else {
-                  self.posts.append(contentsOf: root.data.rows)
-                  self.page += 1
+    return await withCheckedContinuation { continuation in
+        AF.request(url, method: .get, parameters: params, encoding: URLEncoding.default, headers: headers)
+            .response { [weak self] response in
+                if let statusCode = response.response?.statusCode {
+                    switch statusCode {
+                    case 200..<300:
+                        if let data = response.data {
+                            do {
+                                let root = try JSONDecoder().decode(PostRoot.self, from: data)
+                                Task { @MainActor in
+                                    self?.posts = root.data.rows
+                                    
+                                    if self?.posts.isEmpty ?? true {
+                                        self?.isFetchError = true
+                                        self?.message = "등록된 게시물이 없습니다"
+                                        self?.morePosts = false
+                                    } else {
+                                        self?.page += 1
+                                    }
+                                }
+                            } catch let error {
+                                Task { @MainActor in
+                                    self?.isFetchError = true
+                                    self?.message = error.localizedDescription
+                                }
+                                print("###   에러  ", error)
+                            }
+                        }
+                    case 300..<600:
+                        self?.isFetchError = true
+                        if let data = response.data {
+                            do {
+                                let apiError = try JSONDecoder().decode(PostRoot.self, from: data)
+                                self?.message = apiError.message ?? "에러가 발생했습니다."
+                            } catch let error {
+                                self?.message = error.localizedDescription
+                                print("###  에러  \(error)")
+                            }
+                        }
+                    default:
+                        self?.isFetchError = true
+                        self?.message = "알 수 없는 에러가 발생했습니다."
+                    }
                 }
-              } catch let error {
-                self.isFetchError = true
-                self.message = error.localizedDescription
-                
-                print("###   에러  ", error)
-              }
+                Task { @MainActor in
+                    self?.isLoading = false
+                    continuation.resume()
+                }
             }
-          case 300..<600:
-            self.isFetchError = true
-            if let data = response.data {
-              do {
-                let apiError = try JSONDecoder().decode(PostRoot.self, from: data)
-                self.message = apiError.message!
-              } catch let error {
-                self.message = error.localizedDescription
-                print("###   에러  ", error)
-              }
-            }
-          default:
-            self.isFetchError = true
-            self.message = "알 수 없는 에러"
-          }
-        }
-        self.isLoading = false
-      }
+    }
   }
   
-  // 게시글 세보기
-  func fetchPostDetail(postID: Int) {
+  // 게시글 상세보기
+  func fetchPostDetail(postID: Int) async {
     guard !isLoading else { return }
-    isLoading = true
+    
+    await MainActor.run {
+        isLoading = true
+    }
+    
     guard let token = UserDefaults.standard.string(forKey: "accessToken") else { return }
     
     let url = "\(endPoint)/post/\(postID)"
     let headers: HTTPHeaders = ["Authorization": "Bearer \(token)", "Content-Type": "application/json"]
     
-    AF.request(url, method: .get, headers: headers)
-      .response { response in
-        if let statusCode = response.response?.statusCode {
-          switch statusCode {
-          case 200..<300:
-            if let data = response.data {
-              do {
-                let detailedPost = try JSONDecoder().decode(PostDetail.self, from: data)
-                if let index = self.posts.firstIndex(where: { $0.id == postID }) {
-                  // 이미 목록에 있는 게시글이라면 업데이트
-                  self.posts[index] = detailedPost.data
-                } else {
-                  // 새로운 게시글이라면 추가
-                  self.posts.append(detailedPost.data)
+    return await withCheckedContinuation { continuation in
+        AF.request(url, method: .get, headers: headers)
+            .response { [weak self] response in
+                print("상세 조회 응답: \(String(describing: response.data?.prettyPrintedJSONString))")
+                
+                if let statusCode = response.response?.statusCode {
+                    switch statusCode {
+                    case 200...201:  // 201도 허용
+                        if let data = response.data {
+                            do {
+                                let detailedPost = try JSONDecoder().decode(PostDetail.self, from: data)
+                                Task { @MainActor in
+                                    // posts 배열에서 해당 게시글 업데이트
+                                    if let index = self?.posts.firstIndex(where: { $0.id == postID }) {
+                                        self?.posts[index] = detailedPost.data
+                                    }
+                                    print("상세 게시글 데이터: \(detailedPost.data)")
+                                }
+                            } catch let error {
+                                print("디코딩 에러: \(error)")
+                            }
+                        }
+                    default:
+                        print("에러 상태코드: \(statusCode)")
+                    }
                 }
-              } catch let error {
-                self.isFetchError = true
-                self.message = error.localizedDescription
-                print("###  에러  \(error)")
-              }
+                
+                Task { @MainActor in
+                    self?.isLoading = false
+                }
+                continuation.resume()
             }
-          case 300..<600:
-            self.isFetchError = true
-            if let data = response.data {
-              do {
-                let apiError = try JSONDecoder().decode(PostDetail.self, from: data)
-                self.message = apiError.message ?? "에러가 발생했습니다."
-              } catch let error {
-                self.message = error.localizedDescription
-                print("###  에러  \(error)")
-              }
-            }
-          default:
-            self.isFetchError = true
-            self.message = "알 수 없는 에러가 발생했습니다."
-          }
-        }
-        self.isLoading = false
-      }
+    }
   }
   
   // 게시물 추가
@@ -132,14 +139,16 @@ class PostViewModel: ObservableObject {
     
     // 이미지 데이터 추가
     if let images = images {
-        for (index, image) in images.enumerated() {
-            if let imageData = image.jpegData(compressionQuality: 0.2) {
-                formData.append(
-                    imageData,
-                    withName: "images[\(index)]",
-                    fileName: "photo\(index).jpg",
-                    mimeType: "image/jpeg"
-                )
+        if !images.isEmpty {
+            for (index, image) in images.enumerated() {
+                if let imageData = image.jpegData(compressionQuality: 0.2) {
+                    formData.append(
+                        imageData,
+                        withName: "images",
+                        fileName: "photo\(index).jpg",
+                        mimeType: "image/jpeg"
+                    )
+                }
             }
         }
     }
@@ -160,10 +169,11 @@ class PostViewModel: ObservableObject {
                         if let data = response.data {
                             do {
                                 let newPostResponse = try JSONDecoder().decode(NewPostResponse.self, from: data)
-                                DispatchQueue.main.async {
+                                Task { @MainActor in
                                     if newPostResponse.data.categoryID == categoryID {
                                         self?.posts.insert(newPostResponse.data, at: 0)
                                         print("새 포스트 추가됨: \(newPostResponse.data)")
+                                        print("포스트 이미지: \(String(describing: newPostResponse.data.PostImages))")
                                     }
                                 }
                                 // 새 포스트의 ID 반환
@@ -174,7 +184,9 @@ class PostViewModel: ObservableObject {
                             }
                         }
                     default:
-                        self?.message = "게시글 작성에 실패했습니다."
+                        Task { @MainActor in
+                            self?.message = "게시글 작성에 실패했습니다."
+                        }
                         continuation.resume(returning: nil)
                     }
                 }
@@ -248,3 +260,14 @@ class PostViewModel: ObservableObject {
       }
   }
 }
+
+// JSON 프린트를 위한 확장
+extension Data {
+    var prettyPrintedJSONString: String? {
+        guard let object = try? JSONSerialization.jsonObject(with: self, options: []),
+              let data = try? JSONSerialization.data(withJSONObject: object, options: [.prettyPrinted]),
+              let prettyPrintedString = String(data: data, encoding: .utf8) else { return nil }
+        return prettyPrintedString
+    }
+}
+

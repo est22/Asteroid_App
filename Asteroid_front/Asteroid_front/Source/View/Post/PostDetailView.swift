@@ -137,7 +137,9 @@ struct PostDetailView: View {
       .padding()
     }
     .onAppear {
-      postViewModel.fetchPostDetail(postID: postID)
+      Task {
+        await postViewModel.fetchPostDetail(postID: postID)
+      }
       commentViewModel.fetchComments(forPost: postID)
     }
   }

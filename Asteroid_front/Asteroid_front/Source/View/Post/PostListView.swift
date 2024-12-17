@@ -14,7 +14,9 @@ struct PostListView: View {
       VStack(spacing: 0) {
         // 검색창
         SearchBar(searchText: $searchData) {
-          listLoad()
+          Task {
+            await refreshData()
+          }
         }
         .padding(.vertical, 4)
         
@@ -69,29 +71,41 @@ struct PostListView: View {
       }
     }
     .onAppear {
-      listLoad()
+      Task {
+        await refreshData()
+      }
     }
     .onChange(of: selectedTabIndex) { _ in
-      listLoad()
+      Task {
+        await refreshData()
+      }
     }
     .onChange(of: scenePhase) { newPhase in
       if newPhase == .active {
-        listLoad()
+        Task {
+          await refreshData()
+        }
       }
     }
   }
   
-  private func listLoad() {
+  private func refreshData() async {
     if selectedTabIndex == 2 {
-      voteVM.fetchVotes()
+      await voteVM.fetchVotes()
     } else {
-      postVM.fetchPosts(categoryID: selectedTabIndex + 1, search: searchData)
+      await postVM.fetchPosts(categoryID: selectedTabIndex + 1, search: searchData)
     }
   }
   
   // 게시물 목록 표시
   private func postList(for categoryID: Int) -> some View {
     ScrollView {
+      RefreshControl(coordinateSpace: .named("RefreshControl")) {
+        Task {
+          await refreshData()
+        }
+      }
+      
       LazyVStack {
         if postVM.posts.isEmpty {
           Text("게시글이 없습니다.")
@@ -101,6 +115,7 @@ struct PostListView: View {
         }
       }.frame(maxWidth: .infinity, alignment: .leading)
     }
+    .coordinateSpace(name: "RefreshControl")
   }
   
   private func postListContent(for categoryID: Int) -> some View {
@@ -117,7 +132,9 @@ struct PostListView: View {
       }
       .onAppear {
         if post == postVM.posts.last {
-          postVM.fetchPosts(categoryID: categoryID, search: searchData)
+          Task {
+            await refreshData()
+          }
         }
       }
     }
@@ -138,7 +155,9 @@ struct PostListView: View {
                             .padding(.top, 12)
                             .onAppear {
                                 if vote == voteVM.votes.last {
-                                    voteVM.fetchVotes()
+                                    Task {
+                                      await voteVM.fetchVotes()
+                                    }
                                 }
                             }
                         

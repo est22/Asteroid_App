@@ -44,6 +44,12 @@ struct PostImage: Codable, Identifiable, Equatable {
     let id: Int?
     let imageURL: String?
     let postID: Int?
+    
+    enum CodingKeys: String, CodingKey {
+        case id
+        case imageURL = "image_url"
+        case postID = "post_id"
+    }
 }
 
 struct PostRanking: Codable, Identifiable {

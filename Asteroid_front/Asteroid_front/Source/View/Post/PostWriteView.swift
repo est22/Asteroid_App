@@ -23,7 +23,7 @@ struct PostWriteView: View {
   }
     
     var body: some View {
-        NavigationView {
+        NavigationStack {
             VStack {
                 Form {
                     Section(header: Text("제목").padding(.horizontal, 5)) {
@@ -99,21 +99,18 @@ struct PostWriteView: View {
                         .cornerRadius(12)
                         .padding(.horizontal)
                         .padding(.vertical, 16)
-                    
-                    NavigationLink(
-                        destination: Group {
-                            if let postId = newPostId {
-                                PostDetailView(postID: postId)
-                            }
-                        },
-                        isActive: $navigateToDetail
-                    ) { EmptyView() }
                 }
                 .background(Color.white)
                 .sheet(isPresented: $isImagePickerPresented) {
-                    PostImagePicker(images: $images)
+                    PostImagePicker(images: $images, imageLimit: 10) 
                 }
                 .background(Color.white)
+            }
+            .navigationDestination(isPresented: $navigateToDetail) {
+                if let postId = newPostId {
+                    PostDetailView(postID: postId)
+                        .navigationBarBackButtonHidden(true)
+                }
             }
         }
     }
@@ -133,9 +130,16 @@ struct PostWriteView: View {
                 categoryID: categoryID,
                 images: images
             ) {
+                // 서버에서 이미지 처리가 완료될 때까지 잠시 대기
+                try? await Task.sleep(nanoseconds: 1_000_000_000)  // 1초 대기
+                
+                // 게시글 상세 정보를 새로 가져옴
+                await postVM.fetchPostDetail(postID: postId)
+                
                 await MainActor.run {
                     self.newPostId = postId
                     self.navigateToDetail = true
+                    dismiss()
                 }
             }
         }
