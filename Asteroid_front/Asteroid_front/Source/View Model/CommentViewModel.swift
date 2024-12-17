@@ -11,7 +11,7 @@ class CommentViewModel: ObservableObject {
     // 댓글 조회
     func fetchComments(forPost postId: Int) {
         self.isLoading = true
-        let url = "https://yourapi.com/posts/\(postId)/comments"
+        let url = "\(APIConstants.baseURL)/posts/\(postId)/comments"
         guard let url = URL(string: url) else { return }
         
         URLSession.shared.dataTaskPublisher(for: url)
@@ -34,7 +34,7 @@ class CommentViewModel: ObservableObject {
     
     // 댓글 생성
     func createComment(content: String, postId: Int, userId: Int) {
-        let url = "https://yourapi.com/posts/\(postId)/comments"
+        let url = "\(APIConstants.baseURL)/posts/\(postId)/comments"
         guard let url = URL(string: url) else { return }
         
         let commentData = [
@@ -63,7 +63,7 @@ class CommentViewModel: ObservableObject {
     
     // 댓글 수정
     func updateComment(commentId: Int, content: String) {
-        let url = "https://yourapi.com/comments/\(commentId)"
+        let url = "\(APIConstants.baseURL)/comments/\(commentId)"
         guard let url = URL(string: url) else { return }
         
         let commentData = [
@@ -93,7 +93,7 @@ class CommentViewModel: ObservableObject {
     
     // 댓글 삭제
     func deleteComment(commentId: Int) {
-        let url = "https://yourapi.com/comments/\(commentId)"
+        let url = "\(APIConstants.baseURL)/comments/\(commentId)"
         guard let url = URL(string: url) else { return }
         
         var request = URLRequest(url: url)
@@ -115,7 +115,7 @@ class CommentViewModel: ObservableObject {
     
     // 댓글 좋아요
     func likeComment(commentId: Int, userId: Int) {
-        let url = "https://yourapi.com/comments/\(commentId)/like"
+        let url = "\(APIConstants.baseURL)/comments/\(commentId)/like"
         guard let url = URL(string: url) else { return }
         
         let likeData = [
