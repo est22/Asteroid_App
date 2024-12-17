@@ -21,7 +21,8 @@ struct BalanceVote: Codable, Identifiable, Equatable {
     let isShow: Bool
     let createdAt: String
     let updatedAt: String
-    let user:UserProfile
+    let user:UserProfile?
+    let userId:Int?
     
     enum CodingKeys: String, CodingKey {
         case id, title, description, image1, image2, createdAt, updatedAt
@@ -29,6 +30,7 @@ struct BalanceVote: Codable, Identifiable, Equatable {
         case vote2Count = "vote2_count"
         case isShow = "isShow"
         case user = "User"
+        case userId = "user_id"
     }
   
     static func == (lhs: BalanceVote, rhs: BalanceVote) -> Bool {

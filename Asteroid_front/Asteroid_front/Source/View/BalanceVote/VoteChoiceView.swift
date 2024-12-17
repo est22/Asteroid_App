@@ -44,8 +44,8 @@ struct VoteChoiceView: View {
           VoteInfoView(
             title: card.title,
             description: card.description,
-            userName: card.user.nickname,
-            profileImageName: card.user.profilePhoto ?? ""
+            userName: card.user!.nickname,
+            profileImageName: card.user?.profilePhoto ?? ""
           )
         }
       }

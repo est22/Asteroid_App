@@ -20,8 +20,8 @@ struct VoteRowView: View {
         VStack(alignment: .leading, spacing: 10) {
             // 프로필, 닉네임, 제목
             UserInfoView(
-                profileImageURL: balanceVote.user.profilePhoto,
-                nickname: balanceVote.user.nickname,
+                profileImageURL: balanceVote.user?.profilePhoto ?? "",
+                nickname: balanceVote.user!.nickname,
                 title: balanceVote.title
             )
             
@@ -109,7 +109,8 @@ struct VoteRowView: View {
         isShow: true,
         createdAt: "20241111",
         updatedAt: "20241111",
-        user: user
+        user: user,
+        userId: 1
     )
     
     VoteRowView(balanceVote: balanceVote)
