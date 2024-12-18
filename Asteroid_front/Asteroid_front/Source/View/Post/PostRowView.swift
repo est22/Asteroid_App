@@ -38,7 +38,7 @@ struct PostRowView: View {
                     HStack(spacing: 4) {
                         Image(systemName: "message")
                             .foregroundColor(.keyColor)
-                        Text("\(post.commentTotal ?? 0)")
+                        Text("\(post.commentCount ?? 0)")
                             .foregroundColor(.keyColor)
                             .font(.footnote)
                     }
@@ -88,9 +88,9 @@ struct PostRowView: View {
         isShow: true,
         likeTotal: 15,
         PostImages: [PostImage(id: 1, imageURL: "https://via.placeholder.com/150", postID: 1)],
-        commentTotal: 5,
         createdAt: "20241111",
         updatedAt: "20241111",
+        commentCount:1,
         user: PostUser(
             nickname: "JohnDoe",
             profilePicture: "https://via.placeholder.com/100"

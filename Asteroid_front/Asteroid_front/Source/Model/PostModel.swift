@@ -24,18 +24,15 @@ struct Post: Identifiable, Codable, Equatable {
     let isShow: Bool
     let likeTotal: Int
     let PostImages: [PostImage]?
-    let commentTotal: Int?
     let createdAt: String
     let updatedAt: String
+    let commentCount:Int?
     let user: PostUser?
     
     enum CodingKeys: String, CodingKey {
-        case id, title, content, PostImages, createdAt, updatedAt
+        case id, title, content, PostImages, createdAt, updatedAt, isShow, likeTotal, commentCount
         case categoryID = "category_id"
         case userID = "user_id"
-        case isShow
-        case likeTotal
-        case commentTotal
         case user = "User"
     }
 }

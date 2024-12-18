@@ -34,7 +34,10 @@ struct VoteRowView: View {
                 },
                 onReportTap: {
                     // 신고 기능
-                }
+                },
+                likeCount: 1,
+                isLiked: .constant(true),
+                option: "vote"
             )
             
             // 내용

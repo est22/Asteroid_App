@@ -9,9 +9,6 @@ struct PostDetailView: View {
   @State private var showingEditView = false
   let postID: Int
 
-
-
-
   @Environment(\.dismiss) private var dismiss
   
   var body: some View {
@@ -23,8 +20,6 @@ struct PostDetailView: View {
         } else if let post = postViewModel.posts.first(where: { $0.id == postID }) {
           VStack(alignment: .leading, spacing: 16) {
             HStack {
-
-             
                 // 유저 정보 및 타이틀
                 UserInfoView(
                   profileImageURL: post.user?.profilePicture,
@@ -33,17 +28,13 @@ struct PostDetailView: View {
                   createdAt: post.createdAt,
                   userID: post.userID,
                   isCurrentUser: false,
-                  onEditTap: {
-                    showingEditView = true
-                  },
-                  onDeleteTap: {
-                    showingDeleteAlert = true
-                  },
-                  onReportTap: {
-                    showingReportView = true
-                  }
+                  onEditTap: { showingEditView = true },
+                  onDeleteTap: { showingDeleteAlert = true },
+                  onReportTap: { showingReportView = true },
+                  likeCount: post.likeTotal,
+                  isLiked: .constant(true),
+                  option: "post"
                 )
-              
             }
             
             // 내용
@@ -74,17 +65,14 @@ struct PostDetailView: View {
                 }
               }
             }
-            
-            HStack {
-              Image(systemName: "heart.fill")
-              Text("\(post.likeTotal) Likes")
-                .font(.subheadline)
-                .foregroundColor(.secondary)
-              Spacer()
-              Image(systemName: "bubble.left.fill")
-              Text("\(post.commentTotal ?? 0) Comments")
-                .font(.subheadline)
-                .foregroundColor(.secondary)
+            Divider()
+            // 댓글 갯수
+            HStack(spacing: 3) {
+                Image(systemName: "ellipsis.bubble")
+                    .foregroundStyle(Color.keyColor)
+              Text("\(postViewModel.commentCount ?? 0)")
+                    .font(.subheadline)
+                    .foregroundStyle(Color.keyColor)
             }
           }
         } else if let errorMessage = postViewModel.message, postViewModel.isFetchError {
@@ -93,24 +81,23 @@ struct PostDetailView: View {
             .foregroundColor(.red)
         }
         
-        Divider()
-          .padding(.vertical)
-        
         // 댓글 입력
-        HStack {
-          TextField("내용을 입력하세요", text: $commentText)
-            .padding(12)
-            .background(Color(.systemGray6))
-            .cornerRadius(8)
-          
-          // 전송
-          Button(action: {
-            commentText = ""
-          }, label: {
-            Image(systemName: "paperplane.fill")
-              .foregroundStyle(Color.keyColor)
-          })
-          .padding(.horizontal, 8)
+        VStack{
+          HStack {
+            TextField("내용을 입력하세요", text: $commentText)
+              .padding(12)
+              .background(Color(.systemGray6))
+              .cornerRadius(8)
+            
+            // 전송
+            Button(action: {
+              commentText = ""
+            }, label: {
+              Image(systemName: "paperplane.fill")
+                .foregroundStyle(Color.keyColor)
+            })
+            .padding(.horizontal, 8)
+          }
         }
         
         // 댓글 섹션
@@ -129,6 +116,7 @@ struct PostDetailView: View {
     .onAppear {
       Task {
         await postViewModel.fetchPostDetail(postID: postID)
+        print("####    onAppear   ", postViewModel.posts)
       }
         commentViewModel.fetchComments(postId: postID)
     }
@@ -157,4 +145,3 @@ struct PostDetailView: View {
 #Preview {
     PostDetailView(postID: 1)
 }
-
