@@ -9,6 +9,7 @@ struct NewPostResponse: Codable {
 
 class PostViewModel: ObservableObject {
   @Published var posts: [Post] = []
+  @Published var commentCount: Int = 0  // 댓글 갯수
   @Published var message: String? = nil
   @Published var isFetchError = false
   @Published var isLoading = false
@@ -99,6 +100,9 @@ class PostViewModel: ObservableObject {
         AF.request(url, method: .get, headers: headers)
             .responseDecodable(of: PostDetail.self) { [weak self] response in
                 if let detail = response.value {
+                  
+                  print("###   뷰모델    ", detail)
+                  
                     Task { @MainActor in
                         // posts 배열이 비어있을 수 있으므로, 없으면 추가
                         if self?.posts.firstIndex(where: { $0.id == postID }) == nil {
@@ -109,6 +113,7 @@ class PostViewModel: ObservableObject {
                                 self?.posts[index] = detail.data
                             }
                         }
+                        self?.commentCount = detail.commentCount
                         self?.isLoading = false
                     }
                 }

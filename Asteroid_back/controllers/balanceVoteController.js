@@ -2,14 +2,8 @@ const voteService = require("../services/balanceVoteService");
 
 // 밸런스 투표화면 및 결과 목록
 const findAllVote = async (req, res) => {
-  const page = parseInt(req.query.page) || 1;
-  const pageSize = parseInt(req.query.size) || 10;
-
-  const limit = pageSize;
-  const offset = (page - 1) * pageSize;
-
   try {
-    const posts = await voteService.findAllVote(limit, offset);
+    const posts = await voteService.findAllVote();
     res.status(200).json({ data: posts });
   } catch (e) {
     res.status(500).json({ error: e.message });

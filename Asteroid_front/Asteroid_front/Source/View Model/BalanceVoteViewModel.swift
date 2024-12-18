@@ -17,34 +17,31 @@ class BalanceVoteViewModel: ObservableObject {
         guard let token = UserDefaults.standard.string(forKey: "accessToken") else { return }
         let headers: HTTPHeaders = ["Authorization": "Bearer \(token)"]
 
-        AF.request(url, method: .get, headers: headers)
-            .response { response in
-                self.isLoading = false
-                if let statusCode = response.response?.statusCode {
-                    
-                    print("=== 밸런스 투표 ===")
-                    print("###  Response Data: \(String(data: response.data!, encoding: .utf8) ?? "")")
-                    print("###  statusCode   ", statusCode)
-                    
-                    switch statusCode {
-                    case 200..<300:
-                        if let data = response.data {
-                            do {
-                                let root = try JSONDecoder().decode(BalanceVoteRoot.self, from: data)
-                                self.votes = root.data.rows
-                            } catch let error {
-                                self.isFetchError = true
-                                self.message = error.localizedDescription
-                                
-                                print("###   에러  ", error)
-                            }
+        AF.request(url, method: .get, headers: headers).response { response in
+            self.isLoading = false
+            if let statusCode = response.response?.statusCode {
+                
+                print("=== 밸런스 투표 ===")
+                
+                switch statusCode {
+                case 200..<300:
+                    if let data = response.data {
+                        do {
+                            let root = try JSONDecoder().decode(BalanceVoteRoot.self, from: data)
+                            self.votes = root.data.rows
+                        } catch let error {
+                            self.isFetchError = true
+                            self.message = error.localizedDescription
+                            
+                            print("###   에러  ", error)
                         }
-                    default:
-                        self.isFetchError = true
-                        self.message = "Error: \(statusCode)"
                     }
+                default:
+                    self.isFetchError = true
+                    self.message = "Error: \(statusCode)"
                 }
             }
+        }
     }
 
     // 새 투표 추가
@@ -60,7 +57,6 @@ class BalanceVoteViewModel: ObservableObject {
         for image in images {
             formData.append(image.jpegData(compressionQuality: 0.8)!, withName: "images", fileName: "image.jpg", mimeType: "image/jpeg")
         }
-
       
         guard let token = UserDefaults.standard.string(forKey: "accessToken") else { return }
         let headers: HTTPHeaders = [
