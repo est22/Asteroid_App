@@ -18,7 +18,7 @@ struct ReportData: Decodable {
     let target_user_id: Int
     let target_type: String
     let target_id: Int
-    let report_reason: String
+    let report_reason: String?
     let report_type: Int
     let updatedAt: String
     let createdAt: String
