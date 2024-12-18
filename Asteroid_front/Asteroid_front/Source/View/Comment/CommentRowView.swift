@@ -45,26 +45,34 @@ struct CommentRowView: View {
                         .foregroundColor(.primary)
 
                     Spacer()
-                  
-                    // 버튼
-                    CommentButtonView(isLiked: $isLiked, likeCount: $likeCount)
+
+                    // 시간
+                    Text(formatDate(comment.createdAt))
+                        .font(.caption)
+                        .foregroundColor(.gray)
+
+                    // 주석 처리된 버튼
+                    // CommentButtonView(isLiked: $isLiked, likeCount: $likeCount)
                 }
 
                 // 댓글 내용
                 Text(comment.content)
                     .font(.body)
                     .foregroundColor(.secondary)
-
-                // 시간
-                HStack {
-                  Text(comment.createdAt)
-                        .font(.caption)
-                        .foregroundColor(.gray)
-                }
             }
         }
         .padding(.vertical, 8)
         .padding(.horizontal)
+    }
+
+    private func formatDate(_ dateString: String) -> String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSZ"
+        if let date = formatter.date(from: dateString) {
+            formatter.dateFormat = "MM월 dd일 HH:mm"
+            return formatter.string(from: date)
+        }
+        return dateString
     }
 }
 
@@ -77,8 +85,8 @@ struct CommentRowView: View {
         parentCommentId: nil,
         isShow: true,
         likeTotal: 15,
-        createdAt: "20241111",
-        updatedAt: "20241111",
+        createdAt: "2024-11-11T15:42:00.878Z",
+        updatedAt: "2024-11-11T15:42:00.878Z",
         replies: [],
         user: UserProfile(nickname: "사용자123", profilePhoto: "https://example.com/profile.jpg")
     )
