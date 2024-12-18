@@ -83,7 +83,7 @@ struct VoteChoiceView: View {
     
     // 자동으로 카드 넘기기
     Task {
-      try? await Task.sleep(nanoseconds: 1_000_000_000)
+      try? await Task.sleep(nanoseconds: 300_000_000)
       withAnimation {
         voteVM.votes.removeFirst()
         showResultOverlay = false // 오버레이 숨기기

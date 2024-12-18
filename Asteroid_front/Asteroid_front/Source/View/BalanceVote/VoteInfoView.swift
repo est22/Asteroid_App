@@ -20,14 +20,11 @@ struct VoteInfoView: View {
             VStack(alignment: .trailing) {
                 AsyncImage(url: URL(string: profileImageName)) { phase in
                     switch phase {
-                    case .empty:
-                        ProgressView()
-                            .frame(width: 30, height: 30)
                     case .success(let image):
                         image.resizable()
                             .frame(width: 30, height: 30)
                             .clipShape(Circle())
-                    case .failure:
+                    case .empty, .failure:
                         Image(systemName: "person.crop.circle.fill")
                             .resizable()
                             .frame(width: 30, height: 30)
