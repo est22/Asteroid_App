@@ -99,7 +99,7 @@ struct PostListView: View {
   
   // 게시물 목록 표시
   private func postList(for categoryID: Int) -> some View {
-    ScrollView {
+    ScrollView(showsIndicators: false) {
       RefreshControl(coordinateSpace: .named("RefreshControl")) {
         Task {
           await refreshData()

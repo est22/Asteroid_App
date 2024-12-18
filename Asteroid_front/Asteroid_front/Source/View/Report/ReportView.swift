@@ -22,7 +22,7 @@ struct ReportView: View {
                     .padding(.top)
                     .padding(.horizontal)
 
-                ScrollView {
+                ScrollView(showsIndicators: false) {
                     VStack(spacing: 5) {
                         ForEach(0..<10, id: \.self) { index in
                             HStack {

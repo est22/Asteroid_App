@@ -11,7 +11,7 @@ struct MyRewardView: View {
     @StateObject private var viewModel = CompletedChallengeViewModel()
     
     var body: some View {
-        ScrollView {
+        ScrollView(showsIndicators: false) {
             VStack(alignment: .center, spacing: 20) {
 
                 HStack {

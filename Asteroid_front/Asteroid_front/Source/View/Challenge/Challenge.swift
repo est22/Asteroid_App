@@ -18,7 +18,7 @@ struct Challenge: View {
     
     var body: some View {
         NavigationView {
-            ScrollView {
+            ScrollView(showsIndicators: false) {
                 VStack(alignment: .leading) {
                     Text("진행중인 챌린지")
                         .font(.system(size: 20, weight: .bold))

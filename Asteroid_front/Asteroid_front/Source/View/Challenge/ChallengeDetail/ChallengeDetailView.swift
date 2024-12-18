@@ -28,7 +28,7 @@ struct ChallengeDetailView: View {
     
     var body: some View {
 
-            ScrollView {
+            ScrollView(showsIndicators: false) {
                 VStack(alignment: .leading, spacing: 20) {
                     ChallengeInfoSection(viewModel: viewModel)
                     if showProgress {
