@@ -19,6 +19,27 @@ struct UserInfoView: View {
   // post랑 vote 구분
   let option:String
   
+  @State private var showingEditView = false
+  @State private var navigateToDetail = false
+  @State private var newPostId = 0
+  let post: Post
+  
+  // Preview용 샘플 데이터
+  static let samplePost = Post(
+    id: 1,
+    title: "Sample Post Title",
+    content: "Sample post content",
+    categoryID: 1,
+    userID: 1,
+    isShow: true,
+    likeTotal: 0,
+    PostImages: [],
+    createdAt: "2024-01-01",
+    updatedAt: "2024-01-01",
+    commentCount: 0,
+    user: nil
+  )
+  
   var formattedDate: String {
     print("Raw createdAt:", createdAt)  // 디버깅용
     
@@ -111,7 +132,7 @@ struct UserInfoView: View {
           if nickname == profileViewModel.nickname {
             if option == "post" {
               Button("수정") {
-                onEditTap()
+                showingEditView = true
               }
             }
             Button("삭제", role: .destructive) {
@@ -147,6 +168,9 @@ struct UserInfoView: View {
     .task {
       try? await profileViewModel.fetchProfile()
     }
+    .navigationDestination(isPresented: $showingEditView) {
+      PostWriteView(post: post)
+    }
   }
 }
 
@@ -163,6 +187,7 @@ struct UserInfoView: View {
     onReportTap: {},
     likeCount: 1,
     isLiked: .constant(true),
-    option: "post"
+    option: "post",
+    post: UserInfoView.samplePost
   )
 }

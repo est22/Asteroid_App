@@ -37,7 +37,20 @@ struct VoteRowView: View {
                 },
                 likeCount: 1,
                 isLiked: .constant(true),
-                option: "vote"
+                option: "vote", post: Post(
+                    id: balanceVote.id,
+                    title: balanceVote.title,
+                    content: balanceVote.description,
+                    categoryID: 3,
+                    userID: balanceVote.userId!,
+                    isShow: true,
+                    likeTotal: 0,
+                    PostImages: [],
+                    createdAt: balanceVote.createdAt,
+                    updatedAt: balanceVote.updatedAt,
+                    commentCount: nil,
+                    user: nil
+                )
             )
             
             // 내용

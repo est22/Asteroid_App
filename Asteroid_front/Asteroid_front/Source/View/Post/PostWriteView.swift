@@ -85,13 +85,20 @@ struct PostWriteView: View {
                 // 작성 완료 버튼
                 Button {
                     if let post = post {
-                        postVM.updatePost(postId: post.id, title: title, content: content, categoryID: categoryID!, images: images)
+                        postVM.updatePost(postId: post.id, 
+                                         title: title, 
+                                         content: content, 
+                                         categoryID: post.categoryID,  // 기존 게시물의 categoryID 사용
+                                         images: images)
+                        dismiss()
                     } else {
+                        // 새 글 작성 모드
                         Task {
-                            if let postId = await postVM.addPost(
+                            if let categoryID = categoryID,  // 안전하게 옵셔널 바인딩
+                               let postId = await postVM.addPost(
                                 title: title,
                                 content: content,
-                                categoryID: categoryID!,
+                                categoryID: categoryID,  // 강제 언래핑 제거
                                 images: images
                             ) {
                                 self.newPostId = postId
@@ -100,7 +107,7 @@ struct PostWriteView: View {
                         }
                     }
                 } label: {
-                    Text("완료")
+                    Text(post != nil ? "수정" : "완료")
                         .font(.system(size: 18, weight: .bold))
                         .foregroundColor(.white)
                         .frame(maxWidth: .infinity)

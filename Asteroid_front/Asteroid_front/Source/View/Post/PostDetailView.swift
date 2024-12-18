@@ -33,7 +33,7 @@ struct PostDetailView: View {
                   onReportTap: { showingReportView = true },
                   likeCount: post.likeTotal,
                   isLiked: .constant(true),
-                  option: "post"
+                  option: "post", post: post
                 )
             }
             
