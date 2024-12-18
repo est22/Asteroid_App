@@ -25,6 +25,7 @@ struct UserInfoView: View {
   let post: Post
   
   @State private var showingDeleteAlert = false
+  @State private var showingReportView = false
   @EnvironmentObject var postVM: PostViewModel
   @Environment(\.dismiss) var dismiss
   
@@ -144,7 +145,7 @@ struct UserInfoView: View {
             }
           } else {
             Button("신고") {
-              onReportTap()
+                showingReportView = true
             }
             
             // 쪽지 보내기
@@ -183,6 +184,9 @@ struct UserInfoView: View {
       }
     } message: {
       Text("게시글을 정말로 삭제하시겠습니까?")
+    }
+    .sheet(isPresented: $showingReportView) {
+        ReportView(targetType: "P", targetId: post.id)
     }
   }
 }

@@ -25,11 +25,30 @@ const getReportedUserId = async (target_type, target_id) => {
       return user.id; // 직접 유저 ID
     }
     case "L": {
+      console.log("\n=== 챌린지 이미지 신고 처리 ===");
+      console.log("찾으려는 이미지 ID:", target_id);
+      
       const challengeImage = await ChallengeImage.findByPk(target_id);
-      if (!challengeImage) throw new Error("챌린지 이미지를 찾을 수 없습니다.");
+      if (!challengeImage) {
+          console.log("이미지를 찾을 수 없음");
+          throw new Error("챌린지 이미지를 찾을 수 없습니다.");
+      }
+      
+      console.log("찾은 이미지 정보:", {
+          id: challengeImage.id,
+          user_id: challengeImage.user_id,
+          challenge_id: challengeImage.challenge_id
+      });
+      
+      // user_id가 없는 경우 에러 처리
+      if (!challengeImage.user_id) {
+          throw new Error("이미지 업로더 정보를 찾을 수 없습니다.");
+      }
+      
+      // 이전 방식으로 객체 반환
       return {
-        user_id: challengeImage.user_id,
-        challenge_id: challengeImage.challenge_id
+          user_id: challengeImage.user_id,
+          challenge_id: challengeImage.challenge_id
       };
     }
     default:
@@ -45,13 +64,11 @@ const report = async (req, res) => {
     // 신고 대상 정보 가져오기
     const result = await getReportedUserId(target_type, target_id);
 
-    let reportedUserId, challenge_id;
+    let reportedUserId;
 
     if (target_type === "L") {
-      // 챌린지 신고인 경우
-      ({ user_id: reportedUserId, challenge_id } = result);
+      reportedUserId = result.user_id;  // 객체에서 user_id 추출
     } else {
-      // 일반 신고인 경우
       reportedUserId = result;
     }
 
@@ -80,8 +97,8 @@ const report = async (req, res) => {
 
     // 신고 데이터 생성
     const reportData = await Report.create({
-      reporting_user_id: reportingUserId, // 신고한 유저의 ID
-      target_user_id: reportedUserId, // 신고 대상 유저의 ID
+      reporting_user_id: reportingUserId,
+      target_user_id: reportedUserId,
       target_type,
       target_id,
       report_reason: report_type === 9 ? report_reason : null,

@@ -214,8 +214,14 @@ struct ChallengeImagesGrid: View {
                                             print("=== 신고하기 버튼 클릭 ===")
                                             print("선택된 이미지 ID:", challengeImages[index].id)
                                             print("이미지 업로더 ID:", challengeImages[index].userId)
+                                            print("\n=== 이미지 선택됨 ===")
+                                            print("이미지 정보:")
+                                            print("- ID:", challengeImages[index].id)
+                                            print("- URL:", challengeImages[index].imageUrl)
+                                            print("- UserID:", challengeImages[index].userId)
+                                            print("- CreatedAt:", challengeImages[index].createdAt)
                                             selectedImageId = challengeImages[index].id
-                                            showReportView.toggle()
+                                            showReportView = true
                                             
                                             // .sensoryFeedback은 iOS 17 이상에서만 사용 가능해서 대체
                                             // 3D 터치 햅틱 (Haptic Feedback) - UIKit의 것을 사용
@@ -259,13 +265,15 @@ struct ChallengeImagesGrid: View {
             selectedImage = nil
         }
         .sheet(isPresented: $showReportView) {
-            ReportView(targetType: "L", targetId: selectedImageId ?? 0)
-                .onAppear {
-                    print("\n=== 신고하기 뷰 열림 ===")
-                    print("전달되는 파라미터:")
-                    print("- Target Type: L")
-                    print("- Target ID:", selectedImageId ?? 0)
-                }
+            if let imageId = selectedImageId, imageId != 0 {  // 유효한 ID인지 확인
+                ReportView(targetType: "L", targetId: imageId)
+                    .onAppear {
+                        print("\n=== 신고하기 뷰 열림 ===")
+                        print("전달되는 파라미터:")
+                        print("- Target Type: L")
+                        print("- Target ID:", imageId)
+                    }
+            }
         }
         .onAppear {
             checkTodayUpload()
