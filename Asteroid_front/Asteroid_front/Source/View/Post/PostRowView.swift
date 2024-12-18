@@ -1,4 +1,5 @@
 import SwiftUI
+import SDWebImageSwiftUI
 
 struct PostRowView: View {
     let post: Post
@@ -50,27 +51,14 @@ struct PostRowView: View {
             
             // 이미지 썸네일
             if let firstImageURL = post.PostImages?.first?.imageURL, !firstImageURL.isEmpty {
-                AsyncImage(url: URL(string: firstImageURL)) { phase in
-                    switch phase {
-                    case .empty:
-                        ProgressView()
-                    case .success(let image):
-                        image
-                            .resizable()
-                            .scaledToFill()
-                            .frame(width: 60, height: 60)
-                            .clipShape(RoundedRectangle(cornerRadius: 8))
-                            .shadow(radius: 2)
-                    case .failure:
-                        Image(systemName: "photo")
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: 60, height: 60)
-                            .foregroundStyle(.gray)
-                    @unknown default:
-                        EmptyView()
-                    }
-                }
+                WebImage(url: URL(string: firstImageURL))
+                    .resizable()
+                    .indicator(.activity)
+                    .transition(.fade(duration: 0.5))
+                    .scaledToFill()
+                    .frame(width: 60, height: 60)
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                    .shadow(radius: 2)
             }
         }
         .padding(.vertical, 2)

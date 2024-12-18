@@ -1,7 +1,7 @@
 import SwiftUI
  
 struct PostWriteView: View {
-    @StateObject var postVM = PostViewModel()
+    @EnvironmentObject var postVM: PostViewModel
     @Environment(\.dismiss) var dismiss
     @State private var title = ""
     @State private var content = ""

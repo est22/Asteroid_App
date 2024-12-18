@@ -2,7 +2,7 @@ import SwiftUI
 import SlidingTabView
 
 struct PostListView: View {
-  @StateObject private var postVM = PostViewModel()
+  @EnvironmentObject var postVM: PostViewModel
   @StateObject private var voteVM = BalanceVoteViewModel()
   @State private var searchData: String = ""
   @State private var selectedTabIndex = 0
@@ -71,21 +71,35 @@ struct PostListView: View {
       }
     }
     .onAppear {
-      Task {
+      let _ = print("PostListView appeared")
+      Task { @MainActor in
+        await refreshData()
+        let _ = print("Posts count after refresh: \(postVM.posts.count)")
+        let _ = print("Posts data: \(postVM.posts)")
+      }
+    }
+    .onChange(of: selectedTabIndex) { _ in // 탭(카테고리)을 변경할 때 데이터를 새로고침
+      Task { @MainActor in
         await refreshData()
       }
     }
-    .onChange(of: selectedTabIndex) { _ in
-      Task {
-        await refreshData()
-      }
-    }
-    .onChange(of: scenePhase) { newPhase in
+    .onChange(of: scenePhase) { newPhase in // 앱이 활성화될 때 데이터를 새로고침
       if newPhase == .active {
-        Task {
+        Task { @MainActor in
           await refreshData()
         }
       }
+    }
+    // posts 배열이 변경될 때마다 뷰 업데이트
+    .onChange(of: postVM.posts) { _ in
+      print("Posts changed: \(postVM.posts.count) items")
+    }
+  }
+  
+  private func loadData() {
+    Task { @MainActor in
+      print("PostListView onAppear")
+      await refreshData()
     }
   }
   
@@ -93,7 +107,9 @@ struct PostListView: View {
     if selectedTabIndex == 2 {
       await voteVM.fetchVotes()
     } else {
-      await postVM.fetchPosts(categoryID: selectedTabIndex + 1, search: searchData)
+      print("Fetching posts for category: \(selectedTabIndex + 1)")
+      await postVM.fetchPosts(categoryID: selectedTabIndex + 1, search: "")
+      print("Posts after fetch: \(postVM.posts.count)")
     }
   }
   

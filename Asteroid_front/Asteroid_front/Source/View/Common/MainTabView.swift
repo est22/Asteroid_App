@@ -14,6 +14,7 @@ struct MainTabView: View {
     }
     
     @State private var selectedTab: Tabs = .home // 기본값 home
+    @StateObject private var postVM = PostViewModel()  // 여기서 생성
     
     var body: some View {
         TabView(selection: $selectedTab) {
@@ -43,6 +44,7 @@ private extension MainTabView {
     
     var community: some View {
         PostListView()
+            .environmentObject(postVM)  // 환경에 등록
             .tabItem {
                 Image(systemName: "ellipsis.message.fill")
                 Text("커뮤니티")
