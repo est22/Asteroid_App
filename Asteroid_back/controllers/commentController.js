@@ -19,11 +19,13 @@ const findCommentById = async (req, res) => {
 const createComment = async (req, res) => {
   try {
     const data = {
-      commentData: req.body,
+      postId: req.body.postId,
+      content: req.body.content,
       userId: req.user.id,
     };
 
     const comment = await service.createComment(data);
+
     res.status(201).json({ data: comment });
   } catch (e) {
     res.status(500).json({ error: e.message });
