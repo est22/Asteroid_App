@@ -2,7 +2,6 @@ import SwiftUI
 
 struct UserInfoView: View {
   @StateObject private var profileViewModel = ProfileViewModel()
-  
   let profileImageURL: String?
   let nickname: String
   let title: String
@@ -12,6 +11,13 @@ struct UserInfoView: View {
   let onEditTap: () -> Void
   let onDeleteTap: () -> Void
   let onReportTap: () -> Void
+  
+  // 좋아요
+  var likeCount:Int
+  @Binding var isLiked: Bool
+  
+  // post랑 vote 구분
+  let option:String
   
   var formattedDate: String {
     print("Raw createdAt:", createdAt)  // 디버깅용
@@ -87,11 +93,26 @@ struct UserInfoView: View {
         
         Spacer()
         
+        // 좋아요 버튼
+        if option == "post" {
+          Button(action: {
+            print("좋아요 클릭")
+          }) {
+            HStack(spacing: 3) {
+              Text("\(likeCount)")
+              Image(systemName: isLiked ? "heart.fill" : "heart")
+            }
+            .foregroundStyle(Color.red.opacity(0.6))
+          }
+        }
+        
         // ... 메뉴 버튼
         Menu {
           if nickname == profileViewModel.nickname {
-            Button("수정") {
-              onEditTap()
+            if option == "post" {
+              Button("수정") {
+                onEditTap()
+              }
             }
             Button("삭제", role: .destructive) {
               onDeleteTap()
@@ -135,6 +156,9 @@ struct UserInfoView: View {
     isCurrentUser: true,
     onEditTap: {},
     onDeleteTap: {},
-    onReportTap: {}
+    onReportTap: {},
+    likeCount: 1,
+    isLiked: .constant(true),
+    option: "post"
   )
 }
