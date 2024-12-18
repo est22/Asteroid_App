@@ -119,7 +119,7 @@ struct CommunityRankingRow: View {
       Spacer()
       
       // 좋아요 수
-      Text("👍 \(ranking.likeTotal)")
+      Text("👀 \(ranking.likeTotal)")
         .font(.system(size: 14))
         .foregroundColor(.gray)
     }

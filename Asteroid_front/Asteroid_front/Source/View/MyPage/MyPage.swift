@@ -15,7 +15,7 @@ struct MyPage: View {
     
     var body: some View {
       NavigationStack {
-            VStack(spacing: 20) {
+            VStack(spacing: 30) {
                 // 프로필 이미지와 수정 버튼
                 ZStack(alignment: .bottomTrailing) {
                     if let profilePhoto = profileViewModel.profilePhoto, let url = URL(string: profilePhoto) {
@@ -90,9 +90,9 @@ struct MyPage: View {
                         MyPageButton(title: "내 댓글", emoji: "💭")
                     }
                     
-                    NavigationLink(destination: LikedPostView()) {
-                        MyPageButton(title: "좋아요한 게시글", emoji: "👍")
-                    }
+                    // NavigationLink(destination: LikedPostView()) {
+                    //     MyPageButton(title: "좋아요한 게시글", emoji: "👍")
+                    // }
                     
                     NavigationLink(destination: MyRewardView()) {
                         MyPageButton(title: "내 챌린지 보상", emoji: "🎯")
