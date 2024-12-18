@@ -24,6 +24,10 @@ struct UserInfoView: View {
   @State private var newPostId = 0
   let post: Post
   
+  @State private var showingDeleteAlert = false
+  @EnvironmentObject var postVM: PostViewModel
+  @Environment(\.dismiss) var dismiss
+  
   // Preview용 샘플 데이터
   static let samplePost = Post(
     id: 1,
@@ -63,7 +67,7 @@ struct UserInfoView: View {
     }
     
     print("Date parsing failed for:", createdAt)  // 디버깅용
-    return createdAt  // 파싱 실패시 원본 문자열 반환
+    return createdAt  // 파�� 실패시 원본 문자열 반환
   }
   
   var body: some View {
@@ -136,7 +140,7 @@ struct UserInfoView: View {
               }
             }
             Button("삭제", role: .destructive) {
-              onDeleteTap()
+              showingDeleteAlert = true
             }
           } else {
             Button("신고") {
@@ -169,7 +173,16 @@ struct UserInfoView: View {
       try? await profileViewModel.fetchProfile()
     }
     .navigationDestination(isPresented: $showingEditView) {
-      PostWriteView(post: post)
+      PostWriteView(categoryID: post.categoryID, post: post)
+    }
+    .alert("게시글 삭제", isPresented: $showingDeleteAlert) {
+      Button("취소", role: .cancel) { }
+      Button("삭제", role: .destructive) {
+        postVM.deletePost(postId: post.id)
+        dismiss()
+      }
+    } message: {
+      Text("게시글을 정말로 삭제하시겠습니까?")
     }
   }
 }
