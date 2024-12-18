@@ -14,6 +14,8 @@ class ChallengeViewModel: ObservableObject {
     @Published var currentParticipantCount: Int = 0  // 현재 참여자 수를 추적하는 새로운 변수
     @Published var challengeProgress: Int = 0
     @Published var uploadCount: Int = 0
+    @Published var showAlert: Bool = false
+    @Published var alertMessage: String = ""
     
     // 섹션별로 마지막 색상 인덱스를 저장
     private var lastColorIndices: [String: Int] = [:]
@@ -202,7 +204,7 @@ class ChallengeViewModel: ObservableObject {
         currentParticipantCount += 1
     }
     
-    func uploadChallengeImage(challengeId: Int, image: UIImage) async throws -> String{
+    func uploadChallengeImage(challengeId: Int, image: UIImage) async throws -> String {
         print("이미지 업로드 시작: 챌린지 ID \(challengeId)")
         
         guard let url = URL(string: "\(APIConstants.baseURL)/challenge/\(challengeId)/upload"),
@@ -210,43 +212,25 @@ class ChallengeViewModel: ObservableObject {
             throw URLError(.badURL)
         }
         
-        var request = URLRequest(url: url)
-        request.httpMethod = "POST"
-        request.setValue("Bearer \(UserDefaults.standard.string(forKey: "accessToken") ?? "")", forHTTPHeaderField: "Authorization")
+        let headers: HTTPHeaders = [
+            "Authorization": "Bearer \(UserDefaults.standard.string(forKey: "accessToken") ?? "")"
+        ]
         
-        let boundary = UUID().uuidString
-        request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
-        
-        var body = Data()
-        // 이미지 데이터 추가
-        body.append("--\(boundary)\r\n".data(using: .utf8)!)
-        body.append("Content-Disposition: form-data; name=\"images\"; filename=\"image.jpg\"\r\n".data(using: .utf8)!)
-        body.append("Content-Type: image/jpeg\r\n\r\n".data(using: .utf8)!)
-        body.append(imageData)
-        body.append("\r\n".data(using: .utf8)!)
-        body.append("--\(boundary)--\r\n".data(using: .utf8)!)
-        
-        request.httpBody = body
-        
-        let (data, response) = try await URLSession.shared.data(for: request)
-        
-        if let responseString = String(data: data, encoding: .utf8) {
-            print("서버 응답:", responseString)
-            return responseString  // 응답 문자열 반환
+        return try await withCheckedThrowingContinuation { continuation in
+            AF.upload(multipartFormData: { multipartFormData in
+                multipartFormData.append(imageData, withName: "images", fileName: "image.jpg", mimeType: "image/jpeg")
+            }, to: url, headers: headers)
+            .responseString { response in
+                switch response.result {
+                case .success(let responseString):
+                    print("서버 응답:", responseString)
+                    continuation.resume(returning: responseString)
+                case .failure(let error):
+                    print("업로드 실패:", error)
+                    continuation.resume(throwing: error)
+                }
+            }
         }
-        
-        guard let httpResponse = response as? HTTPURLResponse else {
-            print("잘못된 응답 형식")
-            throw URLError(.badServerResponse)
-        }
-        
-        print("응답 상태 코드:", httpResponse.statusCode)
-        
-        guard httpResponse.statusCode == 200 else {
-            throw URLError(.badServerResponse)
-        }
-        
-        return ""  // 기본 반환값
     }
     
     func fetchChallengeProgress(challengeId: Int) async {

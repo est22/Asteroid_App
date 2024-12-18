@@ -20,7 +20,7 @@ struct ChallengeImagesGrid: View {
 
     // 챌린지 사진 업로드 관련(구조체의 프로퍼티로 정의해야 ChallengeDetailView에서 해당 값들을 전달 가능)
     let challengeId: Int
-    let viewModel: ChallengeViewModel
+    @ObservedObject var viewModel: ChallengeViewModel
     
     var onRefresh: () -> Void
     
@@ -117,29 +117,43 @@ struct ChallengeImagesGrid: View {
                             selectedImage = nil
                         }
                         Button("확인") {
+                            // 이미지 검사 중일 때 애니메이션 표시
                             if let image = selectedImage {
                                 Task {
                                     do {
                                         print("🚀 Upload started")
+                                        
+                                        
                                         isUploading = true
                                         hasJustUploaded = true
                                         showUploadConfirmation = false
                                         
                                         let responseString = try await viewModel.uploadChallengeImage(challengeId: challengeId, image: image)
-                                        if responseString.contains("챌린지 인증 이미지가 업로드되었습니다") {
-                                            print("✅ Upload successful")
+                                        if let data = responseString.data(using: .utf8),
+                                           let jsonResponse = try? JSONSerialization.jsonObject(with: data, options: []) as? [String: Any],
+                                           let message = jsonResponse["message"] as? String {
                                             
-                                            // 진행 상황만 업데이트
-                                            await viewModel.fetchChallengeProgress(challengeId: challengeId)
-                                            
-                                            // 이미지는 그대로 유지
-                                            await MainActor.run {
-                                                withAnimation {
-                                                    hasUploadedToday = true  // 오늘 업로드 완료 상태로 변경
+                                            if message.contains("챌린지 인증 이미지가 업로드되었습니다") {
+                                                print("✅ Upload successful")
+                                                
+                                                // 진행 상황만 업데이트
+                                                await viewModel.fetchChallengeProgress(challengeId: challengeId)
+                                                
+                                                // 이미지는 그대로 유지
+                                                await MainActor.run {
+                                                    withAnimation {
+                                                        hasUploadedToday = true  // 오늘 업로드 완료 상태로 변경
+                                                    }
                                                 }
+                                                
+                                                isUploading = false
+                                            } else {
+                                                // 부적절한 이미지에 대한 메시지 처리
+                                                print("❌ 부적절한 이미지: \(message)")
+                                                errorMessage = message
+                                                showError = true
+                                                selectedImage = nil // 부적절한 이미지일 경우 선택된 이미지 초기화
                                             }
-                                            
-                                            isUploading = false
                                         }
                                     } catch {
                                         print("❌ Upload failed: \(error)")
@@ -229,7 +243,7 @@ struct ChallengeImagesGrid: View {
                 }
             }
         }
-        .alert("오늘은 이미 챌린지 사진을 업로드했어요.", isPresented: $showError) {
+        .alert("🤔", isPresented: $showError) {
             Button("확인", role: .cancel) { }
         } message: {
             Text(errorMessage)

@@ -2,6 +2,10 @@ const { Challenge, ChallengeParticipation, ChallengeImage, User, Reward } = requ
 const { uploadPhotos, saveFilesToDB } = require("../services/fileUploadService");
 const challengeService  = require('../services/challengeService');
 const { Op } = require('sequelize');
+const fs = require('fs');
+const path = require('path');
+const axios = require('axios');
+const { AZURE_AI_CONTENT_SAFETY_KEY, AZURE_AI_CONTENT_SAFETY_ENDPOINT } = process.env;
 
 // 1. 챌린지 목록 반환
 const getChallengeList = async (req, res) => {
@@ -171,12 +175,6 @@ const uploadChallengeImage = async (req, res) => {
     const userId = req.user.id;
     const challengeId = req.params.challengeId;
 
-    console.log("\n=== 챌린지 이미지 업로드 ===");
-    console.log("요청 정보:");
-    console.log("- User ID:", userId);
-    console.log("- Challenge ID:", challengeId);
-
-
     // 참여 상태 확인
     const participation = await ChallengeParticipation.findOne({
       where: {
@@ -195,7 +193,6 @@ const uploadChallengeImage = async (req, res) => {
         message: "챌린지에 참여 중이 아닙니다."
       });
     }
-
 
     // 날짜 체크를 위한 변수들
     const today = new Date();
@@ -221,30 +218,43 @@ const uploadChallengeImage = async (req, res) => {
       });
     }
 
+    // 이미지 업로드 및 base64 인코딩
     const files = await uploadPhotos(req, res, 1);
-    await saveFilesToDB(files, userId, "ChallengeImage", challengeId);
+    console.log("Uploaded files:", files); // 디버깅 로그 추가
 
-    // 기존 보상 레코드 확인
-    let reward = await Reward.findOne({
-      where: {
-        user_id: userId,
-        challenge_id: challengeId
+    if (!files || files.length === 0) {
+      return res.status(400).json({
+        message: "파일 업로드에 실패했습니다."
+      });
+    }
+
+    // buffer를 사용하여 base64 인코딩
+    const base64Image = files[0].buffer.toString('base64');
+
+    // Azure Content Safety API 호출
+    const response = await axios.post(AZURE_AI_CONTENT_SAFETY_ENDPOINT, {
+      image: { content: base64Image },
+      categories: ["Hate", "SelfHarm", "Sexual", "Violence"],
+      outputType: "FourSeverityLevels"
+    }, {
+      headers: {
+        'Ocp-Apim-Subscription-Key': AZURE_AI_CONTENT_SAFETY_KEY,
+        'Content-Type': 'application/json'
       }
     });
 
-    // 보상 레코드가 없으면 새로 생성, 있으면 크레딧 추가
-    const dailyCredit = 10;
-    if (!reward) {
-      reward = await Reward.create({
-        user_id: userId,
-        challenge_id: challengeId,
-        credit: dailyCredit
+    const analysis = response.data.categoriesAnalysis;
+    const shouldDelete = analysis.some(category => category.severity >= 2);
+
+    if (shouldDelete) {
+      return res.status(400).json({
+        message: "이미지에 부적절한 내용이 포함되어 있어 업로드가 불가합니다."
       });
-    } else {
-      reward.credit += dailyCredit;
-      await reward.save();
     }
-    
+
+    // 이미지가 안전한 경우 DB에 저장
+    await saveFilesToDB(files, userId, "ChallengeImage", challengeId);
+
     // 오늘이 end_date인지 확인
     const currentDate = new Date();
     currentDate.setHours(0, 0, 0, 0);
@@ -260,8 +270,28 @@ const uploadChallengeImage = async (req, res) => {
       return res.status(200).json({
         message: "챌린지가 성공적으로 달성되었습니다! 보상이 지급되었습니다.",
         status: "챌린지 달성",
-        credit: reward.credit
+        credit: reward ? reward.credit : 0
       });
+    }
+
+    // 보상 로직
+    let reward = await Reward.findOne({
+      where: {
+        user_id: userId,
+        challenge_id: challengeId
+      }
+    });
+
+    const dailyCredit = 10;
+    if (!reward) {
+      reward = await Reward.create({
+        user_id: userId,
+        challenge_id: challengeId,
+        credit: dailyCredit
+      });
+    } else {
+      reward.credit += dailyCredit;
+      await reward.save();
     }
 
     return res.status(200).json({
