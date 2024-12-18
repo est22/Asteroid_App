@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct PostRankingView: View {
+  @EnvironmentObject private var postViewModel: PostViewModel
   @StateObject private var viewModel = RankingViewModel()
   @State private var selectedFilter = 0
   @State private var isInitialLoad = true

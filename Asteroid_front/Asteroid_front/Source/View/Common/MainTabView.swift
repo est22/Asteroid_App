@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct MainTabView: View {
+    @EnvironmentObject var postViewModel: PostViewModel
     // Tab Bar
     private enum Tabs {
         case home, community, balanceVote, challenge, myPage

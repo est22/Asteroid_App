@@ -8,7 +8,8 @@
 import SwiftUI
 
 struct ContentView: View {
-     @EnvironmentObject private var authViewModel: AuthViewModel
+    @EnvironmentObject private var authViewModel: AuthViewModel
+    @EnvironmentObject var postViewModel: PostViewModel
     
     var body: some View {
         Group {

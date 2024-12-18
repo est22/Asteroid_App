@@ -14,6 +14,7 @@ import KakaoSDKAuth
 @main
 struct Asteroid_frontApp: App {
     @StateObject private var authViewModel = AuthViewModel.shared
+    @StateObject var postViewModel = PostViewModel()
     @StateObject private var socialAuthManager = SocialAuthManager()
     @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
     
@@ -21,7 +22,7 @@ struct Asteroid_frontApp: App {
         WindowGroup {
             ContentView()
                 .environmentObject(authViewModel)
-                .environmentObject(socialAuthManager)
+                .environmentObject(postViewModel)
                 .environmentObject(socialAuthManager)
         }
     }
