@@ -58,7 +58,6 @@ const createPost = async (data) => {
 
   try {
     const newPost = await Post.create(postData, { transaction });
-    console.log("생성한 게시글 아이디 : ", newPost.id);
 
     if (image && image.length > 0) {
       await fileUploadService.savePostImagesToDB(
@@ -159,6 +158,7 @@ const likePost = async (data) => {
   });
 
   let message;
+  let isLiked = false;
 
   if (likeCheck) {
     // 이미 좋아요 해서 좋아요 취소
@@ -186,9 +186,20 @@ const likePost = async (data) => {
     });
 
     message = "좋아요 성공";
+    isLiked = true; // 좋아요가 추가되었음을 표시
   }
 
-  return message;
+  // 게시글의 현재 likeTotal을 반환
+  const post = await Post.findOne({
+    where: { id: postId },
+    attributes: ["likeTotal"],
+  });
+
+  return {
+    message: message,
+    likeTotal: post.likeTotal,
+    isLiked: isLiked,
+  };
 };
 
 // 인기게시글

@@ -32,11 +32,13 @@ const findCommentById = async (id) => {
 
 // 댓글 생성
 const createComment = async (data) => {
-  const { commentData, userId } = data;
+  const { postId, content, userId } = data;
   const result = await models.Comment.create({
-    ...commentData,
+    post_id: postId,
+    content: content,
     user_id: userId,
   });
+
   return result;
 };
 

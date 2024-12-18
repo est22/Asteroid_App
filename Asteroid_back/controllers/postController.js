@@ -109,6 +109,9 @@ const likePost = async (req, res) => {
     const postId = req.params.id;
     const userId = req.user.id;
 
+    console.log("####  postId ", postId);
+
+    // 기존 좋아요 여부 확인
     const existingLike = await Like.findOne({
       attributes: ["id", "user_id", "target_type", "target_id"],
       where: {
@@ -118,18 +121,43 @@ const likePost = async (req, res) => {
       },
     });
 
+    let message;
+    let isLiked = false;
+
     if (existingLike) {
+      // 좋아요 취소
       await existingLike.destroy();
-      return res.status(200).json({ message: "좋아요가 취소되었습니다." });
+      // 게시글 likeTotal 감소
+      await Post.decrement("likeTotal", {
+        where: { id: postId },
+      });
+      message = "좋아요가 취소되었습니다.";
+    } else {
+      // 좋아요 추가
+      await Like.create({
+        user_id: userId,
+        target_id: postId,
+        target_type: "P",
+      });
+      // 게시글 likeTotal 증가
+      await Post.increment("likeTotal", {
+        where: { id: postId },
+      });
+      message = "좋아요가 추가되었습니다.";
+      isLiked = true;
     }
 
-    await Like.create({
-      user_id: userId,
-      target_id: postId,
-      target_type: "P",
+    // 현재 게시글의 likeTotal 값 가져오기
+    const post = await Post.findOne({
+      attributes: ["id", "likeTotal"],
+      where: { id: postId },
     });
 
-    res.status(201).json({ message: "좋아요가 추가되었습니다." });
+    res.status(200).json({
+      message: message,
+      likeTotal: post.likeTotal,
+      isLiked: isLiked, // 클라이언트에게 좋아요 상태를 반환
+    });
   } catch (error) {
     console.error("좋아요 처리 실패:", error);
     res.status(500).json({ message: "서버 오류가 발생했습니다." });
