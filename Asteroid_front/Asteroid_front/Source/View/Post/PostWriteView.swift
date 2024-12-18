@@ -85,9 +85,19 @@ struct PostWriteView: View {
                 // 작성 완료 버튼
                 Button {
                     if let post = post {
-                        updatePost(post)
+                        postVM.updatePost(postId: post.id, title: title, content: content, categoryID: categoryID!, images: images)
                     } else {
-                        addPost()
+                        Task {
+                            if let postId = await postVM.addPost(
+                                title: title,
+                                content: content,
+                                categoryID: categoryID!,
+                                images: images
+                            ) {
+                                self.newPostId = postId
+                                self.navigateToDetail = true
+                            }
+                        }
                     }
                 } label: {
                     Text("완료")
@@ -111,56 +121,12 @@ struct PostWriteView: View {
                     PostDetailView(
                         postID: postId
                     )
-                        .navigationBarBackButtonHidden(true)
+                        
                 }
             }
         }
     }
 
-    // 게시물 추가
-    private func addPost() {
-        guard !title.isEmpty, !content.isEmpty else {
-            postVM.message = "제목과 내용을 입력해주세요."
-            return
-        }
-        guard let categoryID else { return }
-        
-        Task {
-            if let postId = await postVM.addPost(
-                title: title,
-                content: content,
-                categoryID: categoryID,
-                images: images
-            ) {
-                // 서버에서 이미지 처리가 완료될 때까지 잠시 대기
-                try? await Task.sleep(nanoseconds: 1_000_000_000)  // 1초 대기
-                
-                // 게시글 상세 정보를 새로 가져옴
-                await postVM.fetchPostDetail(postID: postId)
-                
-                await MainActor.run {
-                    self.newPostId = postId
-                    self.navigateToDetail = true
-                    dismiss()
-                }
-            }
-        }
-    }
-  
-    // 게시글 수정
-    private func updatePost(_ post: Post) {
-          guard !title.isEmpty, !content.isEmpty else {
-              postVM.message = "제목과 내용을 입력해주세요."
-              return
-          }
-          postVM.updatePost(
-              postId: post.id,
-              title: title,
-              content: content,
-              categoryID: post.categoryID,
-              images: images
-          )
-      }
 }
 
 
