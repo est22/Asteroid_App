@@ -42,7 +42,7 @@ struct Home: View {
                 .padding(.trailing, 16)
             }
           }
-          .padding(.top, 8)
+          .padding(.top, 0) // 네비게이션 바 아래 영역
           
           // 스크롤바 제거
           ScrollView(showsIndicators: false) {
@@ -58,7 +58,8 @@ struct Home: View {
               MyOngoingChallengeView()
                 .padding(.bottom, 16)
             }
-            .padding(.top, 8)
+            .padding(.top, 25) // 컨텐츠 상단 패딩 조정
+            .padding(.bottom, 8) // 컨텐츠 하단 패딩 추가
           }
         }
         .navigationBarHidden(true)
