@@ -11,6 +11,7 @@ struct UserInfoView: View {
   let onEditTap: () -> Void
   let onDeleteTap: () -> Void
   let onReportTap: () -> Void
+  let postId: Int
   
   // 좋아요
   var likeCount:Int
@@ -169,7 +170,7 @@ struct UserInfoView: View {
         .foregroundColor(.primary)
         .lineLimit(1)
     }
-    .frame(maxWidth: .infinity)
+//    .frame(maxWidth: .infinity)
     .task {
       try? await profileViewModel.fetchProfile()
     }
@@ -202,6 +203,7 @@ struct UserInfoView: View {
     onEditTap: {},
     onDeleteTap: {},
     onReportTap: {},
+    postId: 1,
     likeCount: 1,
     isLiked: .constant(true),
     option: "post",

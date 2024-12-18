@@ -10,14 +10,12 @@ class CommentViewModel: ObservableObject {
 
     // 댓글 조회
     func fetchComments(postId: Int) {
+        guard let token = UserDefaults.standard.string(forKey: "accessToken") else { return }
         isLoading = true
         let url = "\(endPoint)/comment/\(postId)"
 
         AF.request(url, method: .get).validate().responseDecodable(of: CommentRoot.self) { response in
             self.isLoading = false
-          
-          print("####   response ", response)
-          
           
             switch response.result {
               case .success(let commentRoot):
@@ -30,29 +28,39 @@ class CommentViewModel: ObservableObject {
 
     // 댓글 생성
     func createComment(content: String, postId: Int) {
+        guard !content.trimmingCharacters(in: .whitespaces).isEmpty else {
+            self.errorMessage = "댓글 내용을 입력해주세요."
+            return
+        }
+      
+        guard let token = UserDefaults.standard.string(forKey: "accessToken") else { return }
         let url = "\(endPoint)/comment"
-        let parameters: [String: Any] = ["content": content]
+        let parameters:Parameters = ["postId": postId, "content": content]
+        let headers: HTTPHeaders = ["Authorization": "Bearer \(token)",
+                                    "Content-Type": "application/json"]
 
-        AF.request(url, method: .post, parameters: parameters, encoding: JSONEncoding.default)
-            .validate()
-            .responseDecodable(of: Comment.self) { response in
-                switch response.result {
-                  case .success(let newComment):
-                      self.comments.append(newComment)
-                  case .failure(let error):
-                      self.errorMessage = error.localizedDescription
-                }
-            }
+      AF.request(url, method: .post, parameters: parameters, encoding: JSONEncoding.default, headers: headers)
+          .responseDecodable(of: ResponseWrapper<Comment>.self) { response in
+              print("#### Response: ", response)
+              switch response.result {
+              case .success(let wrapper):
+                  let newComment = wrapper.data
+                  self.comments.append(newComment)
+                  self.errorMessage = nil
+              case .failure(let error):
+                  self.errorMessage = error.localizedDescription
+              }
+          }
     }
 
     // 댓글 수정
     func updateComment(commentId: Int, content: String) {
+        guard let token = UserDefaults.standard.string(forKey: "accessToken") else { return }
         let url = "\(endPoint)/comment/\(commentId)"
-        let parameters: [String: Any] = [
-            "content": content
-        ]
+        let parameters: [String: Any] = ["commentId": commentId, "content": content]
+        let headers: HTTPHeaders = ["Authorization": "Bearer \(token)"]
 
-        AF.request(url, method: .put, parameters: parameters, encoding: JSONEncoding.default)
+        AF.request(url, method: .put, parameters: parameters, headers: headers)
             .validate()
             .responseDecodable(of: Comment.self) { response in
                 switch response.result {

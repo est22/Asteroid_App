@@ -1,5 +1,9 @@
 import Foundation
 
+struct ResponseWrapper<T: Decodable>: Decodable {
+    let data: T
+}
+
 struct CommentRoot: Codable{
     let data: [Comment]
     let success: Bool?

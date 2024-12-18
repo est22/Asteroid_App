@@ -39,7 +39,20 @@ const createComment = async (data) => {
     user_id: userId,
   });
 
-  return result;
+  console.log("DDDD    ", result.id);
+
+  const commentWithUser = await models.Comment.findOne({
+    where: { id: result.id },
+    include: {
+      model: models.User,
+      attributes: ["nickname", "profile_picture"],
+      as: "User",
+    },
+  });
+
+  console.log("@@@    commentWithUser  ", commentWithUser);
+
+  return commentWithUser;
 };
 
 // 댓글 수정
