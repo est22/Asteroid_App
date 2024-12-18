@@ -27,8 +27,8 @@ struct Home: View {
                 .foregroundColor(.keyColor)
                 .padding(.trailing, 8)
             }
-            // 신고 버튼 테스트
-            ReportButton(targetType: "P", targetId: 1)
+//            // 신고 버튼 테스트
+//            ReportButton(targetType: "P", targetId: 1)
             #endif
             
             // 알림 버튼
