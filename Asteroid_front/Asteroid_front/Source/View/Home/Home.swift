@@ -31,16 +31,16 @@ struct Home: View {
 //            ReportButton(targetType: "P", targetId: 1)
             #endif
             
-            // 알림 버튼
-            Button {
-              withAnimation(.spring()) {
-                showNotifications.toggle()
-              }
-            } label: {
-              Image(systemName: "bell.fill")
-                .foregroundColor(.keyColor)
-                .padding(.trailing, 16)
-            }
+//            // 알림 버튼
+//            Button {
+//              withAnimation(.spring()) {
+//                showNotifications.toggle()
+//              }
+//            } label: {
+//              Image(systemName: "bell.fill")
+//                .foregroundColor(.keyColor)
+//                .padding(.trailing, 16)
+//            }
           }
           .padding(.top, 0) // 네비게이션 바 아래 영역
           
