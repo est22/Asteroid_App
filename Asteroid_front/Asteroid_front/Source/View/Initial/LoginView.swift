@@ -125,9 +125,9 @@ struct LoginView: View {
         
         // 소셜 로그인 버튼들을 일렬로 배치
         HStack(spacing: 30) {
-          SocialLoginButton(type: .google)
+//          SocialLoginButton(type: .google)
           SocialLoginButton(type: .apple)
-          SocialLoginButton(type: .naver)
+//          SocialLoginButton(type: .naver)
           SocialLoginButton(type: .kakao)
         }
         .padding(.horizontal, 20)

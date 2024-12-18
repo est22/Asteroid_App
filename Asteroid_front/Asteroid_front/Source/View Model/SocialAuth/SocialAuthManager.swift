@@ -25,12 +25,12 @@ class SocialAuthManager: ObservableObject {
             appleAuthViewModel.handleSignInWithApple()
         case .kakao:
             kakaoAuthViewModel.handleSignInWithKakao()
-        case .google:
-            // googleAuthViewModel.handleSignInWithGoogle()
-            print("Google login not implemented yet")
-        case .naver:
-            // naverAuthViewModel.handleSignInWithNaver()
-            print("Naver login not implemented yet")
+//        case .google:
+//            // googleAuthViewModel.handleSignInWithGoogle()
+//            print("Google login not implemented yet")
+//        case .naver:
+//            // naverAuthViewModel.handleSignInWithNaver()
+//            print("Naver login not implemented yet")
         }
         
         // 마지막 로그인 수단 저장
