@@ -20,7 +20,7 @@ struct MyOngoingChallengeView: View {
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack(spacing: 12) {
                         if viewModel.participatingChallenges.isEmpty {
-                            ChallengeCard(title: "아직 참여중인 챌린지가 없습니다", gradientIndex: 0)
+                            ChallengeCard(title: "주중에 대중교통 이용하기", imageName: "주중에 대중교통 이용하기")
                         } else {
                             ForEach(Array(viewModel.participatingChallenges.enumerated()), id: \.element.id) { index, challenge in
                                 NavigationLink(
@@ -32,7 +32,7 @@ struct MyOngoingChallengeView: View {
                                 ) {
                                     ChallengeCard(
                                         title: challenge.displayName,
-                                        gradientIndex: index
+                                        imageName: challenge.displayName
                                     )
                                 }
                             }

@@ -37,7 +37,7 @@ struct Challenge: View {
                             ) {
                                 ChallengeCard(
                                     title: challenge.displayName,
-                                    gradientIndex: challenge.id
+                                    imageName: challenge.displayName
                                 )
                             }
                         }
@@ -54,18 +54,30 @@ struct Challenge: View {
 
 struct ChallengeCard: View {
     let title: String
-    let gradientIndex: Int
+    let imageName: String
     
     var body: some View {
-        Text(title)
-            .font(.system(size: 16, weight: .medium))
-            .foregroundColor(.black)
-            .multilineTextAlignment(.center)
-            .frame(width: 150, height: 150)
-            .background(
-                LinearGradient.pastelGradients[gradientIndex % LinearGradient.pastelGradients.count]
-                    .cornerRadius(12)
-            )
+        ZStack {
+            Image(imageName)
+                .resizable()
+                .scaledToFill()
+                .frame(width: 150, height: 150)
+                .clipped()
+                .cornerRadius(12)
+            
+            VStack {
+                Spacer()
+                Text(title)
+                    .font(.system(size: 18, weight: .bold))
+                    .foregroundColor(.white)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 4)
+                    .background(Color.black.opacity(0.5)) // 텍스트 배경
+                    
+            }
+            .frame(height: 150) // 카드의 높이에 맞추기
+        }
+        .frame(width: 150, height: 150)
     }
 }
 
