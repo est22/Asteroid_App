@@ -35,6 +35,7 @@ struct VoteRowView: View {
                 onReportTap: {
                     // 신고 기능
                 },
+                postId: balanceVote.id,
                 likeCount: 1,
                 isLiked: .constant(true),
                 option: "vote", post: Post(

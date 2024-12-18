@@ -7,8 +7,11 @@ struct PostDetailView: View {
   @State private var showingDeleteAlert = false
   @State private var showingReportView = false
   @State private var showingEditView = false
+  @State private var likeTotal: Int = 0
+  @State private var isLiked: Bool = false
   let postID: Int
-
+  
+  
   @Environment(\.dismiss) private var dismiss
   
   var body: some View {
@@ -68,11 +71,11 @@ struct PostDetailView: View {
             Divider()
             // 댓글 갯수
             HStack(spacing: 3) {
-                Image(systemName: "ellipsis.bubble")
-                    .foregroundStyle(Color.keyColor)
-              Text("\(postViewModel.commentCount ?? 0)")
-                    .font(.subheadline)
-                    .foregroundStyle(Color.keyColor)
+              Image(systemName: "ellipsis.bubble")
+                .foregroundStyle(Color.keyColor)
+              Text("\(postViewModel.commentCount)")
+                .font(.subheadline)
+                .foregroundStyle(Color.keyColor)
             }
           }
         } else if let errorMessage = postViewModel.message, postViewModel.isFetchError {
@@ -91,22 +94,28 @@ struct PostDetailView: View {
             
             // 전송
             Button(action: {
-              commentText = ""
+              sendComment()
             }, label: {
               Image(systemName: "paperplane.fill")
                 .foregroundStyle(Color.keyColor)
             })
             .padding(.horizontal, 8)
           }
+          
+          if let errorMessage = commentViewModel.errorMessage {
+            Text(errorMessage)
+              .font(.footnote)
+              .foregroundStyle(Color.red)
+          }
         }
         
         // 댓글 섹션
-        if commentViewModel.isLoading {
-          ProgressView("Loading comments...")
-        } else if commentViewModel.comments.isEmpty {
+        if commentViewModel.comments.isEmpty {
           Text("댓글이 없습니다.")
             .font(.subheadline)
             .foregroundColor(.secondary)
+        } else if commentViewModel.isLoading {
+          ProgressView("Loading comments...")
         } else {
           CommentListView(comments: commentViewModel.comments)
         }
@@ -116,9 +125,8 @@ struct PostDetailView: View {
     .onAppear {
       Task {
         await postViewModel.fetchPostDetail(postID: postID)
-        print("####    onAppear   ", postViewModel.posts)
-      }
         commentViewModel.fetchComments(postId: postID)
+      }
     }
     .sheet(isPresented: $showingEditView) {
       PostWriteView()
@@ -127,21 +135,27 @@ struct PostDetailView: View {
       Alert(title: Text("게시글을 삭제하시겠습니까?"),
             message: Text("삭제된 게시글은 복구할 수 없습니다."),
             primaryButton: .destructive(Text("삭제")) {
-          postViewModel.deletePost(postId: postID)
-            },
+        postViewModel.deletePost(postId: postID)
+      },
             secondaryButton: .cancel())
     }
-    .alert(isPresented: $showingReportView) {
-      Alert(title: Text("게시글을 신고하시겠습니까?"),
-            message: Text("신고된 게시글은 관리자 확인 후 처리됩니다."),
-            primaryButton: .destructive(Text("신고")) {
-              // 신고 로직
-            },
-            secondaryButton: .cancel())
+    // 신고하기
+    .sheet(isPresented: $showingReportView) {
+      ReportView(targetType: "P", targetId: postID)
     }
+  }
+  
+  private func sendComment() {
+    guard !commentText.trimmingCharacters(in: .whitespaces).isEmpty else {
+      commentViewModel.errorMessage = "댓글 내용을 입력해주세요."
+      return
+    }
+    
+    commentViewModel.createComment(content: commentText, postId: postID)
+    commentText = "" // 입력 필드 초기화
   }
 }
 
 #Preview {
-    PostDetailView(postID: 1)
+  PostDetailView(postID: 1)
 }
