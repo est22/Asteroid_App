@@ -20,7 +20,15 @@ struct MyOngoingChallengeView: View {
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack(spacing: 12) {
                         if viewModel.participatingChallenges.isEmpty {
-                            ChallengeCard(title: "주중에 대중교통 이용하기", imageName: "주중에 대중교통 이용하기")
+                            Text("참여중인 챌린지가 없습니다.")
+                                .font(.system(size: 16, weight: .medium))
+                                .foregroundColor(.black)
+                                .multilineTextAlignment(.center)
+                                .frame(width: 150, height: 150)
+                                .background(.gray.opacity(0.2))
+                                .cornerRadius(12)
+                            
+                           
                         } else {
                             ForEach(Array(viewModel.participatingChallenges.enumerated()), id: \.element.id) { index, challenge in
                                 NavigationLink(
