@@ -2,6 +2,7 @@ import SwiftUI
 import SDWebImageSwiftUI
 
 struct PostRowView: View {
+    @EnvironmentObject var postViewModel: PostViewModel
     let post: Post
 
     var body: some View {

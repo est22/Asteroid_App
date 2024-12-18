@@ -26,7 +26,7 @@ struct Post: Identifiable, Codable, Equatable {
     let PostImages: [PostImage]?
     let createdAt: String
     let updatedAt: String
-    let commentCount:Int?
+    var commentCount:Int?
     let user: PostUser?
     
     enum CodingKeys: String, CodingKey {

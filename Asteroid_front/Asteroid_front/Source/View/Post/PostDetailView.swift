@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct PostDetailView: View {
-  @StateObject var postViewModel = PostViewModel()
+  @EnvironmentObject var postViewModel: PostViewModel
   @StateObject var commentViewModel = CommentViewModel()
   @State private var commentText: String = ""
   @State private var showingDeleteAlert = false
@@ -34,6 +34,7 @@ struct PostDetailView: View {
                   onEditTap: { showingEditView = true },
                   onDeleteTap: { showingDeleteAlert = true },
                   onReportTap: { showingReportView = true },
+                  postId: post.id,
                   likeCount: post.likeTotal,
                   isLiked: .constant(true),
                   option: "post", post: post
@@ -99,6 +100,8 @@ struct PostDetailView: View {
             // 전송
             Button(action: {
               sendComment()
+              postViewModel.addComment(to: postID, content: commentText)
+              commentText = ""
             }, label: {
               Image(systemName: "paperplane.fill")
                 .foregroundStyle(Color.keyColor)

@@ -17,6 +17,17 @@ class PostViewModel: ObservableObject {
   private var morePosts = true
   private let endPoint = APIConstants.baseURL 
   
+  // 댓글 추가
+  func addComment(to postId: Int, content: String) {
+        // 댓글 추가 API 호출
+        // 성공 시:
+    commentCount += 1
+    // 댓글 추가 API 호출
+    if let index = posts.firstIndex(where: { $0.id == postId }) {
+      posts[index].commentCount = (posts[index].commentCount ?? 0) + 1
+    }
+  }
+  
   // 게시물 목록 조회
   func fetchPosts(categoryID: Int, search: String) async {
     guard !isLoading, morePosts else { return }
