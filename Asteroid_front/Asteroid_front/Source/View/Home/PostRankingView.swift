@@ -10,11 +10,12 @@ struct PostRankingView: View {
   }
   
   var body: some View {
-    VStack(spacing: 8) {
+    VStack(spacing: 4) {
       // 고정될 제목 부분
       HStack {
         Text("💬 인기 게시글")
           .font(.system(size: 18, weight: .bold))
+          
         Spacer()
       }
       .padding(.horizontal)
@@ -67,6 +68,7 @@ struct PostRankingView: View {
             .stroke(Color.keyColor, lineWidth: 1)
         )
         .padding(.horizontal)
+        .padding(.bottom, 15)
         .animation(isInitialLoad ? nil : .easeInOut(duration: 0.5), value: filteredRankings.count) // 초기 로딩 시 애니메이션 없음
       }
       .transition(.move(edge: .top))
