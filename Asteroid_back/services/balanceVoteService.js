@@ -4,10 +4,9 @@ const models = require("../models");
 const fileUploadService = require("../services/fileUploadService");
 
 // 밸런스 투표화면 및 결과 목록
-const findAllVote = async (limit, offset) => {
+const findAllVote = async () => {
   return await models.BalanceVote.findAndCountAll({
-    limit,
-    offset,
+    where: { isShow: true },
     order: [["id", "DESC"]],
     include: {
       model: models.User,
