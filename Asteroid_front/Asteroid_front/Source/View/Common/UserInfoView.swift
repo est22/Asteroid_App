@@ -120,18 +120,18 @@ struct UserInfoView: View {
         
         Spacer()
         
-        // 좋아요 버튼
-        if option == "post" {
-          Button(action: {
-            print("좋아요 클릭")
-          }) {
-            HStack(spacing: 3) {
-              Text("\(likeCount)")
-              Image(systemName: isLiked ? "heart.fill" : "heart")
-            }
-            .foregroundStyle(Color.red.opacity(0.6))
-          }
-        }
+//        // 좋아요 버튼
+//        if option == "post" {
+//          Button(action: {
+//            print("좋아요 클릭")
+//          }) {
+//            HStack(spacing: 3) {
+//              Text("\(likeCount)")
+//              Image(systemName: isLiked ? "heart.fill" : "heart")
+//            }
+//            .foregroundStyle(Color.red.opacity(0.6))
+//          }
+//        }
         
         // ... 메뉴 버튼
         Menu {

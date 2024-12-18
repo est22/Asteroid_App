@@ -29,13 +29,13 @@ struct PostRowView: View {
                 
                 // 좋아요, 댓글 수 표시
                 HStack(spacing: 8) {
-                    HStack(spacing: 4) {
-                        Image(systemName: "heart")
-                            .foregroundColor(.red.opacity(0.6))
-                        Text("\(post.likeTotal)")
-                            .foregroundColor(.red.opacity(0.6))
-                            .font(.footnote)
-                    }
+//                    HStack(spacing: 4) {
+//                        Image(systemName: "heart")
+//                            .foregroundColor(.red.opacity(0.6))
+//                        Text("\(post.likeTotal)")
+//                            .foregroundColor(.red.opacity(0.6))
+//                            .font(.footnote)
+//                    }
                     
                     HStack(spacing: 4) {
                         Image(systemName: "message")
