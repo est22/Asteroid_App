@@ -18,7 +18,7 @@ struct PostDetailView: View {
         if postViewModel.isLoading {
           ProgressView("Loading post")
         } else if let post = postViewModel.posts.first(where: { $0.id == postID }) {
-          VStack(alignment: .leading, spacing: 16) {
+          VStack(alignment: .leading, spacing: 0) {
             HStack {
                 // 유저 정보 및 타이틀
                 UserInfoView(
@@ -37,10 +37,14 @@ struct PostDetailView: View {
                 )
             }
             
+
             // 내용
             Text(post.content)
-              .font(.body)
-              .foregroundColor(.primary)
+                .font(.subheadline)
+                .lineSpacing(4)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.top, 8)
+                .padding(.bottom, 20)
             
             // 이미지
             if let firstImageURL = post.PostImages?.first?.imageURL, !firstImageURL.isEmpty {
@@ -63,9 +67,9 @@ struct PostDetailView: View {
                 @unknown default:
                   EmptyView()
                 }
-              }
+              }.padding(.bottom, 30)
             }
-            Divider()
+            Divider().padding(.bottom, 10)
             // 댓글 갯수
             HStack(spacing: 3) {
                 Image(systemName: "ellipsis.bubble")

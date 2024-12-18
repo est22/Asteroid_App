@@ -68,7 +68,7 @@ struct ChallengeCard: View {
             VStack {
                 Spacer()
                 Text(title)
-                    .font(.system(size: 18, weight: .bold))
+                    .font(.system(size: 17, weight: .bold))
                     .foregroundColor(.white)
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 4)
