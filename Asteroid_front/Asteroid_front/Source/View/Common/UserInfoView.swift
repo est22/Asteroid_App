@@ -121,8 +121,12 @@ struct UserInfoView: View {
             Button("신고") {
               onReportTap()
             }
-            Button("쪽지 보내기") {
-              // 쪽지 보내기 기능
+            
+            // 쪽지 보내기
+            NavigationLink(
+              destination: MessageListView(chatUser: MessageUser(id: userID, nickname: nickname, profilePhoto: profileImageURL))
+            ) {
+              Text("쪽지 보내기")
             }
           }
         } label: {
