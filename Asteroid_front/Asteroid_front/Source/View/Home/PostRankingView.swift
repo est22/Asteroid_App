@@ -3,6 +3,7 @@ import SwiftUI
 struct PostRankingView: View {
   @StateObject private var viewModel = RankingViewModel()
   @State private var selectedFilter = 0
+  @State private var isInitialLoad = true
    
   var filteredRankings: [PostRanking] {
     viewModel.postRankings 
@@ -50,7 +51,6 @@ struct PostRankingView: View {
         VStack(spacing: 0) {
           let topRankings = filteredRankings.prefix(5)
           
-          
           ForEach(Array(topRankings.enumerated()), id: \.element.id) { index, ranking in
             CommunityRankingRow(ranking: ranking, rank: index + 1)
             
@@ -67,12 +67,16 @@ struct PostRankingView: View {
             .stroke(Color.keyColor, lineWidth: 1)
         )
         .padding(.horizontal)
+        .animation(isInitialLoad ? nil : .easeInOut(duration: 0.5), value: filteredRankings.count) // 초기 로딩 시 애니메이션 없음
       }
       .transition(.move(edge: .top))
     }
     .frame(height: UIScreen.main.bounds.height * 0.3)
     .task {
       await viewModel.fetchPostRankings(categoryId: 1)
+    }
+    .onAppear {
+      isInitialLoad = false // 뷰가 나타난 후 초기 로딩 상태 해제
     }
   }
 }
