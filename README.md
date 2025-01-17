@@ -1,3 +1,10 @@
+<img width="1192" alt="image" src="https://github.com/user-attachments/assets/5e11e27f-0ffe-4b76-b30f-dd79b04c1047" />
+<img width="1191" alt="image" src="https://github.com/user-attachments/assets/4dc5cc32-f5f7-4cea-abfa-9db5b5b26e9d" />
+<img width="1193" alt="image" src="https://github.com/user-attachments/assets/5955bcdc-6de7-40bc-be8a-94872f8d4fcc" />
+<img width="1190" alt="image" src="https://github.com/user-attachments/assets/682e1f23-ad80-425d-b538-325baa13dddc" />
+
+
+
 ## ER Diagram
 <!-- Mermaid Diagram Start -->
 
@@ -166,3 +173,10 @@ erDiagram
     Report |o--|| User: "is reported from"
     Report |o--|| Post: "is reported from"
     Report |o--|| Comment: "is reported from"
+
+
+```
+## API design
+[Postman Documentation](https://documenter.getpostman.com/view/38162124/2sAYQakqmK)
+
+
